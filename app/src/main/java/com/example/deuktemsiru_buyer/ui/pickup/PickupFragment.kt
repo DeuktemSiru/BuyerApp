@@ -11,8 +11,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.deuktemsiru_buyer.data.SampleData
+import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.FragmentPickupBinding
+import com.example.deuktemsiru_buyer.network.RetrofitClient
+import kotlinx.coroutines.launch
 
 class PickupFragment : Fragment() {
 
@@ -22,8 +26,7 @@ class PickupFragment : Fragment() {
     private val handler = Handler(Looper.getMainLooper())
     private var remainingSeconds = 42 * 60
     private var timerRunnable: Runnable? = null
-
-    private val pickupCode = "A42K"
+    private var pickupCode = "----"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,12 +40,12 @@ class PickupFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.tvPickupTime.text = "5시 30분까지"
-        binding.tvPickupCode.text = pickupCode.chunked(1).joinToString(" ")
-        binding.tvStoreName.text = "파리바게뜨 정왕점"
-        binding.tvStoreAddress.text = "경기도 시흥시 정왕동 1234-56"
-        binding.tvOrderMenu.text = "아침 세트 A"
-        binding.tvPaidPrice.text = SampleData.formatPrice(5000)
+        val session = SessionManager(requireContext())
+        val orderId = session.lastOrderId
+
+        if (orderId > 0L) {
+            loadOrder(orderId)
+        }
 
         startCountdown()
 
@@ -58,13 +61,36 @@ class PickupFragment : Fragment() {
         }
 
         binding.btnCall.setOnClickListener {
-            Toast.makeText(requireContext(), "031-123-4567", Toast.LENGTH_SHORT).show()
+            val phone = binding.tvStoreAddress.tag as? String ?: ""
+            Toast.makeText(requireContext(), phone.ifEmpty { "전화번호를 불러오는 중..." }, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun loadOrder(orderId: Long) {
+        lifecycleScope.launch {
+            try {
+                val order = RetrofitClient.api.getOrder(orderId)
+                pickupCode = order.pickupCode
+
+                binding.tvPickupTime.text = "${order.pickupTime}까지"
+                binding.tvPickupCode.text = order.pickupCode.chunked(1).joinToString(" ")
+                binding.tvStoreName.text = order.storeName
+                binding.tvOrderMenu.text = order.items.joinToString(", ") { "${it.emoji} ${it.name}" }
+                binding.tvPaidPrice.text = SampleData.formatPrice(order.totalAmount)
+
+                val store = RetrofitClient.api.getStore(order.storeId)
+                binding.tvStoreAddress.text = store.address
+                binding.tvStoreAddress.tag = store.phone
+            } catch (e: Exception) {
+                // 오류 시 기존 표시 유지
+            }
         }
     }
 
     private fun startCountdown() {
         timerRunnable = object : Runnable {
             override fun run() {
+                if (_binding == null) return
                 if (remainingSeconds > 0) {
                     val mins = remainingSeconds / 60
                     val secs = remainingSeconds % 60

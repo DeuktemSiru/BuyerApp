@@ -12,8 +12,6 @@
     <string name="btn_explore">둘러보기</string>
 
     <!-- Home -->
-    <string name="home_headline_1">오늘만이 놓치면</string>
-    <string name="home_headline_2">아까운 6곳이 있어요 🔥</string>
     <string name="home_empty">조금 더 기다려볼까요?</string>
     <string name="home_empty_sub">주변에 마감 임박 가게가 없어요.\n알림 신청 시 바로 알려드릴게요!</string>
     <string name="btn_notify_me">알림 신청하기</string>
@@ -42,14 +40,22 @@
     <string name="payment_title">결제</string>
     <string name="label_pickup_time_select">픽업 시간 선택</string>
     <string name="label_payment_method">결제 수단</string>
+    <string name="payment_method_siru">시흥시 지역화폐 시루</string>
+    <string name="payment_method_siru_balance">모바일 시루 잔액 23,400원</string>
+    <string name="payment_method_siru_notice">시흥시 관내 가맹점에서 사용할 수 있는 지역화폐로 결제돼요.</string>
     <string name="label_coupon">쿠폰</string>
     <string name="label_coupon_available">%d장 사용 가능</string>
+    <string name="payment_coupon_available_mock">2장 사용 가능</string>
     <string name="label_order_price">주문 금액</string>
     <string name="label_closing_discount">마감 할인</string>
     <string name="label_first_order_discount">첫 주문 추가 할인</string>
     <string name="label_final_price">최종 결제</string>
     <string name="btn_pay">%s원 결제하고 음식 구하기</string>
+    <string name="btn_pay_mock">5,000원 결제하고 음식 구하기</string>
+    <string name="btn_pay_siru">%s 시루로 결제하고 음식 구하기</string>
+    <string name="payment_processing_siru">시루로 결제 중...</string>
     <string name="label_deadline_slot">마감 직전</string>
+    <string name="payment_deadline_slot_1830">18:30 마감 직전</string>
 
     <!-- Pickup -->
     <string name="pickup_badge">픽업 대기 중</string>
@@ -71,24 +77,12 @@
     <string name="menu_favorite_places">자주 가는 위치</string>
     <string name="menu_notifications">알림 설정</string>
     <string name="menu_support">고객 문의</string>
-    <string name="menu_owner">사장님 메뉴 등록</string>
     <string name="grade_sprout">🌱 새싹</string>
     <string name="grade_tree">🌳 나무</string>
     <string name="grade_forest">🌲 숲</string>
 
     <!-- Map -->
     <string name="map_search_hint">위치나 가게 이름 검색</string>
-
-    <!-- Owner Register -->
-    <string name="owner_title">마감 메뉴 등록</string>
-    <string name="owner_guide">3분이면 끝나요.\n사진 찍고, 가격 정하고, 등록</string>
-    <string name="label_original_price">정상가</string>
-    <string name="label_discount_price">마감 할인가</string>
-    <string name="label_stock">수량</string>
-    <string name="label_pickup_start">픽업 시작</string>
-    <string name="label_pickup_end">마감 시간</string>
-    <string name="btn_preview">미리보기</string>
-    <string name="btn_register">등록하고 알림 보내기</string>
 
     <!-- Bottom Navigation -->
     <string name="nav_home">홈</string>

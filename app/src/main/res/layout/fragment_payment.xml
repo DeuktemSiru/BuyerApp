@@ -14,9 +14,8 @@
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:background="@color/white"
-        android:paddingHorizontal="8dp"
-        android:paddingVertical="4dp"
-        android:elevation="2dp">
+        android:paddingHorizontal="@dimen/spacing_sm"
+        android:paddingVertical="@dimen/spacing_xs">
 
         <ImageButton
             android:id="@+id/btn_back"
@@ -30,7 +29,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="결제"
+            android:text="@string/payment_title"
             android:textSize="@dimen/text_title"
             android:fontFamily="sans-serif-medium"
             android:textColor="@color/color_text"
@@ -42,8 +41,8 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="56dp"
-        android:layout_marginBottom="80dp">
+        android:layout_marginTop="@dimen/toolbar_height"
+        android:layout_marginBottom="@dimen/bottom_cta_offset">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -59,11 +58,11 @@
                 android:gravity="center_vertical"
                 android:background="@color/white"
                 android:padding="@dimen/spacing_lg"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="@dimen/spacing_md">
 
                 <FrameLayout
-                    android:layout_width="56dp"
-                    android:layout_height="56dp">
+                    android:layout_width="@dimen/payment_thumbnail_size"
+                    android:layout_height="@dimen/payment_thumbnail_size">
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -73,7 +72,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:text="🥐"
-                        android:textSize="24sp" />
+                        android:textSize="@dimen/emoji_lg" />
                 </FrameLayout>
 
                 <LinearLayout
@@ -81,7 +80,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical"
-                    android:layout_marginStart="12dp">
+                    android:layout_marginStart="@dimen/spacing_md">
 
                     <TextView
                         android:id="@+id/tv_store_name"
@@ -96,7 +95,7 @@
                         android:id="@+id/tv_menu_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
+                        android:layout_marginTop="@dimen/spacing_xs"
                         android:text="아침 세트 A 외 1개"
                         android:textSize="@dimen/text_caption"
                         android:textColor="@color/color_text_sub" />
@@ -107,61 +106,64 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="픽업 시간 선택"
+                android:text="@string/label_pickup_time_select"
                 android:textSize="@dimen/text_title"
                 android:fontFamily="sans-serif-medium"
                 android:textColor="@color/color_text"
-                android:layout_marginBottom="10dp" />
+                android:layout_marginBottom="@dimen/spacing_sm" />
 
             <androidx.gridlayout.widget.GridLayout
                 android:id="@+id/grid_time_slots"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="@dimen/spacing_lg"
                 app:columnCount="2"
                 app:rowCount="2">
 
                 <Button
                     android:id="@+id/slot_1"
                     android:layout_width="0dp"
-                    android:layout_height="52dp"
+                    android:layout_height="@dimen/payment_slot_height"
                     app:layout_columnWeight="1"
-                    android:layout_margin="4dp"
+                    android:layout_margin="@dimen/spacing_xs"
                     android:text="17:00"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/text_body"
                     android:textColor="@color/color_text"
                     android:background="@drawable/bg_time_slot_selected"
+                    app:backgroundTint="@null"
                     android:stateListAnimator="@null" />
 
                 <Button
                     android:id="@+id/slot_2"
                     android:layout_width="0dp"
-                    android:layout_height="52dp"
+                    android:layout_height="@dimen/payment_slot_height"
                     app:layout_columnWeight="1"
-                    android:layout_margin="4dp"
+                    android:layout_margin="@dimen/spacing_xs"
                     android:text="17:30"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/text_body"
                     android:textColor="@color/color_text"
                     android:background="@drawable/bg_time_slot"
+                    app:backgroundTint="@null"
                     android:stateListAnimator="@null" />
 
                 <Button
                     android:id="@+id/slot_3"
                     android:layout_width="0dp"
-                    android:layout_height="52dp"
+                    android:layout_height="@dimen/payment_slot_height"
                     app:layout_columnWeight="1"
-                    android:layout_margin="4dp"
+                    android:layout_margin="@dimen/spacing_xs"
                     android:text="18:00"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/text_body"
                     android:textColor="@color/color_text"
                     android:background="@drawable/bg_time_slot"
+                    app:backgroundTint="@null"
                     android:stateListAnimator="@null" />
 
                 <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_height="52dp"
+                    android:layout_height="@dimen/payment_slot_height"
                     app:layout_columnWeight="1"
-                    android:layout_margin="4dp"
+                    android:layout_margin="@dimen/spacing_xs"
                     android:orientation="vertical"
                     android:gravity="center"
                     android:background="@drawable/bg_time_slot">
@@ -170,10 +172,11 @@
                         android:id="@+id/slot_4"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:text="18:30 마감 직전"
-                        android:textSize="13sp"
+                        android:text="@string/payment_deadline_slot_1830"
+                        android:textSize="@dimen/text_caption"
                         android:textColor="@color/danger"
                         android:background="@android:color/transparent"
+                        app:backgroundTint="@null"
                         android:stateListAnimator="@null" />
                 </LinearLayout>
 
@@ -183,52 +186,50 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="결제 수단"
+                android:text="@string/label_payment_method"
                 android:textSize="@dimen/text_title"
                 android:fontFamily="sans-serif-medium"
                 android:textColor="@color/color_text"
-                android:layout_marginBottom="10dp" />
+                android:layout_marginBottom="@dimen/spacing_sm" />
 
-            <RadioGroup
-                android:id="@+id/rg_payment"
+            <LinearLayout
+                android:id="@+id/ll_siru_payment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:padding="@dimen/spacing_md"
-                android:layout_marginBottom="12dp">
+                android:orientation="vertical"
+                android:background="@drawable/bg_siru_payment"
+                android:padding="@dimen/spacing_lg"
+                android:layout_marginBottom="@dimen/spacing_md">
 
                 <RadioButton
-                    android:id="@+id/rb_shinhan"
+                    android:id="@+id/rb_siru"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/touch_target_min"
-                    android:text="신한카드"
+                    android:text="@string/payment_method_siru"
                     android:textSize="@dimen/text_body"
-                    android:textColor="@color/color_text"
-                    android:buttonTint="@color/primary"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/siru_green"
+                    android:buttonTint="@color/siru_green"
+                    android:clickable="false"
                     android:checked="true" />
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/color_border" />
-
-                <RadioButton
-                    android:id="@+id/rb_kakao"
+                <TextView
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/touch_target_min"
-                    android:text="카카오페이"
-                    android:textSize="@dimen/text_body"
-                    android:textColor="@color/color_text"
-                    android:buttonTint="@color/primary" />
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/touch_target_min"
+                    android:text="@string/payment_method_siru_balance"
+                    android:textSize="@dimen/text_caption"
+                    android:textColor="@color/color_text" />
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/color_border" />
-
-                <RadioButton
-                    android:id="@+id/rb_naver"
+                <TextView
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/touch_target_min"
-                    android:text="네이버페이"
-                    android:textSize="@dimen/text_body"
-                    android:textColor="@color/color_text"
-                    android:buttonTint="@color/primary" />
-            </RadioGroup>
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/touch_target_min"
+                    android:layout_marginTop="@dimen/spacing_xs"
+                    android:text="@string/payment_method_siru_notice"
+                    android:textSize="@dimen/text_caption"
+                    android:textColor="@color/color_text_sub" />
+            </LinearLayout>
 
             <!-- Coupon row -->
             <LinearLayout
@@ -238,28 +239,28 @@
                 android:gravity="center_vertical"
                 android:background="@color/white"
                 android:paddingHorizontal="@dimen/spacing_lg"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="@dimen/spacing_md">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="쿠폰"
+                    android:text="@string/label_coupon"
                     android:textSize="@dimen/text_body"
                     android:textColor="@color/color_text" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="2장 사용 가능"
+                    android:text="@string/payment_coupon_available_mock"
                     android:textSize="@dimen/text_body"
                     android:textColor="@color/primary" />
 
                 <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
+                    android:layout_width="@dimen/icon_sm"
+                    android:layout_height="@dimen/icon_sm"
                     android:src="@drawable/ic_arrow_right"
-                    android:layout_marginStart="4dp"
+                    android:layout_marginStart="@dimen/spacing_xs"
                     android:contentDescription="쿠폰 선택" />
             </LinearLayout>
 
@@ -270,27 +271,27 @@
                 android:orientation="vertical"
                 android:background="@color/white"
                 android:padding="@dimen/spacing_lg"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="@dimen/spacing_md">
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/touch_target_min" android:orientation="horizontal" android:gravity="center_vertical">
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="주문 금액" android:textSize="@dimen/text_body" android:textColor="@color/color_text_sub" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/label_order_price" android:textSize="@dimen/text_body" android:textColor="@color/color_text_sub" />
                     <TextView android:id="@+id/tv_order_price" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="15,000원" android:textSize="@dimen/text_body" android:textColor="@color/color_text" />
                 </LinearLayout>
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/touch_target_min" android:orientation="horizontal" android:gravity="center_vertical">
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="마감 할인" android:textSize="@dimen/text_body" android:textColor="@color/color_text_sub" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/label_closing_discount" android:textSize="@dimen/text_body" android:textColor="@color/color_text_sub" />
                     <TextView android:id="@+id/tv_discount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-9,000원" android:textSize="@dimen/text_body" android:textColor="@color/danger" />
                 </LinearLayout>
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/touch_target_min" android:orientation="horizontal" android:gravity="center_vertical">
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="첫 주문 추가 할인" android:textSize="@dimen/text_body" android:textColor="@color/color_text_sub" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/label_first_order_discount" android:textSize="@dimen/text_body" android:textColor="@color/color_text_sub" />
                     <TextView android:id="@+id/tv_extra_discount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-1,000원" android:textSize="@dimen/text_body" android:textColor="@color/danger" />
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/color_border" android:layout_marginVertical="8dp" />
+                <View android:layout_width="match_parent" android:layout_height="@dimen/payment_divider_height" android:background="@color/color_border" android:layout_marginVertical="@dimen/spacing_sm" />
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/touch_target_min" android:orientation="horizontal" android:gravity="center_vertical">
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="최종 결제" android:textSize="@dimen/text_title" android:fontFamily="sans-serif-medium" android:textColor="@color/color_text" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/label_final_price" android:textSize="@dimen/text_title" android:fontFamily="sans-serif-medium" android:textColor="@color/color_text" />
                     <TextView android:id="@+id/tv_final_price" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="5,000원" android:textSize="@dimen/text_title" android:fontFamily="sans-serif-medium" android:textColor="@color/primary" />
                 </LinearLayout>
             </LinearLayout>
@@ -308,8 +309,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="🌱"
-                    android:textSize="18sp"
-                    android:layout_marginEnd="8dp" />
+                    android:textSize="@dimen/emoji_md"
+                    android:layout_marginEnd="@dimen/spacing_sm" />
 
                 <TextView
                     android:id="@+id/tv_savings_message"
@@ -331,15 +332,14 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="@color/white"
-        android:padding="@dimen/spacing_lg"
-        android:elevation="8dp">
+        android:padding="@dimen/spacing_lg">
 
         <Button
             android:id="@+id/btn_pay"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:text="5,000원 결제하고 음식 구하기"
-            android:textSize="15sp"
+            android:layout_height="@dimen/cta_button_height"
+            android:text="@string/btn_pay_mock"
+            android:textSize="@dimen/text_button"
             android:fontFamily="sans-serif-medium"
             android:textColor="@color/white"
             android:background="@drawable/bg_primary_button"

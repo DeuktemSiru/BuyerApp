@@ -10,6 +10,8 @@
     <color name="danger">#FF3B30</color>
     <color name="warning">#FF8800</color>
     <color name="success">#3B7D3F</color>
+    <color name="siru_green">#1F8A5B</color>
+    <color name="siru_light">#EAF7F0</color>
     <color name="color_text">#1A1A1A</color>
     <color name="color_text_sub">#666666</color>
     <color name="color_text_muted">#999999</color>

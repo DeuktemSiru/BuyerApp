@@ -4,14 +4,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.deuktemsiru_buyer.R
-import com.example.deuktemsiru_buyer.data.SampleData
+import com.example.deuktemsiru_buyer.data.SessionManager
+import com.example.deuktemsiru_buyer.data.toStore
 import com.example.deuktemsiru_buyer.databinding.FragmentWishlistBinding
+import com.example.deuktemsiru_buyer.network.RetrofitClient
 import com.example.deuktemsiru_buyer.ui.home.StoreAdapter
+import kotlinx.coroutines.launch
 
 class WishlistFragment : Fragment() {
 
@@ -30,22 +35,29 @@ class WishlistFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val wishlisted = SampleData.stores.filter { it.isWishlisted }
+        val session = SessionManager(requireContext())
+        if (!session.isLoggedIn()) return
 
-        val adapter = StoreAdapter(
-            stores = wishlisted,
-            onStoreClick = { store ->
-                findNavController().navigate(
-                    R.id.action_home_to_storeDetail,
-                    bundleOf("storeId" to store.id)
+        lifecycleScope.launch {
+            try {
+                val stores = RetrofitClient.api.getWishlist(session.userId).map { it.toStore() }
+                val adapter = StoreAdapter(
+                    stores = stores,
+                    onStoreClick = { store ->
+                        findNavController().navigate(
+                            R.id.action_wishlist_to_storeDetail,
+                            bundleOf("storeId" to store.id)
+                        )
+                    },
+                    onWishlistClick = {}
                 )
-            },
-            onWishlistClick = {}
-        )
-
-        binding.rvWishlist.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            this.adapter = adapter
+                binding.rvWishlist.apply {
+                    layoutManager = LinearLayoutManager(requireContext())
+                    this.adapter = adapter
+                }
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "찜 목록을 불러오지 못했어요.", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
