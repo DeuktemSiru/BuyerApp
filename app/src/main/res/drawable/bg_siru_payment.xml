@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/siru_light" />
+    <stroke
+        android:width="@dimen/payment_divider_height"
+        android:color="@color/siru_green" />
+    <corners android:radius="@dimen/radius_md" />
+</shape>

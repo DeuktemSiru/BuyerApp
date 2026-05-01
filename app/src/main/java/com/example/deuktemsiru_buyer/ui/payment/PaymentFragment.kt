@@ -1,16 +1,24 @@
 package com.example.deuktemsiru_buyer.ui.payment
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.SampleData
+import com.example.deuktemsiru_buyer.data.SessionManager
+import com.example.deuktemsiru_buyer.data.toStore
 import com.example.deuktemsiru_buyer.databinding.FragmentPaymentBinding
+import com.example.deuktemsiru_buyer.network.CreateOrderRequest
+import com.example.deuktemsiru_buyer.network.OrderItemRequest
+import com.example.deuktemsiru_buyer.network.RetrofitClient
+import kotlinx.coroutines.launch
 
 class PaymentFragment : Fragment() {
 
@@ -18,6 +26,7 @@ class PaymentFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var selectedSlot = 1
+    private val timeSlots = listOf("17:00", "17:30", "18:00", "18:30")
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,35 +40,76 @@ class PaymentFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val session = SessionManager(requireContext())
         val storeId = arguments?.getInt("storeId") ?: 1
+        val menuId = arguments?.getInt("menuId") ?: 0
         val totalPrice = arguments?.getInt("totalPrice") ?: 5900
-        val store = SampleData.getStoreById(storeId) ?: SampleData.stores.first()
-
-        binding.tvStoreName.text = store.name
-        binding.tvMenuName.text = "${store.menus.firstOrNull()?.name ?: "메뉴"} 외 ${(store.menus.size - 1).coerceAtLeast(0)}개"
-
-        val originalTotal = store.menus.filter { !it.isSoldOut }.sumOf { it.originalPrice }
-        val discountAmount = originalTotal - totalPrice
-        val extraDiscount = 1000
-        val finalPrice = (totalPrice - extraDiscount).coerceAtLeast(100)
-
-        binding.tvOrderPrice.text = SampleData.formatPrice(originalTotal.coerceAtLeast(totalPrice))
-        binding.tvDiscount.text = "-${SampleData.formatPrice(discountAmount)}"
-        binding.tvExtraDiscount.text = "-${SampleData.formatPrice(extraDiscount)}"
-        binding.tvFinalPrice.text = SampleData.formatPrice(finalPrice)
-        binding.tvSavingsMessage.text = "${SampleData.formatPrice(discountAmount + extraDiscount)}을 절약하고 음식 ${store.menus.filter { !it.isSoldOut }.size}개를 구해요"
-        binding.btnPay.text = "${SampleData.formatPrice(finalPrice)} 결제하고 음식 구하기"
-
-        setupTimeSlots()
 
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
+        setupTimeSlots()
 
-        binding.btnPay.setOnClickListener {
-            binding.btnPay.isEnabled = false
-            binding.btnPay.text = "결제 중..."
-            binding.root.postDelayed({
-                findNavController().navigate(R.id.action_payment_to_pickup)
-            }, 1500)
+        lifecycleScope.launch {
+            try {
+                val userId = if (session.isLoggedIn()) session.userId else null
+                val storeResponse = RetrofitClient.api.getStore(storeId.toLong(), userId)
+                val store = storeResponse.toStore()
+                val selectedMenu = storeResponse.menus
+                    .firstOrNull { it.id.toInt() == menuId && !it.isSoldOut }
+                    ?: storeResponse.menus.firstOrNull { !it.isSoldOut }
+
+                binding.tvStoreName.text = store.name
+                binding.tvMenuName.text = selectedMenu?.name ?: "주문 가능한 메뉴 없음"
+
+                val originalTotal = selectedMenu?.originalPrice ?: totalPrice
+                val discountedTotal = selectedMenu?.discountedPrice ?: totalPrice
+                val discountAmount = originalTotal - discountedTotal
+                val extraDiscount = 1000
+                val finalPrice = (discountedTotal - extraDiscount).coerceAtLeast(100)
+
+                binding.tvOrderPrice.text = SampleData.formatPrice(originalTotal)
+                binding.tvDiscount.text = "-${SampleData.formatPrice(discountAmount)}"
+                binding.tvExtraDiscount.text = "-${SampleData.formatPrice(extraDiscount)}"
+                binding.tvFinalPrice.text = SampleData.formatPrice(finalPrice)
+                binding.tvSavingsMessage.text = "${SampleData.formatPrice(discountAmount + extraDiscount)}을 절약하고 음식 1개를 구해요"
+                binding.btnPay.text = getString(R.string.btn_pay_siru, SampleData.formatPrice(finalPrice))
+
+                binding.btnPay.setOnClickListener {
+                    val pickupTime = timeSlots.getOrElse(selectedSlot - 1) { "17:00" }
+                    val orderItems = selectedMenu?.let {
+                        listOf(OrderItemRequest(menuItemId = it.id, quantity = 1))
+                    }.orEmpty()
+
+                    if (orderItems.isEmpty()) {
+                        Toast.makeText(requireContext(), "주문 가능한 메뉴가 없어요.", Toast.LENGTH_SHORT).show()
+                        return@setOnClickListener
+                    }
+
+                    binding.btnPay.isEnabled = false
+                    binding.btnPay.text = getString(R.string.payment_processing_siru)
+
+                    lifecycleScope.launch {
+                        try {
+                            val order = RetrofitClient.api.createOrder(
+                                buyerId = session.userId,
+                                req = CreateOrderRequest(
+                                    storeId = storeId.toLong(),
+                                    items = orderItems,
+                                    pickupTime = pickupTime,
+                                )
+                            )
+                            session.lastOrderId = order.id
+                            findNavController().navigate(R.id.action_payment_to_pickup)
+                        } catch (e: Exception) {
+                            Toast.makeText(requireContext(), "결제 중 오류가 발생했어요.", Toast.LENGTH_SHORT).show()
+                            binding.btnPay.isEnabled = true
+                            binding.btnPay.text = getString(R.string.btn_pay_siru, SampleData.formatPrice(finalPrice))
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "가게 정보를 불러오지 못했어요.", Toast.LENGTH_SHORT).show()
+                findNavController().popBackStack()
+            }
         }
     }
 
@@ -76,12 +126,13 @@ class PaymentFragment : Fragment() {
 
     private fun updateSlotSelection(slots: List<Button>) {
         slots.forEachIndexed { index, slot ->
+            slot.backgroundTintList = null
             if (index + 1 == selectedSlot) {
                 slot.setBackgroundResource(R.drawable.bg_time_slot_selected)
-                slot.setTextColor(Color.parseColor("#FF5C2E"))
+                slot.setTextColor(ContextCompat.getColor(requireContext(), R.color.primary_dark))
             } else {
                 slot.setBackgroundResource(R.drawable.bg_time_slot)
-                slot.setTextColor(Color.parseColor("#1A1A1A"))
+                slot.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_text))
             }
         }
     }

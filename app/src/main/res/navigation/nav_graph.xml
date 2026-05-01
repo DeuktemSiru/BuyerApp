@@ -36,7 +36,11 @@
     <fragment
         android:id="@+id/wishlistFragment"
         android:name="com.example.deuktemsiru_buyer.ui.wishlist.WishlistFragment"
-        android:label="찜" />
+        android:label="찜">
+        <action
+            android:id="@+id/action_wishlist_to_storeDetail"
+            app:destination="@id/storeDetailFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/ordersFragment"
@@ -46,11 +50,7 @@
     <fragment
         android:id="@+id/myPageFragment"
         android:name="com.example.deuktemsiru_buyer.ui.mypage.MyPageFragment"
-        android:label="마이">
-        <action
-            android:id="@+id/action_mypage_to_ownerRegister"
-            app:destination="@id/ownerRegisterFragment" />
-    </fragment>
+        android:label="마이" />
 
     <fragment
         android:id="@+id/storeDetailFragment"
@@ -77,6 +77,10 @@
             android:name="totalPrice"
             app:argType="integer"
             android:defaultValue="0" />
+        <argument
+            android:name="menuId"
+            app:argType="integer"
+            android:defaultValue="0" />
         <action
             android:id="@+id/action_payment_to_pickup"
             app:destination="@id/pickupFragment"
@@ -88,9 +92,5 @@
         android:name="com.example.deuktemsiru_buyer.ui.pickup.PickupFragment"
         android:label="픽업 안내" />
 
-    <fragment
-        android:id="@+id/ownerRegisterFragment"
-        android:name="com.example.deuktemsiru_buyer.ui.owner.OwnerRegisterFragment"
-        android:label="마감 메뉴 등록" />
 
 </navigation>

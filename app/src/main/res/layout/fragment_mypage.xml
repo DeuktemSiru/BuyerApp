@@ -520,32 +520,6 @@
                     android:contentDescription="이동" />
             </LinearLayout>
 
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/color_border" android:layout_marginHorizontal="@dimen/spacing_lg" />
-
-            <LinearLayout
-                android:id="@+id/menu_owner"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/touch_target_min"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingHorizontal="@dimen/spacing_lg"
-                android:foreground="?attr/selectableItemBackground">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="사장님 메뉴 등록"
-                    android:textSize="@dimen/text_body"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/primary" />
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_arrow_right"
-                    android:contentDescription="이동" />
-            </LinearLayout>
         </LinearLayout>
 
         <View android:layout_width="match_parent" android:layout_height="24dp" />
