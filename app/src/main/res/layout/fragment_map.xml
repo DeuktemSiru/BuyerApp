@@ -6,106 +6,14 @@
     android:layout_height="match_parent"
     android:background="@color/color_surface">
 
-    <!-- Map placeholder (실제 구현 시 Naver Map Fragment로 교체) -->
-    <FrameLayout
-        android:id="@+id/fl_map"
+    <com.mapbox.maps.MapView
+        android:id="@+id/map_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="#D4E8C2"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/ll_bottom_sheet"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <!-- Grid lines to mimic map -->
-        <GridLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:columnCount="4"
-            android:rowCount="6"
-            android:alpha="0.3">
-        </GridLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="🗺️"
-            android:textSize="48sp"
-            android:alpha="0.4" />
-
-        <!-- Mock map pins -->
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="40dp"
-            android:layout_marginTop="-40dp">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:paddingHorizontal="10dp"
-                android:background="@drawable/bg_discount_badge">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="60% 5,900원"
-                    android:textSize="10sp"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/white" />
-            </LinearLayout>
-        </FrameLayout>
-
-        <FrameLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginEnd="50dp"
-            android:layout_marginTop="60dp">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:paddingHorizontal="10dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="50% 8,500원"
-                    android:textSize="10sp"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/white"
-                    android:background="@drawable/bg_chip_selected"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="4dp" />
-            </LinearLayout>
-        </FrameLayout>
-
-        <!-- Current location dot -->
-        <FrameLayout
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="center">
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:alpha="0.2"
-                android:background="@drawable/bg_timer_circle" />
-
-            <View
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:layout_gravity="center"
-                android:background="@drawable/bg_timer_circle" />
-        </FrameLayout>
-    </FrameLayout>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Category chips -->
     <HorizontalScrollView
