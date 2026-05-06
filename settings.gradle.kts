@@ -1,10 +1,3 @@
-import java.util.Properties
-
-val localProperties = Properties().apply {
-    val f = file("local.properties")
-    if (f.exists()) load(f.inputStream())
-}
-
 pluginManagement {
     repositories {
         google {
@@ -26,16 +19,6 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven {
-            url = uri("https://api.mapbox.com/downloads/v2/releases/maven")
-            credentials {
-                username = "mapbox"
-                password = localProperties.getProperty("MAPBOX_SECRET_TOKEN") ?: ""
-            }
-            authentication {
-                create<BasicAuthentication>("basic")
-            }
-        }
     }
 }
 

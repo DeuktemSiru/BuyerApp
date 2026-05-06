@@ -83,7 +83,6 @@
 
     <!-- Map -->
     <string name="map_search_hint">위치나 가게 이름 검색</string>
-    <string name="mapbox_access_token"> <!-- 이곳에 토큰 입력 --> </string>
 
     <!-- Bottom Navigation -->
     <string name="nav_home">홈</string>
