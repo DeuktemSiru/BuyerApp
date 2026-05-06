@@ -1,5 +1,7 @@
 package com.example.deuktemsiru_buyer
 
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -8,8 +10,15 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.deuktemsiru_buyer.databinding.ActivityMainBinding
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
+
+    override fun attachBaseContext(newBase: Context) {
+        val config = Configuration(newBase.resources.configuration)
+        config.setLocale(Locale.KOREAN)
+        super.attachBaseContext(newBase.createConfigurationContext(config))
+    }
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
