@@ -18,6 +18,8 @@ data class Store(
     val minutesUntilClose: Int,
     val address: String,
     val phone: String,
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0,
     var isWishlisted: Boolean = false,
     val menus: List<MenuItem> = emptyList()
 )
@@ -50,6 +52,8 @@ object SampleData {
             minutesUntilClose = 22,
             address = "경기도 시흥시 정왕동 1234-56",
             phone = "031-123-4567",
+            latitude = 37.3519,
+            longitude = 126.7427,
             menus = listOf(
                 MenuItem(1, "아침 세트 A", "🥐", 12000, 4800, 60, 2),
                 MenuItem(2, "크루아상 2개", "🥖", 7000, 2800, 60, 1),
@@ -71,6 +75,8 @@ object SampleData {
             minutesUntilClose = 48,
             address = "경기도 시흥시 정왕동 789-12",
             phone = "031-234-5678",
+            latitude = 37.3454,
+            longitude = 126.7373,
             menus = listOf(
                 MenuItem(5, "불고기 도시락", "🍱", 8500, 4200, 50, 3),
                 MenuItem(6, "참치마요 도시락", "🐟", 7500, 3700, 51, 2),
@@ -91,6 +97,8 @@ object SampleData {
             minutesUntilClose = 15,
             address = "경기도 시흥시 정왕동 456-78",
             phone = "031-345-6789",
+            latitude = 37.3491,
+            longitude = 126.7362,
             menus = listOf(
                 MenuItem(8, "시저 샐러드", "🥗", 12000, 5900, 51, 1),
                 MenuItem(9, "콥 샐러드", "🌽", 13000, 6400, 51, 1)
@@ -110,6 +118,8 @@ object SampleData {
             minutesUntilClose = 55,
             address = "경기도 시흥시 정왕동 100-5",
             phone = "031-456-7890",
+            latitude = 37.3515,
+            longitude = 126.7420,
             menus = listOf(
                 MenuItem(10, "오늘의 케이크 2종", "🍰", 10000, 6900, 31, 2),
                 MenuItem(11, "샌드위치 세트", "🥪", 8500, 5900, 31, 2)
@@ -129,6 +139,8 @@ object SampleData {
             minutesUntilClose = 35,
             address = "경기도 시흥시 중앙동 200-15",
             phone = "031-567-8901",
+            latitude = 37.3802,
+            longitude = 126.8024,
             menus = listOf(
                 MenuItem(12, "케이크 조각 3개", "🍰", 9000, 2700, 70, 3),
                 MenuItem(13, "마감 빵 봉투", "🥖", 12000, 3600, 70, 2),
@@ -149,6 +161,8 @@ object SampleData {
             minutesUntilClose = 42,
             address = "경기도 시흥시 정왕동 333-22",
             phone = "031-678-9012",
+            latitude = 37.3468,
+            longitude = 126.7399,
             menus = listOf(
                 MenuItem(15, "오니기리 3개 세트", "🍙", 9000, 4500, 50, 4),
                 MenuItem(16, "유부초밥 세트", "🍣", 11000, 5500, 50, 2)
@@ -179,6 +193,8 @@ fun StoreApiResponse.toStore(): Store {
         minutesUntilClose = minutesUntilClose(closingTime),
         address = address,
         phone = phone,
+        latitude = latitude,
+        longitude = longitude,
         isWishlisted = isWishlisted,
         menus = menus.map { it.toMenuItem() },
     )
