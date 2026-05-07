@@ -33,7 +33,9 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -46,6 +48,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var session: SessionManager
     private lateinit var mapView: MapView
     private var googleMap: GoogleMap? = null
+    private var loadedStores: List<Store> = emptyList()
 
     private val hasLocationPermission get() = ContextCompat.checkSelfPermission(
         requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
@@ -100,7 +103,16 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             uiSettings.isMyLocationButtonEnabled = false
             uiSettings.isZoomControlsEnabled = false
             moveCamera(CameraUpdateFactory.newLatLngZoom(SEOUL, 12f))
+            setOnInfoWindowClickListener { marker ->
+                (marker.tag as? Int)?.let { storeId ->
+                    findNavController().navigate(
+                        R.id.action_map_to_storeDetail,
+                        Bundle().apply { putInt("storeId", storeId) }
+                    )
+                }
+            }
         }
+        renderStoreMarkers()
         enableMyLocation()
         moveToCurrentLocation()
     }
@@ -152,10 +164,38 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             try {
                 val userId = if (session.isLoggedIn()) session.userId else null
                 val stores = RetrofitClient.api.getStores(userId = userId).map { it.toStore() }
+                loadedStores = stores
                 populateBottomSheetCards(stores)
+                renderStoreMarkers()
             } catch (_: Exception) {
                 Toast.makeText(requireContext(), "지도 매장 정보를 불러오지 못했어요.", Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    private fun renderStoreMarkers() {
+        val map = googleMap ?: return
+        val storesWithLocation = loadedStores.filter { it.hasValidLocation() }
+        if (storesWithLocation.isEmpty()) return
+
+        map.clear()
+
+        val boundsBuilder = LatLngBounds.builder()
+        storesWithLocation.forEach { store ->
+            val position = LatLng(store.latitude, store.longitude)
+            val marker = map.addMarker(
+                MarkerOptions()
+                    .position(position)
+                    .title(store.name)
+                    .snippet("${store.discountRate}% ${SampleData.formatPrice(store.discountedPrice)}")
+            )
+            marker?.tag = store.id
+            boundsBuilder.include(position)
+        }
+
+        val bounds = boundsBuilder.build()
+        binding.mapContainer.post {
+            map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 96))
         }
     }
 
@@ -209,4 +249,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         super.onDestroyView()
         _binding = null
     }
+
+    private fun Store.hasValidLocation() = latitude != 0.0 || longitude != 0.0
 }
