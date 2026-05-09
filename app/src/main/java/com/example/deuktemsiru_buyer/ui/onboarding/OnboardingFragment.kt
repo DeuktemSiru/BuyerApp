@@ -56,9 +56,11 @@ class OnboardingFragment : Fragment() {
 
         val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
             if (error != null) {
+                android.util.Log.e("KakaoLogin", "카카오 SDK 에러: ${error.message}", error)
                 Toast.makeText(requireContext(), "카카오 로그인에 실패했어요", Toast.LENGTH_SHORT).show()
                 resetButton()
             } else if (token != null) {
+                android.util.Log.d("KakaoLogin", "카카오 토큰 획득 성공, 백엔드 전송 중...")
                 sendTokenToServer(token.accessToken, session)
             }
         }
@@ -86,9 +88,11 @@ class OnboardingFragment : Fragment() {
     private fun sendTokenToServer(kakaoAccessToken: String, session: SessionManager) {
         lifecycleScope.launch {
             try {
+                android.util.Log.d("KakaoLogin", "백엔드 호출: accessToken 앞 20자 = ${kakaoAccessToken.take(20)}")
                 val response = RetrofitClient.api.kakaoLogin(
-                    KakaoLoginRequest(kakaoAccessToken = kakaoAccessToken, role = "BUYER")
+                    KakaoLoginRequest(kakaoAccessToken = kakaoAccessToken, role = "CONSUMER")
                 )
+                android.util.Log.d("KakaoLogin", "백엔드 응답: code=${response.code}, message=${response.message}, data=${response.data}")
                 val loginData = response.data
                 if (loginData == null) {
                     Toast.makeText(requireContext(), "로그인에 실패했어요", Toast.LENGTH_SHORT).show()
@@ -103,6 +107,7 @@ class OnboardingFragment : Fragment() {
 
                 findNavController().navigate(R.id.action_onboarding_to_home)
             } catch (e: Exception) {
+                android.util.Log.e("KakaoLogin", "백엔드 호출 예외: ${e.message}", e)
                 Toast.makeText(requireContext(), "서버 로그인에 실패했어요. 잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show()
                 resetButton()
             }

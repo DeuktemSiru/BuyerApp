@@ -10,7 +10,7 @@ data class ApiResponse<T>(
 // ── 인증 ────────────────────────────────────────────────────
 data class KakaoLoginRequest(
     val kakaoAccessToken: String,
-    val role: String = "BUYER",
+    val role: String = "CONSUMER",
 )
 
 data class TokenRefreshRequest(val refreshToken: String)
