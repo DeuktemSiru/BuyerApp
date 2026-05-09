@@ -7,9 +7,32 @@
     <fragment
         android:id="@+id/onboardingFragment"
         android:name="com.example.deuktemsiru_buyer.ui.onboarding.OnboardingFragment"
-        android:label="onboarding">
+        android:label="로그인">
+        <action
+            android:id="@+id/action_onboarding_to_terms"
+            app:destination="@id/termsFragment" />
         <action
             android:id="@+id/action_onboarding_to_home"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/onboardingFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/termsFragment"
+        android:name="com.example.deuktemsiru_buyer.ui.onboarding.TermsFragment"
+        android:label="약관 동의">
+        <action
+            android:id="@+id/action_terms_to_siru"
+            app:destination="@id/siruLinkFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/siruLinkFragment"
+        android:name="com.example.deuktemsiru_buyer.ui.onboarding.SiruLinkFragment"
+        android:label="시루 연동">
+        <action
+            android:id="@+id/action_siru_to_home"
             app:destination="@id/homeFragment"
             app:popUpTo="@id/onboardingFragment"
             app:popUpToInclusive="true" />

@@ -7,51 +7,67 @@
     android:background="@color/white"
     android:paddingHorizontal="@dimen/spacing_lg">
 
-    <!-- Title area -->
     <LinearLayout
         android:id="@+id/ll_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingTop="72dp"
-        app:layout_constraintTop_toTopOf="parent"
+        android:paddingTop="56dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="92dp"
+            android:layout_height="92dp"
+            android:layout_gravity="end"
+            android:contentDescription="시흥시 캐릭터"
+            android:scaleType="fitCenter"
+            android:src="@drawable/img_siheung_character" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="반가워요!"
-            android:textSize="@dimen/text_headline"
             android:fontFamily="sans-serif-medium"
-            android:textColor="@color/color_text" />
+            android:text="득템시루"
+            android:textColor="@color/primary"
+            android:textSize="@dimen/text_display" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="계정으로 로그인하고"
-            android:textSize="@dimen/text_headline"
+            android:layout_marginTop="@dimen/spacing_sm"
             android:fontFamily="sans-serif-medium"
-            android:textColor="@color/color_text" />
+            android:text="로그인하고"
+            android:textColor="@color/color_text"
+            android:textSize="@dimen/text_headline" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="아까운 음식 구하기 시작!"
-            android:textSize="@dimen/text_headline"
             android:fontFamily="sans-serif-medium"
-            android:textColor="@color/primary" />
+            android:text="오늘의 남은 맛을 구해요"
+            android:textColor="@color/color_text"
+            android:textSize="@dimen/text_headline" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:text="로그인 후 약관 동의와 시루 연동을 이어서 진행합니다."
+            android:textColor="@color/color_text_sub"
+            android:textSize="@dimen/text_body" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/ll_auth"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="36dp"
         android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@id/ll_title"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/ll_title">
 
         <EditText
             android:id="@+id/et_email"
@@ -107,112 +123,19 @@
             android:textSize="@dimen/text_caption" />
     </LinearLayout>
 
-    <!-- Terms section -->
-    <LinearLayout
-        android:id="@+id/ll_terms"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/bg_surface_card"
-        android:padding="@dimen/spacing_lg"
-        android:layout_marginTop="18dp"
-        app:layout_constraintTop_toBottomOf="@id/ll_auth"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <!-- Agree all row -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/touch_target_min"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <CheckBox
-                android:id="@+id/cb_all"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:buttonTint="@color/primary"
-                android:text="전체 동의"
-                android:textSize="@dimen/text_body"
-                android:fontFamily="sans-serif-medium"
-                android:textColor="@color/color_text" />
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginVertical="8dp"
-            android:background="@color/color_border" />
-
-        <!-- Required -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/touch_target_min"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <CheckBox
-                android:id="@+id/cb_terms"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:buttonTint="@color/primary"
-                android:text="이용약관 동의 (필수)"
-                android:textSize="@dimen/text_body"
-                android:textColor="@color/color_text_sub" />
-
-            <TextView
-                android:id="@+id/tv_terms_detail"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="전문보기"
-                android:textSize="12sp"
-                android:textColor="@color/color_text_muted"
-                android:padding="8dp" />
-        </LinearLayout>
-
-        <!-- Optional -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/touch_target_min"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <CheckBox
-                android:id="@+id/cb_privacy"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:buttonTint="@color/primary"
-                android:text="개인정보 수집·이용 동의 (선택)"
-                android:textSize="@dimen/text_body"
-                android:textColor="@color/color_text_sub" />
-
-            <TextView
-                android:id="@+id/tv_privacy_detail"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="전문보기"
-                android:textSize="12sp"
-                android:textColor="@color/color_text_muted"
-                android:padding="8dp" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- Bottom CTA -->
     <Button
         android:id="@+id/btn_start"
         android:layout_width="0dp"
-        android:layout_height="52dp"
+        android:layout_height="@dimen/cta_button_height"
         android:layout_marginBottom="16dp"
-        android:text="로그인하기"
-        android:textSize="15sp"
-        android:fontFamily="sans-serif-medium"
-        android:textColor="@color/white"
         android:background="@drawable/bg_dark_button"
+        android:fontFamily="sans-serif-medium"
         android:stateListAnimator="@null"
+        android:text="로그인하기"
+        android:textColor="@color/white"
+        android:textSize="@dimen/text_button"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

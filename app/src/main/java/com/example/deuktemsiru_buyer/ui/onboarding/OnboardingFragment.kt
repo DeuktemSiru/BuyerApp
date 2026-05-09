@@ -45,29 +45,6 @@ class OnboardingFragment : Fragment() {
 
         updateStartButton()
 
-        binding.cbAll.setOnCheckedChangeListener { _, isChecked ->
-            binding.cbTerms.isChecked = isChecked
-            binding.cbPrivacy.isChecked = isChecked
-            updateStartButton()
-        }
-
-        binding.cbTerms.setOnCheckedChangeListener { _, _ ->
-            updateAllCheckbox()
-            updateStartButton()
-        }
-
-        binding.cbPrivacy.setOnCheckedChangeListener { _, _ ->
-            updateAllCheckbox()
-        }
-
-        binding.tvTermsDetail.setOnClickListener {
-            Toast.makeText(requireContext(), "이용약관 전문입니다.", Toast.LENGTH_SHORT).show()
-        }
-
-        binding.tvPrivacyDetail.setOnClickListener {
-            Toast.makeText(requireContext(), "개인정보 처리방침 전문입니다.", Toast.LENGTH_SHORT).show()
-        }
-
         binding.tvModeToggle.setOnClickListener {
             isRegisterMode = !isRegisterMode
             updateAuthMode()
@@ -83,9 +60,7 @@ class OnboardingFragment : Fragment() {
         }
 
         binding.btnStart.setOnClickListener {
-            if (binding.cbTerms.isChecked) {
-                submitAuth(session)
-            }
+            submitAuth(session)
         }
 
         updateAuthMode()
@@ -120,7 +95,7 @@ class OnboardingFragment : Fragment() {
                 session.nickname = response.nickname
                 session.token = response.token
                 RetrofitClient.authToken = response.token
-                findNavController().navigate(R.id.action_onboarding_to_home)
+                findNavController().navigate(R.id.action_onboarding_to_terms)
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "인증에 실패했어요. 입력값과 서버 상태를 확인해주세요.", Toast.LENGTH_LONG).show()
                 resetSubmitButton()
@@ -128,22 +103,11 @@ class OnboardingFragment : Fragment() {
         }
     }
 
-    private fun updateAllCheckbox() {
-        val allChecked = binding.cbTerms.isChecked && binding.cbPrivacy.isChecked
-        binding.cbAll.setOnCheckedChangeListener(null)
-        binding.cbAll.isChecked = allChecked
-        binding.cbAll.setOnCheckedChangeListener { _, isChecked ->
-            binding.cbTerms.isChecked = isChecked
-            binding.cbPrivacy.isChecked = isChecked
-            updateStartButton()
-        }
-    }
-
     private fun updateStartButton() {
         val emailReady = binding.etEmail.text?.toString()?.trim()?.isNotEmpty() == true
         val passwordReady = binding.etPassword.text?.toString()?.isNotEmpty() == true
         val nicknameReady = !isRegisterMode || binding.etNickname.text?.toString()?.trim()?.isNotEmpty() == true
-        val enabled = binding.cbTerms.isChecked && emailReady && passwordReady && nicknameReady
+        val enabled = emailReady && passwordReady && nicknameReady
         binding.btnStart.alpha = if (enabled) 1.0f else 0.4f
         binding.btnStart.isEnabled = enabled
     }
