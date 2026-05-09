@@ -1,8 +1,6 @@
 package com.example.deuktemsiru_buyer.ui.onboarding
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,21 +11,23 @@ import androidx.navigation.fragment.findNavController
 import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.FragmentOnboardingBinding
-import com.example.deuktemsiru_buyer.network.LoginRequest
-import com.example.deuktemsiru_buyer.network.RegisterRequest
+import com.example.deuktemsiru_buyer.network.KakaoLoginRequest
 import com.example.deuktemsiru_buyer.network.RetrofitClient
+import com.kakao.sdk.auth.model.OAuthToken
+import com.kakao.sdk.common.model.ClientError
+import com.kakao.sdk.common.model.ClientErrorCause
+import com.kakao.sdk.user.UserApiClient
 import kotlinx.coroutines.launch
 
 class OnboardingFragment : Fragment() {
 
     private var _binding: FragmentOnboardingBinding? = null
     private val binding get() = _binding!!
-    private var isRegisterMode = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentOnboardingBinding.inflate(inflater, container, false)
         return binding.root
@@ -37,90 +37,81 @@ class OnboardingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val session = SessionManager(requireContext())
+
+        // 이미 로그인된 경우 홈으로 바로 이동
         if (session.isLoggedIn()) {
-            RetrofitClient.authToken = session.token
+            session.restoreToken()
             findNavController().navigate(R.id.action_onboarding_to_home)
             return
         }
 
-        updateStartButton()
-
-        binding.tvModeToggle.setOnClickListener {
-            isRegisterMode = !isRegisterMode
-            updateAuthMode()
-            updateStartButton()
+        binding.btnKakaoLogin.setOnClickListener {
+            startKakaoLogin(session)
         }
-
-        listOf(binding.etEmail, binding.etPassword, binding.etNickname).forEach { input ->
-            input.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = updateStartButton()
-                override fun afterTextChanged(s: Editable?) = Unit
-            })
-        }
-
-        binding.btnStart.setOnClickListener {
-            submitAuth(session)
-        }
-
-        updateAuthMode()
     }
 
-    private fun submitAuth(session: SessionManager) {
-        val email = binding.etEmail.text?.toString()?.trim().orEmpty()
-        val password = binding.etPassword.text?.toString().orEmpty()
-        val nickname = binding.etNickname.text?.toString()?.trim().orEmpty()
+    private fun startKakaoLogin(session: SessionManager) {
+        binding.btnKakaoLogin.isEnabled = false
+        binding.btnKakaoLogin.text = "로그인 중..."
 
-        if (email.isBlank() || password.isBlank() || (isRegisterMode && nickname.isBlank())) {
-            Toast.makeText(requireContext(), "필수 정보를 입력해주세요.", Toast.LENGTH_SHORT).show()
-            return
+        val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
+            if (error != null) {
+                Toast.makeText(requireContext(), "카카오 로그인에 실패했어요", Toast.LENGTH_SHORT).show()
+                resetButton()
+            } else if (token != null) {
+                sendTokenToServer(token.accessToken, session)
+            }
         }
 
-        binding.btnStart.isEnabled = false
-        binding.btnStart.text = if (isRegisterMode) "가입 중..." else "로그인 중..."
+        // 카카오톡 로그인 시도 → 실패 시 카카오 계정 로그인으로 폴백
+        if (UserApiClient.instance.isKakaoTalkLoginAvailable(requireContext())) {
+            UserApiClient.instance.loginWithKakaoTalk(requireContext()) { token, error ->
+                if (error != null) {
+                    // 사용자가 카카오톡 로그인을 취소한 경우 폴백 하지 않음
+                    if (error is ClientError && error.reason == ClientErrorCause.Cancelled) {
+                        resetButton()
+                        return@loginWithKakaoTalk
+                    }
+                    // 그 외 에러 → 카카오 계정 로그인으로 폴백
+                    UserApiClient.instance.loginWithKakaoAccount(requireContext(), callback = callback)
+                } else if (token != null) {
+                    sendTokenToServer(token.accessToken, session)
+                }
+            }
+        } else {
+            UserApiClient.instance.loginWithKakaoAccount(requireContext(), callback = callback)
+        }
+    }
 
+    private fun sendTokenToServer(kakaoAccessToken: String, session: SessionManager) {
         lifecycleScope.launch {
             try {
-                if (isRegisterMode) {
-                    RetrofitClient.api.register(RegisterRequest(email, nickname, password))
-                }
-
-                val response = RetrofitClient.api.login(LoginRequest(email, password))
-                if (response.role != "BUYER") {
-                    Toast.makeText(requireContext(), "구매자 계정으로 로그인해주세요.", Toast.LENGTH_SHORT).show()
-                    resetSubmitButton()
+                val response = RetrofitClient.api.kakaoLogin(
+                    KakaoLoginRequest(kakaoAccessToken = kakaoAccessToken, role = "BUYER")
+                )
+                val loginData = response.data
+                if (loginData == null) {
+                    Toast.makeText(requireContext(), "로그인에 실패했어요", Toast.LENGTH_SHORT).show()
+                    resetButton()
                     return@launch
                 }
-                session.userId = response.userId
-                session.nickname = response.nickname
-                session.token = response.token
-                RetrofitClient.authToken = response.token
-                findNavController().navigate(R.id.action_onboarding_to_terms)
+
+                session.memberId = loginData.member.memberId
+                session.nickname = loginData.member.nickname
+                session.accessToken = loginData.accessToken
+                session.refreshToken = loginData.refreshToken
+
+                findNavController().navigate(R.id.action_onboarding_to_home)
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "인증에 실패했어요. 입력값과 서버 상태를 확인해주세요.", Toast.LENGTH_LONG).show()
-                resetSubmitButton()
+                Toast.makeText(requireContext(), "서버 로그인에 실패했어요. 잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show()
+                resetButton()
             }
         }
     }
 
-    private fun updateStartButton() {
-        val emailReady = binding.etEmail.text?.toString()?.trim()?.isNotEmpty() == true
-        val passwordReady = binding.etPassword.text?.toString()?.isNotEmpty() == true
-        val nicknameReady = !isRegisterMode || binding.etNickname.text?.toString()?.trim()?.isNotEmpty() == true
-        val enabled = emailReady && passwordReady && nicknameReady
-        binding.btnStart.alpha = if (enabled) 1.0f else 0.4f
-        binding.btnStart.isEnabled = enabled
-    }
-
-    private fun updateAuthMode() {
-        binding.etNickname.visibility = if (isRegisterMode) View.VISIBLE else View.GONE
-        binding.btnStart.text = if (isRegisterMode) "회원가입하고 시작하기" else "로그인하기"
-        binding.tvModeToggle.text = if (isRegisterMode) "이미 계정이 있어요" else "처음이라면 회원가입"
-    }
-
-    private fun resetSubmitButton() {
-        binding.btnStart.isEnabled = true
-        binding.btnStart.text = if (isRegisterMode) "회원가입하고 시작하기" else "로그인하기"
+    private fun resetButton() {
+        binding.btnKakaoLogin.isEnabled = true
+        binding.btnKakaoLogin.text = "카카오로 시작하기"
     }
 
     override fun onDestroyView() {

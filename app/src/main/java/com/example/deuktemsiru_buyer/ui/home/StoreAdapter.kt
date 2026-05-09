@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.deuktemsiru_buyer.R
-import com.example.deuktemsiru_buyer.data.SampleData
 import com.example.deuktemsiru_buyer.data.Store
 import com.example.deuktemsiru_buyer.databinding.ItemStoreCardBinding
 
@@ -25,9 +24,9 @@ class StoreAdapter(
             binding.tvCategory.text = store.category
             binding.tvDistance.text = "도보 ${store.walkingMinutes}분"
             binding.tvDiscountBadge.text = "${store.discountRate}%"
-            binding.tvOriginalPrice.text = SampleData.formatPrice(store.originalPrice)
+            binding.tvOriginalPrice.text = "%,d원".format(store.originalPrice)
             binding.tvOriginalPrice.paintFlags = binding.tvOriginalPrice.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-            binding.tvDiscountPrice.text = SampleData.formatPrice(store.discountedPrice)
+            binding.tvDiscountPrice.text = "%,d원".format(store.discountedPrice)
             binding.tvStock.text = "${store.remainingItems}개 남음"
 
             val timeText = "${store.minutesUntilClose}분 후 마감"

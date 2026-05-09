@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.deuktemsiru_buyer.data.SampleData
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.FragmentOrdersBinding
 import com.example.deuktemsiru_buyer.databinding.ItemOrderHistoryBinding
@@ -38,7 +37,7 @@ class OrdersFragment : Fragment() {
 
         lifecycleScope.launch {
             try {
-                val orders = RetrofitClient.api.getOrders(session.userId)
+                val orders = RetrofitClient.api.getOrders().data ?: emptyList()
                 if (orders.isEmpty()) {
                     binding.rvOrders.visibility = View.GONE
                     binding.llEmpty.visibility = View.VISIBLE
@@ -79,7 +78,7 @@ private class OrderHistoryAdapter(
         b.tvOrderNumber.text = order.orderNumber
         b.tvStatus.text = statusLabel(order.status)
         b.tvMenuSummary.text = order.items.joinToString(", ") { "${it.emoji} ${it.name}" }
-        b.tvTotalAmount.text = SampleData.formatPrice(order.totalAmount)
+        b.tvTotalAmount.text = "%,d원".format(order.totalAmount)
         b.tvPickupTime.text = "픽업: ${order.pickupTime}"
         b.tvPickupCode.text = "코드: ${order.pickupCode}"
     }

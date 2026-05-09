@@ -22,7 +22,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.deuktemsiru_buyer.R
-import com.example.deuktemsiru_buyer.data.SampleData
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.data.Store
 import com.example.deuktemsiru_buyer.data.toStore
@@ -162,8 +161,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private fun loadStores() {
         lifecycleScope.launch {
             try {
-                val userId = if (session.isLoggedIn()) session.userId else null
-                val stores = RetrofitClient.api.getStores(userId = userId).map { it.toStore() }
+                val stores = RetrofitClient.api.getStores().data
+                    ?.map { it.toStore() }
+                    ?: emptyList()
                 loadedStores = stores
                 populateBottomSheetCards(stores)
                 renderStoreMarkers()
@@ -187,7 +187,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 MarkerOptions()
                     .position(position)
                     .title(store.name)
-                    .snippet("${store.discountRate}% ${SampleData.formatPrice(store.discountedPrice)}")
+                    .snippet("${store.discountRate}% ${"%.0f원".format(store.discountedPrice.toFloat())}")
             )
             marker?.tag = store.id
             boundsBuilder.include(position)
@@ -209,7 +209,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             cardBinding.tvBadge.text = getString(R.string.label_discount_rate, store.discountRate)
             cardBinding.tvName.text = store.name
             cardBinding.tvTime.text = getString(R.string.label_minutes_left, store.minutesUntilClose)
-            cardBinding.tvPrice.text = SampleData.formatPrice(store.discountedPrice)
+            cardBinding.tvPrice.text = "%,d원".format(store.discountedPrice)
 
             val (clockIcon, clockColor) = if (store.minutesUntilClose <= 30) {
                 R.drawable.ic_clock to "#FF3B30".toColorInt()

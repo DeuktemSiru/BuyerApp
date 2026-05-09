@@ -13,7 +13,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.deuktemsiru_buyer.R
-import com.example.deuktemsiru_buyer.data.SampleData
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.data.Store
 import com.example.deuktemsiru_buyer.data.toStore
@@ -37,7 +36,7 @@ class StoreDetailFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentStoreDetailBinding.inflate(inflater, container, false)
         return binding.root
@@ -59,8 +58,10 @@ class StoreDetailFragment : Fragment() {
     private fun loadStore(storeId: Long) {
         lifecycleScope.launch {
             try {
-                val userId = if (session.isLoggedIn()) session.userId else null
-                val response = RetrofitClient.api.getStore(storeId, userId)
+                val response = RetrofitClient.api.getStore(storeId).data ?: run {
+                    findNavController().popBackStack()
+                    return@launch
+                }
                 val store = response.toStore()
                 currentStore = store
                 isWishlisted = store.isWishlisted
@@ -77,22 +78,17 @@ class StoreDetailFragment : Fragment() {
         binding.tvStoreName.text = store.name
         binding.tvRating.text = store.rating.toString()
         binding.tvWalk.text = "도보 ${store.walkingMinutes}분"
-        binding.tvPickupRange.text = store.menus.firstOrNull()?.let {
-            it.name + " 외"
-        } ?: "메뉴"
+        binding.tvPickupRange.text = store.menus.firstOrNull()?.let { it.name + " 외" } ?: "메뉴"
 
         val totalPrice = store.menus.filter { !it.isSoldOut }
             .minByOrNull { it.discountedPrice }?.discountedPrice ?: store.discountedPrice
-        binding.btnReserve.text = "${SampleData.formatPrice(totalPrice)} 예약하기"
+        binding.btnReserve.text = "%,d원 예약하기".format(totalPrice)
 
-        setupMenuList(store)
+        setupMenuList(store, totalPrice)
         startTimer(store.minutesUntilClose)
-
         updateWishlistButtons()
 
-        val wishlistToggle = View.OnClickListener {
-            toggleWishlist(store)
-        }
+        val wishlistToggle = View.OnClickListener { toggleWishlist(store) }
         binding.btnWishlist.setOnClickListener(wishlistToggle)
         binding.btnWishlistBottom.setOnClickListener(wishlistToggle)
 
@@ -118,7 +114,7 @@ class StoreDetailFragment : Fragment() {
         if (!session.isLoggedIn()) return
         lifecycleScope.launch {
             try {
-                val result = RetrofitClient.api.toggleWishlist(store.id.toLong(), session.userId)
+                val result = RetrofitClient.api.toggleWishlist(store.id.toLong()).data ?: emptyMap()
                 isWishlisted = result["isWishlisted"] as? Boolean ?: !isWishlisted
                 updateWishlistButtons()
                 val msg = if (isWishlisted) "찜 목록에 추가했어요 💝" else "찜 목록에서 제거했어요"
@@ -135,12 +131,12 @@ class StoreDetailFragment : Fragment() {
         binding.btnWishlistBottom.setImageResource(res)
     }
 
-    private fun setupMenuList(store: Store) {
+    private fun setupMenuList(store: Store, defaultTotalPrice: Int) {
         val adapter = MenuAdapter(
             menus = store.menus,
             onMenuClick = { menu ->
                 selectedMenuId = menu.id
-                binding.btnReserve.text = "${SampleData.formatPrice(menu.discountedPrice)} 예약하기"
+                binding.btnReserve.text = "%,d원 예약하기".format(menu.discountedPrice)
                 Toast.makeText(requireContext(), "${menu.name} 선택", Toast.LENGTH_SHORT).show()
             }
         )
