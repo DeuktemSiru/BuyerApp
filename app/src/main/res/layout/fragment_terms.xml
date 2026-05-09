@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:paddingHorizontal="@dimen/spacing_lg">
+
+    <LinearLayout
+        android:id="@+id/ll_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="76dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="약관 동의"
+            android:textColor="@color/color_text"
+            android:textSize="@dimen/text_display" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:text="득템시루 이용을 위해 필수 약관에 동의해주세요."
+            android:textColor="@color/color_text_sub"
+            android:textSize="@dimen/text_body" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_terms"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        android:background="@drawable/bg_surface_card"
+        android:orientation="vertical"
+        android:padding="@dimen/spacing_lg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ll_title">
+
+        <CheckBox
+            android:id="@+id/cb_all"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/touch_target_min"
+            android:buttonTint="@color/primary"
+            android:fontFamily="sans-serif-medium"
+            android:text="전체 동의"
+            android:textColor="@color/color_text"
+            android:textSize="@dimen/text_body" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="@dimen/spacing_sm"
+            android:background="@color/color_border" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/touch_target_min"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:id="@+id/cb_terms"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:buttonTint="@color/primary"
+                android:text="서비스 이용약관 동의 (필수)"
+                android:textColor="@color/color_text_sub"
+                android:textSize="@dimen/text_body" />
+
+            <TextView
+                android:id="@+id/tv_terms_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/spacing_sm"
+                android:text="보기"
+                android:textColor="@color/color_text_muted"
+                android:textSize="@dimen/text_caption" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/touch_target_min"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:id="@+id/cb_privacy"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:buttonTint="@color/primary"
+                android:text="개인정보 수집 및 이용 동의 (필수)"
+                android:textColor="@color/color_text_sub"
+                android:textSize="@dimen/text_body" />
+
+            <TextView
+                android:id="@+id/tv_privacy_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/spacing_sm"
+                android:text="보기"
+                android:textColor="@color/color_text_muted"
+                android:textSize="@dimen/text_caption" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/touch_target_min"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:id="@+id/cb_marketing"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:buttonTint="@color/primary"
+                android:text="할인 혜택 알림 동의 (선택)"
+                android:textColor="@color/color_text_sub"
+                android:textSize="@dimen/text_body" />
+
+            <TextView
+                android:id="@+id/tv_marketing_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/spacing_sm"
+                android:text="보기"
+                android:textColor="@color/color_text_muted"
+                android:textSize="@dimen/text_caption" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_continue"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/cta_button_height"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/bg_dark_button"
+        android:fontFamily="sans-serif-medium"
+        android:stateListAnimator="@null"
+        android:text="동의하고 계속하기"
+        android:textColor="@color/white"
+        android:textSize="@dimen/text_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

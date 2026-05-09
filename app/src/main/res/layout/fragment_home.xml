@@ -41,6 +41,14 @@
                 android:textColor="@color/color_text"
                 android:layout_marginStart="4dp" />
 
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginEnd="8dp"
+                android:contentDescription="시흥시 BI"
+                android:scaleType="fitCenter"
+                android:src="@drawable/img_siheung_bi" />
+
             <ImageButton
                 android:id="@+id/btn_bell"
                 android:layout_width="@dimen/touch_target_min"
@@ -204,11 +212,12 @@
                 android:padding="48dp"
                 android:visibility="gone">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="🍽️"
-                    android:textSize="48sp" />
+                <ImageView
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:contentDescription="시흥시 캐릭터"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/img_siheung_character" />
 
                 <TextView
                     android:layout_width="wrap_content"
