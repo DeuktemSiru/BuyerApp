@@ -12,7 +12,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.example.deuktemsiru_buyer.data.SampleData
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.FragmentPickupBinding
 import com.example.deuktemsiru_buyer.network.RetrofitClient
@@ -69,16 +68,16 @@ class PickupFragment : Fragment() {
     private fun loadOrder(orderId: Long) {
         lifecycleScope.launch {
             try {
-                val order = RetrofitClient.api.getOrder(orderId)
+                val order = RetrofitClient.api.getOrder(orderId).data ?: return@launch
                 pickupCode = order.pickupCode
 
                 binding.tvPickupTime.text = "${order.pickupTime}까지"
                 binding.tvPickupCode.text = order.pickupCode.chunked(1).joinToString(" ")
                 binding.tvStoreName.text = order.storeName
                 binding.tvOrderMenu.text = order.items.joinToString(", ") { "${it.emoji} ${it.name}" }
-                binding.tvPaidPrice.text = SampleData.formatPrice(order.totalAmount)
+                binding.tvPaidPrice.text = "%,d원".format(order.totalAmount)
 
-                val store = RetrofitClient.api.getStore(order.storeId)
+                val store = RetrofitClient.api.getStore(order.storeId).data ?: return@launch
                 binding.tvStoreAddress.text = store.address
                 binding.tvStoreAddress.tag = store.phone
             } catch (e: Exception) {

@@ -1,21 +1,35 @@
 package com.example.deuktemsiru_buyer.network
 
-data class LoginRequest(val email: String, val password: String)
+// ── 공통 응답 래퍼 ──────────────────────────────────────────
+data class ApiResponse<T>(
+    val code: Int,
+    val message: String,
+    val data: T?,
+)
 
-data class RegisterRequest(
-    val email: String,
-    val nickname: String,
-    val password: String,
+// ── 인증 ────────────────────────────────────────────────────
+data class KakaoLoginRequest(
+    val kakaoAccessToken: String,
     val role: String = "BUYER",
 )
 
-data class LoginResponse(
-    val userId: Long,
+data class TokenRefreshRequest(val refreshToken: String)
+
+data class MemberSummary(
+    val memberId: Long,
     val nickname: String,
     val role: String,
-    val token: String,
 )
 
+data class LoginData(
+    val accessToken: String,
+    val refreshToken: String,
+    val member: MemberSummary,
+)
+
+data class TokenData(val accessToken: String)
+
+// ── 메뉴 / 상품 ─────────────────────────────────────────────
 data class MenuItemApiResponse(
     val id: Long,
     val name: String,
@@ -28,6 +42,7 @@ data class MenuItemApiResponse(
     val pickupTimeSlot: String,
 )
 
+// ── 가게 ────────────────────────────────────────────────────
 data class StoreApiResponse(
     val id: Long,
     val name: String,
@@ -43,6 +58,7 @@ data class StoreApiResponse(
     val menus: List<MenuItemApiResponse>,
 )
 
+// ── 주문 ────────────────────────────────────────────────────
 data class OrderItemApiResponse(
     val menuItemId: Long,
     val name: String,
@@ -64,9 +80,9 @@ data class OrderApiResponse(
     val items: List<OrderItemApiResponse>,
 )
 
+// ── 사용자 ───────────────────────────────────────────────────
 data class UserApiResponse(
     val id: Long,
-    val email: String,
     val nickname: String,
     val role: String,
     val grade: String,
@@ -85,6 +101,7 @@ data class NotificationApiResponse(
     val recipientCount: Int,
 )
 
+// ── 주문 요청 ────────────────────────────────────────────────
 data class CreateOrderRequest(
     val storeId: Long,
     val items: List<OrderItemRequest>,

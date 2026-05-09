@@ -8,7 +8,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.example.deuktemsiru_buyer.data.SampleData
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.FragmentMypageBinding
 import com.example.deuktemsiru_buyer.network.NotificationApiResponse
@@ -23,7 +22,7 @@ class MyPageFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentMypageBinding.inflate(inflater, container, false)
         return binding.root
@@ -34,7 +33,7 @@ class MyPageFragment : Fragment() {
 
         val session = SessionManager(requireContext())
         if (session.isLoggedIn()) {
-            loadUser(session.userId)
+            loadUser()
         }
 
         binding.menuOrders.setOnClickListener {
@@ -49,15 +48,15 @@ class MyPageFragment : Fragment() {
         }
     }
 
-    private fun loadUser(userId: Long) {
+    private fun loadUser() {
         lifecycleScope.launch {
             try {
-                val user = RetrofitClient.api.getUser(userId)
+                val user = RetrofitClient.api.getMe().data ?: return@launch
 
                 binding.tvNickname.text = user.nickname
                 binding.tvGrade.text = gradeLabel(user.grade)
-                binding.tvTotalSavings.text = SampleData.formatPrice(user.totalSavings)
-                binding.tvMonthSavings.text = SampleData.formatPrice(0)
+                binding.tvTotalSavings.text = "%,d원".format(user.totalSavings)
+                binding.tvMonthSavings.text = "%,d원".format(0)
                 binding.tvCarbon.text = "%.1fkg".format(user.co2Saved)
                 binding.tvCouponCount.text = user.couponCount.toString()
                 binding.tvPoints.text = "%,dP".format(user.points)
@@ -86,7 +85,7 @@ class MyPageFragment : Fragment() {
 
         lifecycleScope.launch {
             try {
-                val notifications = RetrofitClient.api.getNotifications(session.userId)
+                val notifications = RetrofitClient.api.getNotifications().data ?: emptyList()
                 val message = if (notifications.isEmpty()) {
                     "찜한 가게에서 온 알림이 아직 없어요."
                 } else {
@@ -103,8 +102,7 @@ class MyPageFragment : Fragment() {
         }
     }
 
-    private fun NotificationApiResponse.dialogLine(): String =
-        "$storeName\n$message"
+    private fun NotificationApiResponse.dialogLine(): String = "$storeName\n$message"
 
     private fun gradeLabel(grade: String) = when (grade) {
         "SEEDLING" -> "🌱 새싹"

@@ -9,6 +9,7 @@ import androidx.core.view.WindowCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.ActivityMainBinding
 import java.util.Locale
 
@@ -36,6 +37,9 @@ class MainActivity : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, true)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // 저장된 토큰을 RetrofitClient에 복원 (로그인 상태 유지)
+        SessionManager(this).restoreToken()
 
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment

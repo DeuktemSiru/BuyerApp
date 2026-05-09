@@ -22,6 +22,8 @@ gradle/wrapper/gradle-wrapper.jar
 .idea/caches/
 .idea/navEditor.xml
 .idea/deploymentTargetSelector.xml
+.idea/markdown.xml
+.idea/deviceManager.xml
 
 # Keep run configurations shared with team
 !.idea/runConfigurations/

@@ -11,7 +11,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.deuktemsiru_buyer.R
-import com.example.deuktemsiru_buyer.data.SampleData
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.data.toStore
 import com.example.deuktemsiru_buyer.databinding.FragmentPaymentBinding
@@ -31,7 +30,7 @@ class PaymentFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentPaymentBinding.inflate(inflater, container, false)
         return binding.root
@@ -50,8 +49,10 @@ class PaymentFragment : Fragment() {
 
         lifecycleScope.launch {
             try {
-                val userId = if (session.isLoggedIn()) session.userId else null
-                val storeResponse = RetrofitClient.api.getStore(storeId.toLong(), userId)
+                val storeResponse = RetrofitClient.api.getStore(storeId.toLong()).data ?: run {
+                    findNavController().popBackStack()
+                    return@launch
+                }
                 val store = storeResponse.toStore()
                 val selectedMenu = storeResponse.menus
                     .firstOrNull { it.id.toInt() == menuId && !it.isSoldOut }
@@ -66,12 +67,12 @@ class PaymentFragment : Fragment() {
                 val extraDiscount = 1000
                 val finalPrice = (discountedTotal - extraDiscount).coerceAtLeast(100)
 
-                binding.tvOrderPrice.text = SampleData.formatPrice(originalTotal)
-                binding.tvDiscount.text = "-${SampleData.formatPrice(discountAmount)}"
-                binding.tvExtraDiscount.text = "-${SampleData.formatPrice(extraDiscount)}"
-                binding.tvFinalPrice.text = SampleData.formatPrice(finalPrice)
-                binding.tvSavingsMessage.text = "${SampleData.formatPrice(discountAmount + extraDiscount)}을 절약하고 음식 1개를 구해요"
-                binding.btnPay.text = getString(R.string.btn_pay_siru, SampleData.formatPrice(finalPrice))
+                binding.tvOrderPrice.text = "%,d원".format(originalTotal)
+                binding.tvDiscount.text = "-%,d원".format(discountAmount)
+                binding.tvExtraDiscount.text = "-%,d원".format(extraDiscount)
+                binding.tvFinalPrice.text = "%,d원".format(finalPrice)
+                binding.tvSavingsMessage.text = "%,d원을 절약하고 음식 1개를 구해요".format(discountAmount + extraDiscount)
+                binding.btnPay.text = getString(R.string.btn_pay_siru, "%,d원".format(finalPrice))
 
                 binding.btnPay.setOnClickListener {
                     val pickupTime = timeSlots.getOrElse(selectedSlot - 1) { "17:00" }
@@ -90,19 +91,19 @@ class PaymentFragment : Fragment() {
                     lifecycleScope.launch {
                         try {
                             val order = RetrofitClient.api.createOrder(
-                                buyerId = session.userId,
-                                req = CreateOrderRequest(
+                                CreateOrderRequest(
                                     storeId = storeId.toLong(),
                                     items = orderItems,
                                     pickupTime = pickupTime,
                                 )
-                            )
+                            ).data ?: return@launch
+
                             session.lastOrderId = order.id
                             findNavController().navigate(R.id.action_payment_to_pickup)
                         } catch (e: Exception) {
                             Toast.makeText(requireContext(), "결제 중 오류가 발생했어요.", Toast.LENGTH_SHORT).show()
                             binding.btnPay.isEnabled = true
-                            binding.btnPay.text = getString(R.string.btn_pay_siru, SampleData.formatPrice(finalPrice))
+                            binding.btnPay.text = getString(R.string.btn_pay_siru, "%,d원".format(finalPrice))
                         }
                     }
                 }

@@ -4,48 +4,51 @@ import retrofit2.http.*
 
 interface ApiService {
 
-    @POST("api/auth/login")
-    suspend fun login(@Body req: LoginRequest): LoginResponse
+    // ── 인증 ────────────────────────────────────────────────
+    @POST("api/v1/auth/kakao/login")
+    suspend fun kakaoLogin(@Body req: KakaoLoginRequest): ApiResponse<LoginData>
 
-    @POST("api/auth/register")
-    suspend fun register(@Body req: RegisterRequest): UserApiResponse
+    @POST("api/v1/auth/refresh")
+    suspend fun refresh(@Body req: TokenRefreshRequest): ApiResponse<TokenData>
 
-    @GET("api/stores")
+    @POST("api/v1/auth/logout")
+    suspend fun logout(): ApiResponse<Unit>
+
+    // ── 가게 ────────────────────────────────────────────────
+    @GET("api/v1/stores")
     suspend fun getStores(
         @Query("category") category: String? = null,
-        @Query("userId") userId: Long? = null,
-    ): List<StoreApiResponse>
+    ): ApiResponse<List<StoreApiResponse>>
 
-    @GET("api/stores/{storeId}")
+    @GET("api/v1/stores/{storeId}")
     suspend fun getStore(
         @Path("storeId") storeId: Long,
-        @Query("userId") userId: Long? = null,
-    ): StoreApiResponse
+    ): ApiResponse<StoreApiResponse>
 
-    @POST("api/wishlist/{storeId}")
+    // ── 찜 ──────────────────────────────────────────────────
+    @POST("api/v1/wishlist/{storeId}")
     suspend fun toggleWishlist(
         @Path("storeId") storeId: Long,
-        @Query("userId") userId: Long,
-    ): Map<String, Any>
+    ): ApiResponse<Map<String, Any>>
 
-    @GET("api/wishlist")
-    suspend fun getWishlist(@Query("userId") userId: Long): List<StoreApiResponse>
+    @GET("api/v1/wishlist")
+    suspend fun getWishlist(): ApiResponse<List<StoreApiResponse>>
 
-    @POST("api/orders")
-    suspend fun createOrder(
-        @Query("buyerId") buyerId: Long,
-        @Body req: CreateOrderRequest,
-    ): OrderApiResponse
+    // ── 주문 ────────────────────────────────────────────────
+    @POST("api/v1/orders")
+    suspend fun createOrder(@Body req: CreateOrderRequest): ApiResponse<OrderApiResponse>
 
-    @GET("api/orders")
-    suspend fun getOrders(@Query("buyerId") buyerId: Long): List<OrderApiResponse>
+    @GET("api/v1/orders")
+    suspend fun getOrders(): ApiResponse<List<OrderApiResponse>>
 
-    @GET("api/orders/{orderId}")
-    suspend fun getOrder(@Path("orderId") orderId: Long): OrderApiResponse
+    @GET("api/v1/orders/{orderId}")
+    suspend fun getOrder(@Path("orderId") orderId: Long): ApiResponse<OrderApiResponse>
 
-    @GET("api/users/{userId}")
-    suspend fun getUser(@Path("userId") userId: Long): UserApiResponse
+    // ── 사용자 ───────────────────────────────────────────────
+    @GET("api/v1/users/me")
+    suspend fun getMe(): ApiResponse<UserApiResponse>
 
-    @GET("api/notifications")
-    suspend fun getNotifications(@Query("userId") userId: Long): List<NotificationApiResponse>
+    // ── 알림 ────────────────────────────────────────────────
+    @GET("api/v1/notifications")
+    suspend fun getNotifications(): ApiResponse<List<NotificationApiResponse>>
 }
