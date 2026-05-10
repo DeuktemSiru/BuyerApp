@@ -37,7 +37,8 @@ gradle/wrapper/gradle-wrapper.jar
 .DS_Store
 Thumbs.db
 
-# Keystore — never commit signing credentials
+# Keystore — debug/local keystores는 커밋 제외, 릴리스 키스토어는 공유용으로 허용
 *.jks
 *.keystore
+!release.keystore
 keystore.properties
