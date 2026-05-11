@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.deuktemsiru_buyer.R
+import com.example.deuktemsiru_buyer.data.CartManager
 import com.example.deuktemsiru_buyer.data.SampleData
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.data.toStore
@@ -44,10 +45,67 @@ class PaymentFragment : Fragment() {
         val storeId = arguments?.getInt("storeId") ?: 1
         val menuId = arguments?.getInt("menuId") ?: 0
         val totalPrice = arguments?.getInt("totalPrice") ?: 5900
+        val fromCart = arguments?.getBoolean("fromCart") ?: false
 
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
         setupTimeSlots()
 
+        if (fromCart) {
+            loadFromCart(session, storeId)
+        } else {
+            loadFromStore(session, storeId, menuId, totalPrice)
+        }
+    }
+
+    private fun loadFromCart(session: SessionManager, storeId: Int) {
+        val cartTotal = CartManager.totalPrice
+        val extraDiscount = 1000
+        val finalPrice = (cartTotal - extraDiscount).coerceAtLeast(100)
+
+        binding.tvStoreName.text = CartManager.storeName
+        binding.tvMenuName.text = "장바구니 메뉴 ${CartManager.totalCount}개"
+        binding.tvOrderPrice.text = SampleData.formatPrice(cartTotal)
+        binding.tvDiscount.text = "-0원"
+        binding.tvExtraDiscount.text = "-${SampleData.formatPrice(extraDiscount)}"
+        binding.tvFinalPrice.text = SampleData.formatPrice(finalPrice)
+        binding.tvSavingsMessage.text = "${SampleData.formatPrice(extraDiscount)}을 추가 절약했어요"
+        binding.btnPay.text = getString(R.string.btn_pay_siru, SampleData.formatPrice(finalPrice))
+
+        binding.btnPay.setOnClickListener {
+            val pickupTime = timeSlots.getOrElse(selectedSlot - 1) { "17:00" }
+            val orderItems = CartManager.items.map {
+                OrderItemRequest(menuItemId = it.menuId, quantity = it.quantity)
+            }
+
+            binding.btnPay.isEnabled = false
+            binding.btnPay.text = getString(R.string.payment_processing_siru)
+
+            lifecycleScope.launch {
+                try {
+                    val order = RetrofitClient.api.createOrder(
+                        buyerId = session.userId,
+                        req = CreateOrderRequest(
+                            storeId = CartManager.storeId,
+                            items = orderItems,
+                            pickupTime = pickupTime,
+                        )
+                    )
+                    session.lastOrderId = order.id
+                    CartManager.clear()
+                    findNavController().navigate(
+                        R.id.action_payment_to_pickup,
+                        Bundle().apply { putInt("storeId", storeId) }
+                    )
+                } catch (e: Exception) {
+                    Toast.makeText(requireContext(), "결제 중 오류가 발생했어요.", Toast.LENGTH_SHORT).show()
+                    binding.btnPay.isEnabled = true
+                    binding.btnPay.text = getString(R.string.btn_pay_siru, SampleData.formatPrice(finalPrice))
+                }
+            }
+        }
+    }
+
+    private fun loadFromStore(session: SessionManager, storeId: Int, menuId: Int, totalPrice: Int) {
         lifecycleScope.launch {
             try {
                 val userId = if (session.isLoggedIn()) session.userId else null
@@ -98,7 +156,10 @@ class PaymentFragment : Fragment() {
                                 )
                             )
                             session.lastOrderId = order.id
-                            findNavController().navigate(R.id.action_payment_to_pickup)
+                            findNavController().navigate(
+                                R.id.action_payment_to_pickup,
+                                Bundle().apply { putInt("storeId", storeId) }
+                            )
                         } catch (e: Exception) {
                             Toast.makeText(requireContext(), "결제 중 오류가 발생했어요.", Toast.LENGTH_SHORT).show()
                             binding.btnPay.isEnabled = true

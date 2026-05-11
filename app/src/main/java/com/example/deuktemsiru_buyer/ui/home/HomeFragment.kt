@@ -13,6 +13,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.deuktemsiru_buyer.R
+import com.example.deuktemsiru_buyer.data.CartManager
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.data.Store
 import com.example.deuktemsiru_buyer.data.categoryToApi
@@ -48,6 +49,10 @@ class HomeFragment : Fragment() {
         setupRecyclerView()
         setupCategoryChips()
         loadStores(null)
+
+        binding.btnCart.setOnClickListener {
+            findNavController().navigate(R.id.action_home_to_cart)
+        }
     }
 
     private fun loadStores(category: String?) {
@@ -143,6 +148,22 @@ class HomeFragment : Fragment() {
                 val apiCategory = if (category == "전체") null else category
                 loadStores(apiCategory)
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateCartBadge()
+    }
+
+    private fun updateCartBadge() {
+        if (_binding == null) return
+        val count = CartManager.totalCount
+        if (count > 0) {
+            binding.tvCartBadge.visibility = View.VISIBLE
+            binding.tvCartBadge.text = if (count > 9) "9+" else count.toString()
+        } else {
+            binding.tvCartBadge.visibility = View.GONE
         }
     }
 

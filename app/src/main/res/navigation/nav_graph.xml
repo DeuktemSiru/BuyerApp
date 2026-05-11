@@ -45,6 +45,21 @@
         <action
             android:id="@+id/action_home_to_storeDetail"
             app:destination="@id/storeDetailFragment" />
+        <action
+            android:id="@+id/action_home_to_cart"
+            app:destination="@id/cartFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/cartFragment"
+        android:name="com.example.deuktemsiru_buyer.ui.cart.CartFragment"
+        android:label="장바구니">
+        <action
+            android:id="@+id/action_cart_to_payment"
+            app:destination="@id/paymentFragment" />
+        <action
+            android:id="@+id/action_cart_to_storeDetail"
+            app:destination="@id/storeDetailFragment" />
     </fragment>
 
     <fragment
@@ -104,6 +119,10 @@
             android:name="menuId"
             app:argType="integer"
             android:defaultValue="0" />
+        <argument
+            android:name="fromCart"
+            app:argType="boolean"
+            android:defaultValue="false" />
         <action
             android:id="@+id/action_payment_to_pickup"
             app:destination="@id/pickupFragment"
@@ -113,7 +132,15 @@
     <fragment
         android:id="@+id/pickupFragment"
         android:name="com.example.deuktemsiru_buyer.ui.pickup.PickupFragment"
-        android:label="픽업 안내" />
+        android:label="픽업 안내">
+        <action
+            android:id="@+id/action_pickup_to_routeMap"
+            app:destination="@id/routeMapFragment" />
+    </fragment>
 
+    <fragment
+        android:id="@+id/routeMapFragment"
+        android:name="com.example.deuktemsiru_buyer.ui.route.RouteMapFragment"
+        android:label="길찾기" />
 
 </navigation>

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/map_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- 상단 바 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="12dp"
+        android:background="#CCFFFFFF">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_surface_card"
+            android:src="@drawable/ic_back"
+            android:contentDescription="뒤로가기"
+            android:padding="8dp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="길찾기"
+            android:textSize="17sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/color_text"
+            android:gravity="center" />
+
+        <View
+            android:layout_width="40dp"
+            android:layout_height="40dp" />
+
+    </LinearLayout>
+
+    <!-- 로딩 -->
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <!-- 하단 정보 카드 -->
+    <LinearLayout
+        android:id="@+id/card_route_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical"
+        android:background="@color/white"
+        android:paddingTop="16dp"
+        android:paddingBottom="24dp"
+        android:paddingHorizontal="20dp"
+        android:elevation="8dp"
+        android:visibility="gone">
+
+        <!-- 핸들 바 -->
+        <View
+            android:layout_width="36dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:background="@color/color_border"
+            android:backgroundTint="@color/color_border" />
+
+        <!-- 가게 이름 -->
+        <TextView
+            android:id="@+id/tv_dest_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/color_text"
+            android:layout_marginBottom="8dp" />
+
+        <!-- 시간 · 거리 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_clock"
+                android:layout_marginEnd="4dp"
+                android:contentDescription="시간" />
+
+            <TextView
+                android:id="@+id/tv_walk_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:textColor="@color/primary"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginEnd="12dp" />
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_location"
+                android:layout_marginEnd="4dp"
+                android:contentDescription="거리" />
+
+            <TextView
+                android:id="@+id/tv_distance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:textColor="@color/color_text_sub" />
+
+        </LinearLayout>
+
+        <!-- 출발 → 도착 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_surface_card"
+            android:padding="12dp">
+
+            <View
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:background="@drawable/bg_timer_circle" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="현재 위치"
+                android:textSize="13sp"
+                android:textColor="@color/color_text_sub"
+                android:layout_marginStart="8dp" />
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_arrow_right"
+                android:layout_marginHorizontal="8dp"
+                android:contentDescription="방향" />
+
+            <TextView
+                android:id="@+id/tv_dest_label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="13sp"
+                android:textColor="@color/color_text"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="end" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

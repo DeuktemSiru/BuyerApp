@@ -57,13 +57,32 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="알림" />
 
-            <ImageButton
-                android:id="@+id/btn_cart"
+            <FrameLayout
                 android:layout_width="@dimen/touch_target_min"
-                android:layout_height="@dimen/touch_target_min"
-                android:src="@drawable/ic_cart"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="장바구니" />
+                android:layout_height="@dimen/touch_target_min">
+
+                <ImageButton
+                    android:id="@+id/btn_cart"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_cart"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="장바구니" />
+
+                <TextView
+                    android:id="@+id/tv_cart_badge"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_gravity="top|end"
+                    android:layout_margin="4dp"
+                    android:background="@drawable/bg_cart_badge"
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:textSize="10sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:visibility="gone" />
+
+            </FrameLayout>
         </LinearLayout>
 
         <!-- Search bar -->
