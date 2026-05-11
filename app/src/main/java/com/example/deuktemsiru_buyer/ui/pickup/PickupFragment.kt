@@ -12,6 +12,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.SampleData
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.FragmentPickupBinding
@@ -27,6 +29,9 @@ class PickupFragment : Fragment() {
     private var remainingSeconds = 42 * 60
     private var timerRunnable: Runnable? = null
     private var pickupCode = "----"
+    private var storeLat = 0.0
+    private var storeLng = 0.0
+    private var storeName = ""
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,9 +47,12 @@ class PickupFragment : Fragment() {
 
         val session = SessionManager(requireContext())
         val orderId = session.lastOrderId
+        val storeId = arguments?.getInt("storeId") ?: 0
 
         if (orderId > 0L) {
-            loadOrder(orderId)
+            loadOrder(orderId, storeId)
+        } else {
+            applyStoreFromSample(storeId)
         }
 
         startCountdown()
@@ -57,7 +65,18 @@ class PickupFragment : Fragment() {
         }
 
         binding.btnDirections.setOnClickListener {
-            Toast.makeText(requireContext(), "지도 앱으로 연결됩니다", Toast.LENGTH_SHORT).show()
+            if (storeLat == 0.0 && storeLng == 0.0) {
+                Toast.makeText(requireContext(), "가게 위치를 불러오는 중이에요", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            findNavController().navigate(
+                R.id.action_pickup_to_routeMap,
+                Bundle().apply {
+                    putDouble("destLat", storeLat)
+                    putDouble("destLng", storeLng)
+                    putString("destName", storeName)
+                }
+            )
         }
 
         binding.btnCall.setOnClickListener {
@@ -66,7 +85,7 @@ class PickupFragment : Fragment() {
         }
     }
 
-    private fun loadOrder(orderId: Long) {
+    private fun loadOrder(orderId: Long, storeId: Int) {
         lifecycleScope.launch {
             try {
                 val order = RetrofitClient.api.getOrder(orderId)
@@ -81,10 +100,27 @@ class PickupFragment : Fragment() {
                 val store = RetrofitClient.api.getStore(order.storeId)
                 binding.tvStoreAddress.text = store.address
                 binding.tvStoreAddress.tag = store.phone
+                storeLat = store.latitude
+                storeLng = store.longitude
+                storeName = order.storeName
+
+                if (storeLat == 0.0 && storeLng == 0.0) {
+                    applyStoreFromSample(storeId.takeIf { it > 0 } ?: order.storeId.toInt())
+                }
             } catch (e: Exception) {
-                // 오류 시 기존 표시 유지
+                applyStoreFromSample(storeId)
             }
         }
+    }
+
+    private fun applyStoreFromSample(storeId: Int) {
+        val store = SampleData.getStoreById(storeId) ?: SampleData.stores.firstOrNull() ?: return
+        storeLat = store.latitude
+        storeLng = store.longitude
+        storeName = store.name
+        binding.tvStoreName.text = store.name
+        binding.tvStoreAddress.text = store.address
+        binding.tvStoreAddress.tag = store.phone
     }
 
     private fun startCountdown() {

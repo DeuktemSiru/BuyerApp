@@ -7,12 +7,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.deuktemsiru_buyer.R
+import com.example.deuktemsiru_buyer.data.CartItem
+import com.example.deuktemsiru_buyer.data.CartManager
+import com.example.deuktemsiru_buyer.data.MenuItem
 import com.example.deuktemsiru_buyer.data.SampleData
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.data.Store
@@ -87,6 +91,7 @@ class StoreDetailFragment : Fragment() {
 
         setupMenuList(store)
         startTimer(store.minutesUntilClose)
+        updateCartBadge()
 
         updateWishlistButtons()
 
@@ -95,6 +100,13 @@ class StoreDetailFragment : Fragment() {
         }
         binding.btnWishlist.setOnClickListener(wishlistToggle)
         binding.btnWishlistBottom.setOnClickListener(wishlistToggle)
+
+        binding.btnCart.setOnClickListener {
+            val menu = store.menus.firstOrNull { it.id == selectedMenuId && !it.isSoldOut }
+                ?: store.menus.firstOrNull { !it.isSoldOut }
+                ?: return@setOnClickListener
+            addToCart(store, menu)
+        }
 
         val allSoldOut = store.menus.all { it.isSoldOut }
         if (allSoldOut) {
@@ -111,6 +123,44 @@ class StoreDetailFragment : Fragment() {
             } else {
                 Toast.makeText(requireContext(), "다음 입고 시 알림을 보내드릴게요!", Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    private fun addToCart(store: Store, menu: MenuItem) {
+        val item = CartItem(
+            menuId = menu.id.toLong(),
+            menuName = menu.name,
+            emoji = menu.emoji,
+            originalPrice = menu.originalPrice,
+            discountedPrice = menu.discountedPrice,
+        )
+        val added = CartManager.add(store.id.toLong(), store.name, store.emoji, store.latitude, store.longitude, item)
+        if (!added) {
+            AlertDialog.Builder(requireContext())
+                .setTitle("다른 가게 메뉴가 있어요")
+                .setMessage("장바구니에 ${CartManager.storeName}의 메뉴가 담겨있어요.\n비우고 ${store.name} 메뉴를 담을까요?")
+                .setPositiveButton("비우고 담기") { _, _ ->
+                    CartManager.clear()
+                    CartManager.add(store.id.toLong(), store.name, store.emoji, store.latitude, store.longitude, item)
+                    updateCartBadge()
+                    Toast.makeText(requireContext(), "${menu.name}을(를) 장바구니에 담았어요", Toast.LENGTH_SHORT).show()
+                }
+                .setNegativeButton("취소", null)
+                .show()
+        } else {
+            updateCartBadge()
+            Toast.makeText(requireContext(), "${menu.name}을(를) 장바구니에 담았어요", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun updateCartBadge() {
+        if (_binding == null) return
+        val count = CartManager.totalCount
+        if (count > 0) {
+            binding.tvCartBadge.visibility = View.VISIBLE
+            binding.tvCartBadge.text = if (count > 9) "9+" else count.toString()
+        } else {
+            binding.tvCartBadge.visibility = View.GONE
         }
     }
 
