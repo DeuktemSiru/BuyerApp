@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.deuktemsiru_buyer.R
-import com.example.deuktemsiru_buyer.data.SampleData
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.FragmentPickupBinding
 import com.example.deuktemsiru_buyer.network.RetrofitClient
@@ -52,7 +51,7 @@ class PickupFragment : Fragment() {
         if (orderId > 0L) {
             loadOrder(orderId, storeId)
         } else {
-            applyStoreFromSample(storeId)
+            loadStoreFallback(storeId)
         }
 
         startCountdown()
@@ -88,16 +87,16 @@ class PickupFragment : Fragment() {
     private fun loadOrder(orderId: Long, storeId: Int) {
         lifecycleScope.launch {
             try {
-                val order = RetrofitClient.api.getOrder(orderId)
+                val order = RetrofitClient.api.getOrder(orderId).data ?: return@launch
                 pickupCode = order.pickupCode
 
                 binding.tvPickupTime.text = "${order.pickupTime}까지"
                 binding.tvPickupCode.text = order.pickupCode.chunked(1).joinToString(" ")
                 binding.tvStoreName.text = order.storeName
                 binding.tvOrderMenu.text = order.items.joinToString(", ") { "${it.emoji} ${it.name}" }
-                binding.tvPaidPrice.text = SampleData.formatPrice(order.totalAmount)
+                binding.tvPaidPrice.text = "%,d원".format(order.totalAmount)
 
-                val store = RetrofitClient.api.getStore(order.storeId)
+                val store = RetrofitClient.api.getStore(order.storeId).data ?: return@launch
                 binding.tvStoreAddress.text = store.address
                 binding.tvStoreAddress.tag = store.phone
                 storeLat = store.latitude
@@ -105,22 +104,29 @@ class PickupFragment : Fragment() {
                 storeName = order.storeName
 
                 if (storeLat == 0.0 && storeLng == 0.0) {
-                    applyStoreFromSample(storeId.takeIf { it > 0 } ?: order.storeId.toInt())
+                    loadStoreFallback(storeId.takeIf { it > 0 } ?: order.storeId.toInt())
                 }
             } catch (e: Exception) {
-                applyStoreFromSample(storeId)
+                loadStoreFallback(storeId)
             }
         }
     }
 
-    private fun applyStoreFromSample(storeId: Int) {
-        val store = SampleData.getStoreById(storeId) ?: SampleData.stores.firstOrNull() ?: return
-        storeLat = store.latitude
-        storeLng = store.longitude
-        storeName = store.name
-        binding.tvStoreName.text = store.name
-        binding.tvStoreAddress.text = store.address
-        binding.tvStoreAddress.tag = store.phone
+    private fun loadStoreFallback(storeId: Int) {
+        if (storeId <= 0) return
+        lifecycleScope.launch {
+            try {
+                val store = RetrofitClient.api.getStore(storeId.toLong()).data ?: return@launch
+                storeLat = store.latitude
+                storeLng = store.longitude
+                storeName = store.name
+                binding.tvStoreName.text = store.name
+                binding.tvStoreAddress.text = store.address
+                binding.tvStoreAddress.tag = store.phone
+            } catch (_: Exception) {
+                binding.tvStoreAddress.tag = ""
+            }
+        }
     }
 
     private fun startCountdown() {

@@ -5,6 +5,7 @@ app/build/
 
 # Local configuration (contains SDK path — machine-specific)
 local.properties
+.claude/
 
 # Gradle
 .gradle/
@@ -22,6 +23,9 @@ gradle/wrapper/gradle-wrapper.jar
 .idea/caches/
 .idea/navEditor.xml
 .idea/deploymentTargetSelector.xml
+.idea/markdown.xml
+.idea/deviceManager.xml
+.idea/misc.xml
 
 # Keep run configurations shared with team
 !.idea/runConfigurations/
@@ -34,7 +38,8 @@ gradle/wrapper/gradle-wrapper.jar
 .DS_Store
 Thumbs.db
 
-# Keystore — never commit signing credentials
+# Keystore — debug/local keystores는 커밋 제외, 릴리스 키스토어는 공유용으로 허용
 *.jks
 *.keystore
+!release.keystore
 keystore.properties

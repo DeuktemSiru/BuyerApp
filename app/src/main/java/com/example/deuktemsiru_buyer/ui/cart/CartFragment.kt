@@ -15,7 +15,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.CartManager
-import com.example.deuktemsiru_buyer.data.SampleData
 import com.example.deuktemsiru_buyer.databinding.FragmentCartBinding
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
@@ -104,9 +103,9 @@ class CartFragment : Fragment() {
             binding.btnCheckout.isEnabled = true
             binding.tvStoreEmoji.text = CartManager.storeEmoji
             binding.tvStoreName.text = CartManager.storeName
-            binding.tvSubtotal.text = SampleData.formatPrice(CartManager.totalPrice)
-            binding.tvTotal.text = SampleData.formatPrice(CartManager.totalPrice)
-            binding.btnCheckout.text = "${SampleData.formatPrice(CartManager.totalPrice)} 예약하기"
+            binding.tvSubtotal.text = formatPrice(CartManager.totalPrice)
+            binding.tvTotal.text = formatPrice(CartManager.totalPrice)
+            binding.btnCheckout.text = "${formatPrice(CartManager.totalPrice)} 예약하기"
             adapter.update(CartManager.items)
             updateSelectAllState()
             updateCarbonLabel()
@@ -178,6 +177,8 @@ class CartFragment : Fragment() {
         else
             "가게까지 ${distMeters}m"
     }
+
+    private fun formatPrice(price: Int): String = "%,d원".format(price)
 
     override fun onDestroyView() {
         super.onDestroyView()

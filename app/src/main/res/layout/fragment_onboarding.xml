@@ -54,85 +54,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_md"
-            android:text="로그인 후 약관 동의와 시루 연동을 이어서 진행합니다."
+            android:text="카카오로 간편하게 시작해보세요."
             android:textColor="@color/color_text_sub"
             android:textSize="@dimen/text_body" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/ll_auth"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ll_title">
-
-        <EditText
-            android:id="@+id/et_email"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/touch_target_min"
-            android:background="@drawable/bg_input"
-            android:hint="이메일"
-            android:inputType="textEmailAddress"
-            android:paddingHorizontal="@dimen/spacing_md"
-            android:singleLine="true"
-            android:textColor="@color/color_text"
-            android:textColorHint="@color/color_text_muted"
-            android:textSize="@dimen/text_body" />
-
-        <EditText
-            android:id="@+id/et_password"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/touch_target_min"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_input"
-            android:hint="비밀번호"
-            android:inputType="textPassword"
-            android:paddingHorizontal="@dimen/spacing_md"
-            android:singleLine="true"
-            android:textColor="@color/color_text"
-            android:textColorHint="@color/color_text_muted"
-            android:textSize="@dimen/text_body" />
-
-        <EditText
-            android:id="@+id/et_nickname"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/touch_target_min"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_input"
-            android:hint="닉네임"
-            android:inputType="textPersonName"
-            android:paddingHorizontal="@dimen/spacing_md"
-            android:singleLine="true"
-            android:textColor="@color/color_text"
-            android:textColorHint="@color/color_text_muted"
-            android:textSize="@dimen/text_body"
-            android:visibility="gone" />
-
-        <TextView
-            android:id="@+id/tv_mode_toggle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:paddingTop="10dp"
-            android:paddingBottom="4dp"
-            android:text="처음이라면 회원가입"
-            android:textColor="@color/primary"
-            android:textSize="@dimen/text_caption" />
-    </LinearLayout>
-
     <Button
-        android:id="@+id/btn_start"
+        android:id="@+id/btn_kakao_login"
         android:layout_width="0dp"
         android:layout_height="@dimen/cta_button_height"
         android:layout_marginBottom="16dp"
-        android:background="@drawable/bg_dark_button"
+        android:background="#FEE500"
         android:fontFamily="sans-serif-medium"
         android:stateListAnimator="@null"
-        android:text="로그인하기"
-        android:textColor="@color/white"
+        android:text="카카오로 시작하기"
+        android:textColor="#191919"
         android:textSize="@dimen/text_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
