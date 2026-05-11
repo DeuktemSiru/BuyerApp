@@ -38,10 +38,9 @@ class OnboardingFragment : Fragment() {
 
         val session = SessionManager(requireContext())
 
-        // 이미 로그인된 경우 홈으로 바로 이동
         if (session.isLoggedIn()) {
             session.restoreToken()
-            findNavController().navigate(R.id.action_onboarding_to_home)
+            navigateHome()
             return
         }
 
@@ -51,52 +50,47 @@ class OnboardingFragment : Fragment() {
     }
 
     private fun startKakaoLogin(session: SessionManager) {
-        binding.btnKakaoLogin.isEnabled = false
-        binding.btnKakaoLogin.text = "로그인 중..."
+        setLoading(true)
 
         val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
-            if (error != null) {
-                android.util.Log.e("KakaoLogin", "카카오 SDK 에러: ${error.message}", error)
-                Toast.makeText(requireContext(), "카카오 로그인에 실패했어요", Toast.LENGTH_SHORT).show()
-                resetButton()
-            } else if (token != null) {
-                android.util.Log.d("KakaoLogin", "카카오 토큰 획득 성공, 백엔드 전송 중...")
-                sendTokenToServer(token.accessToken, session)
+            when {
+                error != null -> handleKakaoError(error)
+                token != null -> loginToBackend(token.accessToken, session)
             }
         }
 
-        // 카카오톡 로그인 시도 → 실패 시 카카오 계정 로그인으로 폴백
-        if (UserApiClient.instance.isKakaoTalkLoginAvailable(requireContext())) {
-            UserApiClient.instance.loginWithKakaoTalk(requireContext()) { token, error ->
+        val context = requireContext()
+        if (UserApiClient.instance.isKakaoTalkLoginAvailable(context)) {
+            UserApiClient.instance.loginWithKakaoTalk(context) { token, error ->
                 if (error != null) {
-                    // 사용자가 카카오톡 로그인을 취소한 경우 폴백 하지 않음
-                    if (error is ClientError && error.reason == ClientErrorCause.Cancelled) {
-                        resetButton()
-                        return@loginWithKakaoTalk
-                    }
-                    // 그 외 에러 → 카카오 계정 로그인으로 폴백
-                    UserApiClient.instance.loginWithKakaoAccount(requireContext(), callback = callback)
+                    if (error.isUserCancelled()) setLoading(false)
+                    else UserApiClient.instance.loginWithKakaoAccount(context, callback = callback)
                 } else if (token != null) {
-                    sendTokenToServer(token.accessToken, session)
+                    loginToBackend(token.accessToken, session)
                 }
             }
         } else {
-            UserApiClient.instance.loginWithKakaoAccount(requireContext(), callback = callback)
+            UserApiClient.instance.loginWithKakaoAccount(context, callback = callback)
         }
     }
 
-    private fun sendTokenToServer(kakaoAccessToken: String, session: SessionManager) {
+    private fun handleKakaoError(error: Throwable) {
+        if (!error.isUserCancelled()) {
+            Toast.makeText(requireContext(), "카카오 로그인에 실패했어요", Toast.LENGTH_SHORT).show()
+        }
+        setLoading(false)
+    }
+
+    private fun loginToBackend(kakaoAccessToken: String, session: SessionManager) {
         lifecycleScope.launch {
             try {
-                android.util.Log.d("KakaoLogin", "백엔드 호출: accessToken 앞 20자 = ${kakaoAccessToken.take(20)}")
-                val response = RetrofitClient.api.kakaoLogin(
+                val loginData = RetrofitClient.api.kakaoLogin(
                     KakaoLoginRequest(kakaoAccessToken = kakaoAccessToken, role = "CONSUMER")
-                )
-                android.util.Log.d("KakaoLogin", "백엔드 응답: code=${response.code}, message=${response.message}, data=${response.data}")
-                val loginData = response.data
+                ).data
+
                 if (loginData == null) {
                     Toast.makeText(requireContext(), "로그인에 실패했어요", Toast.LENGTH_SHORT).show()
-                    resetButton()
+                    setLoading(false)
                     return@launch
                 }
 
@@ -105,18 +99,24 @@ class OnboardingFragment : Fragment() {
                 session.accessToken = loginData.accessToken
                 session.refreshToken = loginData.refreshToken
 
-                findNavController().navigate(R.id.action_onboarding_to_home)
+                navigateHome()
             } catch (e: Exception) {
-                android.util.Log.e("KakaoLogin", "백엔드 호출 예외: ${e.message}", e)
                 Toast.makeText(requireContext(), "서버 로그인에 실패했어요. 잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show()
-                resetButton()
+                setLoading(false)
             }
         }
     }
 
-    private fun resetButton() {
-        binding.btnKakaoLogin.isEnabled = true
-        binding.btnKakaoLogin.text = "카카오로 시작하기"
+    private fun Throwable.isUserCancelled() =
+        this is ClientError && reason == ClientErrorCause.Cancelled
+
+    private fun navigateHome() {
+        findNavController().navigate(R.id.action_onboarding_to_home)
+    }
+
+    private fun setLoading(loading: Boolean) {
+        binding.btnKakaoLogin.isEnabled = !loading
+        binding.btnKakaoLogin.text = if (loading) "로그인 중..." else "카카오로 시작하기"
     }
 
     override fun onDestroyView() {

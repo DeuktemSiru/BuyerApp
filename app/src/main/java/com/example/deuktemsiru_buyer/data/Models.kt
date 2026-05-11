@@ -35,8 +35,6 @@ data class MenuItem(
     val isSoldOut: Boolean = false
 )
 
-// 샘플 데이터는 제거됨 — 모든 데이터는 API에서 로드
-
 fun StoreApiResponse.toStore(): Store {
     val rep = menus.firstOrNull { !it.isSoldOut } ?: menus.firstOrNull()
     return Store(
@@ -71,21 +69,17 @@ fun MenuItemApiResponse.toMenuItem() = MenuItem(
     isSoldOut = isSoldOut,
 )
 
-fun categoryToDisplay(category: String) = when (category) {
-    "BAKERY" -> "베이커리"
-    "LUNCHBOX" -> "도시락"
-    "SALAD" -> "샐러드"
-    "CAFE" -> "카페"
-    else -> category
-}
+private val categoryLabels = mapOf(
+    "BAKERY" to "베이커리",
+    "LUNCHBOX" to "도시락",
+    "SALAD" to "샐러드",
+    "CAFE" to "카페",
+)
 
-fun categoryToApi(display: String) = when (display) {
-    "베이커리" -> "BAKERY"
-    "도시락" -> "LUNCHBOX"
-    "샐러드" -> "SALAD"
-    "카페" -> "CAFE"
-    else -> null
-}
+fun categoryToDisplay(category: String) = categoryLabels[category] ?: category
+
+fun categoryToApi(display: String) =
+    categoryLabels.entries.firstOrNull { it.value == display }?.key
 
 private fun minutesUntilClose(closingTime: String): Int {
     val parts = closingTime.split(":")
