@@ -18,7 +18,7 @@ class SessionManager(context: Context) {
         get() = prefs.getString("accessToken", "") ?: ""
         set(value) {
             prefs.edit().putString("accessToken", value).apply()
-            RetrofitClient.accessToken = value
+            RetrofitClient.accessToken = value.takeIf { it.isNotBlank() }
         }
 
     var refreshToken: String
@@ -31,10 +31,8 @@ class SessionManager(context: Context) {
 
     fun isLoggedIn() = memberId > 0L && accessToken.isNotBlank()
 
-    /** 앱 시작 시 저장된 토큰을 RetrofitClient에 복원 */
     fun restoreToken() {
-        val stored = accessToken
-        if (stored.isNotBlank()) RetrofitClient.accessToken = stored
+        RetrofitClient.accessToken = accessToken.takeIf { it.isNotBlank() }
     }
 
     fun clear() {
