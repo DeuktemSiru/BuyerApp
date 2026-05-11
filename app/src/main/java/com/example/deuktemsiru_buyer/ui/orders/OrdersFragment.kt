@@ -84,11 +84,11 @@ private class OrderHistoryAdapter(
     }
 
     private fun statusLabel(status: String) = when (status) {
-        "NEW" -> "접수 대기"
+        "PENDING" -> "접수 대기"
         "PREPARING" -> "준비중"
         "READY" -> "픽업 대기"
         "COMPLETED" -> "완료"
-        "REJECTED" -> "거절됨"
+        "CANCELLED" -> "취소됨"
         else -> status
     }
 }
