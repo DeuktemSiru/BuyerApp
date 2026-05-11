@@ -1,29 +1,44 @@
 package com.example.deuktemsiru_buyer.data
 
 import android.content.Context
+import com.example.deuktemsiru_buyer.network.RetrofitClient
 
 class SessionManager(context: Context) {
     private val prefs = context.getSharedPreferences("buyer_session", Context.MODE_PRIVATE)
 
-    var userId: Long
-        get() = prefs.getLong("userId", -1L)
-        set(value) { prefs.edit().putLong("userId", value).apply() }
+    var memberId: Long
+        get() = prefs.getLong("memberId", -1L)
+        set(value) { prefs.edit().putLong("memberId", value).apply() }
 
     var nickname: String
         get() = prefs.getString("nickname", "") ?: ""
         set(value) { prefs.edit().putString("nickname", value).apply() }
 
-    var token: String
-        get() = prefs.getString("token", "") ?: ""
-        set(value) { prefs.edit().putString("token", value).apply() }
+    var accessToken: String
+        get() = prefs.getString("accessToken", "") ?: ""
+        set(value) {
+            prefs.edit().putString("accessToken", value).apply()
+            RetrofitClient.accessToken = value
+        }
+
+    var refreshToken: String
+        get() = prefs.getString("refreshToken", "") ?: ""
+        set(value) { prefs.edit().putString("refreshToken", value).apply() }
 
     var lastOrderId: Long
         get() = prefs.getLong("lastOrderId", -1L)
         set(value) { prefs.edit().putLong("lastOrderId", value).apply() }
 
-    fun isLoggedIn() = userId > 0L && token.isNotBlank()
+    fun isLoggedIn() = memberId > 0L && accessToken.isNotBlank()
+
+    /** 앱 시작 시 저장된 토큰을 RetrofitClient에 복원 */
+    fun restoreToken() {
+        val stored = accessToken
+        if (stored.isNotBlank()) RetrofitClient.accessToken = stored
+    }
 
     fun clear() {
         prefs.edit().clear().apply()
+        RetrofitClient.accessToken = null
     }
 }

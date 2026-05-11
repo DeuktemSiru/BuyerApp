@@ -55,7 +55,9 @@ class WishlistFragment : Fragment() {
 
         lifecycleScope.launch {
             try {
-                val stores = RetrofitClient.api.getWishlist(session.userId).map { it.toStore() }
+                val stores = RetrofitClient.api.getWishlist().data
+                    ?.map { it.toStore() }
+                    ?: emptyList()
                 allStores.clear()
                 allStores.addAll(stores)
                 binding.progress.visibility = View.GONE

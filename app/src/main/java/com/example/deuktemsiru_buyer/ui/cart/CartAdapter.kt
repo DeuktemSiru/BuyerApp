@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.deuktemsiru_buyer.data.CartItem
-import com.example.deuktemsiru_buyer.data.SampleData
 import com.example.deuktemsiru_buyer.databinding.ItemCartBinding
 
 class CartAdapter(
@@ -23,8 +22,8 @@ class CartAdapter(
         fun bind(item: CartItem) {
             binding.tvEmoji.text = item.emoji
             binding.tvMenuName.text = item.menuName
-            binding.tvDiscountedPrice.text = SampleData.formatPrice(item.discountedPrice * item.quantity)
-            binding.tvOriginalPrice.text = SampleData.formatPrice(item.originalPrice * item.quantity)
+            binding.tvDiscountedPrice.text = formatPrice(item.discountedPrice * item.quantity)
+            binding.tvOriginalPrice.text = formatPrice(item.originalPrice * item.quantity)
             binding.tvOriginalPrice.paintFlags =
                 binding.tvOriginalPrice.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
             binding.tvQuantity.text = item.quantity.toString()
@@ -67,4 +66,6 @@ class CartAdapter(
     }
 
     val allSelected: Boolean get() = items.isNotEmpty() && selectedIds.size == items.size
+
+    private fun formatPrice(price: Int): String = "%,d원".format(price)
 }

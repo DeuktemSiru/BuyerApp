@@ -36,7 +36,7 @@ class HomeFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
@@ -45,7 +45,6 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         session = SessionManager(requireContext())
-        RetrofitClient.authToken = session.token
         setupRecyclerView()
         setupCategoryChips()
         loadStores(null)
@@ -59,28 +58,32 @@ class HomeFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 val apiCategory = if (category != null) categoryToApi(category) else null
-                val userId = if (session.isLoggedIn()) session.userId else null
-                val stores = RetrofitClient.api.getStores(apiCategory, userId).map { it.toStore() }
+                val stores = RetrofitClient.api.getStores(apiCategory).data
+                    ?.map { it.toStore() }
+                    ?: emptyList()
                 allStores.clear()
                 allStores.addAll(stores)
                 updateList(stores)
             } catch (e: Exception) {
                 if (e is HttpException && (e.code() == 401 || e.code() == 403)) {
-                    session.clear()
-                    RetrofitClient.authToken = null
-                    Toast.makeText(requireContext(), "다시 로그인해주세요.", Toast.LENGTH_SHORT).show()
-                    findNavController().navigate(
-                        R.id.onboardingFragment,
-                        null,
-                        NavOptions.Builder()
-                            .setPopUpTo(R.id.homeFragment, true)
-                            .build()
-                    )
+                    handleAuthFailure()
                     return@launch
                 }
                 Toast.makeText(requireContext(), "가게 목록을 불러오지 못했어요.", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun handleAuthFailure() {
+        session.clear()
+        Toast.makeText(requireContext(), "다시 로그인해주세요.", Toast.LENGTH_SHORT).show()
+        findNavController().navigate(
+            R.id.onboardingFragment,
+            null,
+            NavOptions.Builder()
+                .setPopUpTo(R.id.homeFragment, true)
+                .build()
+        )
     }
 
     private fun updateList(stores: List<Store>) {
@@ -107,7 +110,8 @@ class HomeFragment : Fragment() {
                 if (!session.isLoggedIn()) return@StoreAdapter
                 lifecycleScope.launch {
                     try {
-                        val result = RetrofitClient.api.toggleWishlist(store.id.toLong(), session.userId)
+                        val result = RetrofitClient.api.toggleWishlist(store.id.toLong()).data
+                            ?: emptyMap<String, Any>()
                         val isWishlisted = result["isWishlisted"] as? Boolean ?: false
                         val idx = allStores.indexOfFirst { it.id == store.id }
                         if (idx >= 0) {
