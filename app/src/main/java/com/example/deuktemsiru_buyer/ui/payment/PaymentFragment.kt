@@ -57,18 +57,18 @@ class PaymentFragment : Fragment() {
     }
 
     private fun loadFromCart(session: SessionManager, storeId: Int) {
-        val cartTotal = CartManager.totalPrice
-        val extraDiscount = 1000
-        val finalPrice = (cartTotal - extraDiscount).coerceAtLeast(100)
+        val originalTotal = CartManager.items.sumOf { it.originalPrice * it.quantity }
+        val discountedTotal = CartManager.totalPrice
+        val discountAmount = (originalTotal - discountedTotal).coerceAtLeast(0)
 
         binding.tvStoreName.text = CartManager.storeName
         binding.tvMenuName.text = "장바구니 메뉴 ${CartManager.totalCount}개"
-        binding.tvOrderPrice.text = formatPrice(cartTotal)
-        binding.tvDiscount.text = "-0원"
-        binding.tvExtraDiscount.text = "-${formatPrice(extraDiscount)}"
-        binding.tvFinalPrice.text = formatPrice(finalPrice)
-        binding.tvSavingsMessage.text = "${formatPrice(extraDiscount)}을 추가 절약했어요"
-        binding.btnPay.text = getString(R.string.btn_pay_siru, formatPrice(finalPrice))
+        binding.tvOrderPrice.text = formatPrice(originalTotal)
+        binding.tvDiscount.text = "-${formatPrice(discountAmount)}"
+        binding.tvExtraDiscount.text = "-0원"
+        binding.tvFinalPrice.text = formatPrice(discountedTotal)
+        binding.tvSavingsMessage.text = "${formatPrice(discountAmount)}을 절약하고 음식 ${CartManager.totalCount}개를 구해요"
+        binding.btnPay.text = getString(R.string.btn_pay_siru, formatPrice(discountedTotal))
 
         binding.btnPay.setOnClickListener {
             val pickupTime = timeSlots.getOrElse(selectedSlot - 1) { "17:00" }
@@ -97,7 +97,7 @@ class PaymentFragment : Fragment() {
                 } catch (e: Exception) {
                     Toast.makeText(requireContext(), "결제 중 오류가 발생했어요.", Toast.LENGTH_SHORT).show()
                     binding.btnPay.isEnabled = true
-                    binding.btnPay.text = getString(R.string.btn_pay_siru, formatPrice(finalPrice))
+                    binding.btnPay.text = getString(R.string.btn_pay_siru, formatPrice(discountedTotal))
                 }
             }
         }
@@ -120,16 +120,14 @@ class PaymentFragment : Fragment() {
 
                 val originalTotal = selectedMenu?.originalPrice ?: totalPrice
                 val discountedTotal = selectedMenu?.discountedPrice ?: totalPrice
-                val discountAmount = originalTotal - discountedTotal
-                val extraDiscount = 1000
-                val finalPrice = (discountedTotal - extraDiscount).coerceAtLeast(100)
+                val discountAmount = (originalTotal - discountedTotal).coerceAtLeast(0)
 
                 binding.tvOrderPrice.text = "%,d원".format(originalTotal)
                 binding.tvDiscount.text = "-%,d원".format(discountAmount)
-                binding.tvExtraDiscount.text = "-%,d원".format(extraDiscount)
-                binding.tvFinalPrice.text = "%,d원".format(finalPrice)
-                binding.tvSavingsMessage.text = "%,d원을 절약하고 음식 1개를 구해요".format(discountAmount + extraDiscount)
-                binding.btnPay.text = getString(R.string.btn_pay_siru, "%,d원".format(finalPrice))
+                binding.tvExtraDiscount.text = "-0원"
+                binding.tvFinalPrice.text = "%,d원".format(discountedTotal)
+                binding.tvSavingsMessage.text = "%,d원을 절약하고 음식 1개를 구해요".format(discountAmount)
+                binding.btnPay.text = getString(R.string.btn_pay_siru, "%,d원".format(discountedTotal))
 
                 binding.btnPay.setOnClickListener {
                     val pickupTime = timeSlots.getOrElse(selectedSlot - 1) { "17:00" }
@@ -163,7 +161,7 @@ class PaymentFragment : Fragment() {
                         } catch (e: Exception) {
                             Toast.makeText(requireContext(), "결제 중 오류가 발생했어요.", Toast.LENGTH_SHORT).show()
                             binding.btnPay.isEnabled = true
-                            binding.btnPay.text = getString(R.string.btn_pay_siru, "%,d원".format(finalPrice))
+                            binding.btnPay.text = getString(R.string.btn_pay_siru, "%,d원".format(discountedTotal))
                         }
                     }
                 }

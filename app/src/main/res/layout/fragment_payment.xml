@@ -252,7 +252,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/payment_coupon_available_mock"
+                    android:text="@string/payment_coupon_available_none"
                     android:textSize="@dimen/text_body"
                     android:textColor="@color/primary" />
 
@@ -338,7 +338,7 @@
             android:id="@+id/btn_pay"
             android:layout_width="match_parent"
             android:layout_height="@dimen/cta_button_height"
-            android:text="@string/btn_pay_mock"
+            android:text="@string/btn_pay_placeholder"
             android:textSize="@dimen/text_button"
             android:fontFamily="sans-serif-medium"
             android:textColor="@color/white"

@@ -71,8 +71,7 @@ fun MenuItemApiResponse.toMenuItem() = MenuItem(
 
 private val categoryLabels = mapOf(
     "BAKERY" to "베이커리",
-    "LUNCHBOX" to "도시락",
-    "SALAD" to "샐러드",
+    "RESTAURANT" to "음식점",
     "CAFE" to "카페",
 )
 

@@ -88,11 +88,13 @@ class WishlistFragment : Fragment() {
     }
 
     private fun setupCategoryChips() {
+        binding.chipLunchbox.text = "음식점"
+        binding.chipSalad.visibility = View.GONE
+
         val chips = mapOf(
             binding.chipAll to "전체",
             binding.chipBakery to "베이커리",
-            binding.chipLunchbox to "도시락",
-            binding.chipSalad to "샐러드",
+            binding.chipLunchbox to "음식점",
             binding.chipCafe to "카페"
         )
 
