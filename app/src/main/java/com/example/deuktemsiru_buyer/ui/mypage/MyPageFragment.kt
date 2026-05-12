@@ -8,6 +8,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.FragmentMypageBinding
 import com.example.deuktemsiru_buyer.network.NotificationApiResponse
@@ -37,14 +39,14 @@ class MyPageFragment : Fragment() {
         }
 
         binding.menuOrders.setOnClickListener {
-            Toast.makeText(requireContext(), "주문 내역", Toast.LENGTH_SHORT).show()
+            findNavController().navigate(R.id.ordersFragment)
         }
         binding.menuPlaces.setOnClickListener {
-            Toast.makeText(requireContext(), "자주 가는 위치", Toast.LENGTH_SHORT).show()
+            showSavedPlaces()
         }
         binding.menuNotifications.setOnClickListener { showNotifications(session) }
         binding.menuSupport.setOnClickListener {
-            Toast.makeText(requireContext(), "고객 문의", Toast.LENGTH_SHORT).show()
+            showSupport()
         }
     }
 
@@ -103,6 +105,22 @@ class MyPageFragment : Fragment() {
     }
 
     private fun NotificationApiResponse.dialogLine(): String = "$storeName\n$message"
+
+    private fun showSavedPlaces() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("자주 가는 위치")
+            .setMessage("현재 위치 기반 탐색을 사용 중입니다.\n\n다음 업데이트에서는 집, 회사, 학교 같은 고정 픽업 위치를 저장하고 지도 탐색의 시작 위치로 선택할 수 있어요.")
+            .setPositiveButton("확인", null)
+            .show()
+    }
+
+    private fun showSupport() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("고객 문의")
+            .setMessage("득템시루 이용 중 문제가 생기면 아래 정보를 함께 보내주세요.\n\n- 주문번호\n- 매장명\n- 발생한 문제\n\n문의: support@deuktemsiru.local")
+            .setPositiveButton("확인", null)
+            .show()
+    }
 
     private fun gradeLabel(grade: String) = when (grade) {
         "SEEDLING" -> "🌱 새싹"
