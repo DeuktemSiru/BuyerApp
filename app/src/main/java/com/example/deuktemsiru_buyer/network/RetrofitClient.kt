@@ -6,12 +6,14 @@ import okhttp3.Response
 import okhttp3.Route
 import okhttp3.Authenticator
 import kotlinx.coroutines.runBlocking
+import com.example.deuktemsiru_buyer.BuildConfig
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-    const val BASE_URL = "http://10.0.2.2:8080/"
+    const val DEFAULT_BASE_URL = "http://10.0.2.2:8080/"
+    val BASE_URL: String = BuildConfig.BASE_URL.ifBlank { DEFAULT_BASE_URL }
     var accessToken: String? = null
     var refreshToken: String? = null
     var onTokenRefreshed: ((String) -> Unit)? = null

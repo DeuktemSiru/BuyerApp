@@ -60,6 +60,7 @@ data class StoreApiResponse(
 
 // ── 주문 ────────────────────────────────────────────────────
 data class OrderItemApiResponse(
+    val productId: Long,
     val menuItemId: Long,
     val name: String,
     val emoji: String,
@@ -109,6 +110,6 @@ data class CreateOrderRequest(
 )
 
 data class OrderItemRequest(
-    val menuItemId: Long,
+    val productId: Long,
     val quantity: Int,
 )

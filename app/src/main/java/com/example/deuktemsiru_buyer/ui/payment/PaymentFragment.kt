@@ -73,7 +73,7 @@ class PaymentFragment : Fragment() {
         binding.btnPay.setOnClickListener {
             val pickupTime = timeSlots.getOrElse(selectedSlot - 1) { "17:00" }
             val orderItems = CartManager.items.map {
-                OrderItemRequest(menuItemId = it.menuId, quantity = it.quantity)
+                OrderItemRequest(productId = it.menuId, quantity = it.quantity)
             }
 
             binding.btnPay.isEnabled = false
@@ -132,7 +132,7 @@ class PaymentFragment : Fragment() {
                 binding.btnPay.setOnClickListener {
                     val pickupTime = timeSlots.getOrElse(selectedSlot - 1) { "17:00" }
                     val orderItems = selectedMenu?.let {
-                        listOf(OrderItemRequest(menuItemId = it.id, quantity = 1))
+                        listOf(OrderItemRequest(productId = it.id, quantity = 1))
                     }.orEmpty()
 
                     if (orderItems.isEmpty()) {
