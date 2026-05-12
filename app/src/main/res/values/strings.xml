@@ -19,8 +19,7 @@
     <!-- Categories -->
     <string name="cat_all">전체</string>
     <string name="cat_bakery">베이커리</string>
-    <string name="cat_lunchbox">도시락</string>
-    <string name="cat_salad">샐러드</string>
+    <string name="cat_restaurant">음식점</string>
     <string name="cat_cafe">카페</string>
 
     <!-- Store Card -->
@@ -45,13 +44,13 @@
     <string name="payment_method_siru_notice">시흥시 관내 가맹점에서 사용할 수 있는 지역화폐로 결제돼요.</string>
     <string name="label_coupon">쿠폰</string>
     <string name="label_coupon_available">%d장 사용 가능</string>
-    <string name="payment_coupon_available_mock">2장 사용 가능</string>
+    <string name="payment_coupon_available_none">사용 가능 쿠폰 없음</string>
     <string name="label_order_price">주문 금액</string>
     <string name="label_closing_discount">마감 할인</string>
-    <string name="label_first_order_discount">첫 주문 추가 할인</string>
+    <string name="label_first_order_discount">추가 할인</string>
     <string name="label_final_price">최종 결제</string>
     <string name="btn_pay">%s원 결제하고 음식 구하기</string>
-    <string name="btn_pay_mock">5,000원 결제하고 음식 구하기</string>
+    <string name="btn_pay_placeholder">결제하고 음식 구하기</string>
     <string name="btn_pay_siru">%s 시루로 결제하고 음식 구하기</string>
     <string name="payment_processing_siru">시루로 결제 중...</string>
     <string name="label_deadline_slot">마감 직전</string>

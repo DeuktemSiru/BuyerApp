@@ -6,6 +6,14 @@ import com.example.deuktemsiru_buyer.network.RetrofitClient
 class SessionManager(context: Context) {
     private val prefs = context.getSharedPreferences("buyer_session", Context.MODE_PRIVATE)
 
+    init {
+        restoreToken()
+        RetrofitClient.onTokenRefreshed = { newAccessToken ->
+            prefs.edit().putString("accessToken", newAccessToken).apply()
+            RetrofitClient.accessToken = newAccessToken.takeIf { it.isNotBlank() }
+        }
+    }
+
     var memberId: Long
         get() = prefs.getLong("memberId", -1L)
         set(value) { prefs.edit().putLong("memberId", value).apply() }
@@ -23,7 +31,10 @@ class SessionManager(context: Context) {
 
     var refreshToken: String
         get() = prefs.getString("refreshToken", "") ?: ""
-        set(value) { prefs.edit().putString("refreshToken", value).apply() }
+        set(value) {
+            prefs.edit().putString("refreshToken", value).apply()
+            RetrofitClient.refreshToken = value.takeIf { it.isNotBlank() }
+        }
 
     var lastOrderId: Long
         get() = prefs.getLong("lastOrderId", -1L)
@@ -33,10 +44,12 @@ class SessionManager(context: Context) {
 
     fun restoreToken() {
         RetrofitClient.accessToken = accessToken.takeIf { it.isNotBlank() }
+        RetrofitClient.refreshToken = refreshToken.takeIf { it.isNotBlank() }
     }
 
     fun clear() {
         prefs.edit().clear().apply()
         RetrofitClient.accessToken = null
+        RetrofitClient.refreshToken = null
     }
 }
