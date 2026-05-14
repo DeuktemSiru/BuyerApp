@@ -13,6 +13,10 @@ data class KakaoLoginRequest(
     val role: String = "CONSUMER",
 )
 
+data class DebugLoginRequest(
+    val role: String = "CONSUMER",
+)
+
 data class TokenRefreshRequest(val refreshToken: String)
 
 data class MemberSummary(

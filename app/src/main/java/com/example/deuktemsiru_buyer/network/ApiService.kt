@@ -8,6 +8,9 @@ interface ApiService {
     @POST("api/v1/auth/kakao/login")
     suspend fun kakaoLogin(@Body req: KakaoLoginRequest): ApiResponse<LoginData>
 
+    @POST("api/v1/auth/debug/login")
+    suspend fun debugLogin(@Body req: DebugLoginRequest): ApiResponse<LoginData>
+
     @POST("api/v1/auth/refresh")
     suspend fun refresh(@Body req: TokenRefreshRequest): ApiResponse<TokenData>
 

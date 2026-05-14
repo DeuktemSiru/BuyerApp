@@ -8,9 +8,11 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.example.deuktemsiru_buyer.BuildConfig
 import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.FragmentOnboardingBinding
+import com.example.deuktemsiru_buyer.network.DebugLoginRequest
 import com.example.deuktemsiru_buyer.network.KakaoLoginRequest
 import com.example.deuktemsiru_buyer.network.RetrofitClient
 import com.kakao.sdk.auth.model.OAuthToken
@@ -44,8 +46,36 @@ class OnboardingFragment : Fragment() {
             return
         }
 
+        if (BuildConfig.DEBUG) {
+            binding.btnKakaoLogin.text = "디버그 로그인으로 시작하기"
+        }
+
         binding.btnKakaoLogin.setOnClickListener {
-            startKakaoLogin(session)
+            if (BuildConfig.DEBUG) debugLogin(session) else startKakaoLogin(session)
+        }
+    }
+
+    private fun debugLogin(session: SessionManager) {
+        setLoading(true)
+        lifecycleScope.launch {
+            try {
+                val loginData = RetrofitClient.api.debugLogin(DebugLoginRequest()).data
+                if (loginData == null) {
+                    Toast.makeText(requireContext(), "디버그 로그인에 실패했어요", Toast.LENGTH_SHORT).show()
+                    setLoading(false)
+                    return@launch
+                }
+
+                session.memberId = loginData.member.memberId
+                session.nickname = loginData.member.nickname
+                session.accessToken = loginData.accessToken
+                session.refreshToken = loginData.refreshToken
+
+                navigateHome()
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "디버그 로그인 서버 연결에 실패했어요.", Toast.LENGTH_LONG).show()
+                setLoading(false)
+            }
         }
     }
 
@@ -116,7 +146,11 @@ class OnboardingFragment : Fragment() {
 
     private fun setLoading(loading: Boolean) {
         binding.btnKakaoLogin.isEnabled = !loading
-        binding.btnKakaoLogin.text = if (loading) "로그인 중..." else "카카오로 시작하기"
+        binding.btnKakaoLogin.text = when {
+            loading -> "로그인 중..."
+            BuildConfig.DEBUG -> "디버그 로그인으로 시작하기"
+            else -> "카카오로 시작하기"
+        }
     }
 
     override fun onDestroyView() {
