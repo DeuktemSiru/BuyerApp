@@ -1,527 +1,522 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/color_surface">
 
+    <!-- App bar -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="@dimen/toolbar_height"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@color/white"
+        android:paddingHorizontal="@dimen/spacing_sm">
 
-        <!-- Profile header -->
+        <ImageButton
+            android:id="@+id/btn_menu"
+            android:layout_width="@dimen/touch_target_min"
+            android:layout_height="@dimen/touch_target_min"
+            android:src="@drawable/ic_map"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="메뉴" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/mypage_title"
+            android:textSize="@dimen/text_title"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/primary"
+            android:gravity="center" />
+
+        <ImageButton
+            android:id="@+id/btn_bell"
+            android:layout_width="@dimen/touch_target_min"
+            android:layout_height="@dimen/touch_target_min"
+            android:src="@drawable/ic_bell"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="알림" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:background="@color/white"
-            android:paddingHorizontal="@dimen/spacing_lg"
-            android:paddingTop="24dp"
-            android:paddingBottom="20dp">
+            android:orientation="vertical">
 
-            <!-- Avatar -->
-            <FrameLayout
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:background="@drawable/bg_timer_circle">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="🌱"
-                    android:textSize="26sp" />
-            </FrameLayout>
-
+            <!-- Profile header -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginStart="12dp">
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@color/white"
+                android:paddingHorizontal="@dimen/spacing_lg"
+                android:paddingTop="20dp"
+                android:paddingBottom="20dp">
 
+                <!-- Avatar -->
+                <FrameLayout
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/bg_timer_circle">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="🌱"
+                        android:textSize="26sp" />
+                </FrameLayout>
+
+                <!-- Name + subtitle -->
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp">
 
                     <TextView
                         android:id="@+id/tv_nickname"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="정음식"
+                        android:text="지구지킴이님"
                         android:textSize="@dimen/text_title"
                         android:fontFamily="sans-serif-medium"
                         android:textColor="@color/color_text" />
 
                     <TextView
-                        android:id="@+id/tv_grade"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="3dp"
-                        android:text="🌱 새싹"
-                        android:textSize="11sp"
-                        android:fontFamily="sans-serif-medium"
-                        android:textColor="@color/primary_dark"
-                        android:background="@drawable/bg_grade_badge" />
+                        android:layout_marginTop="2dp"
+                        android:text="오늘도 따뜻한 구출, 감사합니다!"
+                        android:textSize="@dimen/text_caption"
+                        android:textColor="@color/color_text_sub" />
                 </LinearLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="음식 구조대원"
-                    android:textSize="@dimen/text_caption"
-                    android:textColor="@color/color_text_sub" />
+                <!-- Edit button -->
+                <ImageButton
+                    android:id="@+id/btn_edit_profile"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:src="@drawable/ic_share"
+                    android:background="@drawable/bg_surface_card"
+                    android:contentDescription="@string/label_profile_edit" />
             </LinearLayout>
-        </LinearLayout>
 
-        <View android:layout_width="match_parent" android:layout_height="8dp" android:background="@color/color_surface" />
+            <View android:layout_width="match_parent" android:layout_height="8dp" android:background="@color/color_surface" />
 
-        <!-- Savings card -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/bg_savings_card"
-            android:padding="20dp"
-            android:layout_marginHorizontal="@dimen/spacing_lg"
-            android:layout_marginBottom="12dp"
-            android:layout_marginTop="4dp">
-
+            <!-- Carbon reduction main card (green) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="총 절약 금액"
-                        android:textSize="12sp"
-                        android:textColor="#FFCFB8" />
-
-                    <TextView
-                        android:id="@+id/tv_total_savings"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="87,400원"
-                        android:textSize="@dimen/text_display"
-                        android:fontFamily="sans-serif-medium"
-                        android:textColor="@color/white" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="end">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="구한 음식"
-                        android:textSize="12sp"
-                        android:textColor="#FFCFB8" />
-
-                    <TextView
-                        android:id="@+id/tv_saved_food"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="23개"
-                        android:textSize="@dimen/text_headline"
-                        android:fontFamily="sans-serif-medium"
-                        android:textColor="@color/white" />
-                </LinearLayout>
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Sub stats -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginHorizontal="@dimen/spacing_lg"
-            android:layout_marginBottom="12dp">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:orientation="vertical"
-                android:background="@drawable/bg_surface_card"
-                android:padding="@dimen/spacing_lg"
-                android:layout_marginEnd="6dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="이번 달 절약"
-                    android:textSize="12sp"
-                    android:textColor="@color/color_text_sub" />
-
-                <TextView
-                    android:id="@+id/tv_month_savings"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="12,300원"
-                    android:textSize="@dimen/text_title"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/color_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:background="@drawable/bg_surface_card"
-                android:padding="@dimen/spacing_lg"
-                android:layout_marginStart="6dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="탄소 절감"
-                    android:textSize="12sp"
-                    android:textColor="@color/color_text_sub" />
+                android:background="@drawable/bg_carbon_card"
+                android:padding="20dp"
+                android:layout_marginHorizontal="@dimen/spacing_lg"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:layout_marginBottom="@dimen/spacing_sm">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginTop="4dp">
+                    android:layout_marginBottom="4dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="🌱"
-                        android:textSize="14sp"
-                        android:layout_marginEnd="4dp" />
+                        android:text="🌿"
+                        android:textSize="16sp"
+                        android:layout_marginEnd="6dp" />
 
                     <TextView
-                        android:id="@+id/tv_carbon"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/label_carbon_heading"
+                        android:textSize="@dimen/text_body"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="#CCFFFFFF" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="bottom">
+
+                    <TextView
+                        android:id="@+id/tv_carbon_total"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="4.6kg"
+                        android:text="12.4"
+                        android:textSize="@dimen/text_display"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/white" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=" kg"
                         android:textSize="@dimen/text_title"
                         android:fontFamily="sans-serif-medium"
-                        android:textColor="@color/success" />
+                        android:textColor="@color/white"
+                        android:layout_marginBottom="4dp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_carbon_saved_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="총 42개의 음식을 구출하셨어요!"
+                    android:textSize="@dimen/text_caption"
+                    android:textColor="#CCFFFFFF"
+                    android:layout_marginTop="4dp" />
+
+                <!-- Eco level progress -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="6dp">
+
+                    <TextView
+                        android:id="@+id/tv_eco_level"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="에코 레벨: 새싹 🌱"
+                        android:textSize="@dimen/text_caption"
+                        android:textColor="#CCFFFFFF" />
+
+                    <TextView
+                        android:id="@+id/tv_eco_next"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="나무 🌳까지 3.6kg"
+                        android:textSize="@dimen/text_caption"
+                        android:textColor="#CCFFFFFF" />
+                </LinearLayout>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="6dp"
+                    android:background="@drawable/bg_progress_track">
+
+                    <View
+                        android:id="@+id/progress_eco"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/white" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <!-- Eco stat cards: 소나무 / 자동차 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginHorizontal="@dimen/spacing_lg"
+                android:layout_marginBottom="@dimen/spacing_sm">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/bg_eco_stat_card"
+                    android:padding="@dimen/spacing_lg"
+                    android:layout_marginEnd="6dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🌲"
+                        android:textSize="28sp" />
+
+                    <TextView
+                        android:id="@+id/tv_tree_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="소나무 3그루"
+                        android:textSize="@dimen/text_body"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/siru_green" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/label_tree_equiv_sub"
+                        android:textSize="@dimen/text_caption"
+                        android:textColor="@color/color_text_sub" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/bg_surface_card"
+                    android:padding="@dimen/spacing_lg"
+                    android:layout_marginStart="6dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🚗"
+                        android:textSize="28sp" />
+
+                    <TextView
+                        android:id="@+id/tv_car_km"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="자동차 48km"
+                        android:textSize="@dimen/text_body"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/color_text" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/label_car_equiv_sub"
+                        android:textSize="@dimen/text_caption"
+                        android:textColor="@color/color_text_sub" />
                 </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
 
-        <!-- Grade progress -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@color/white"
-            android:padding="@dimen/spacing_lg"
-            android:layout_marginBottom="12dp">
-
+            <!-- Weekly chart -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="10dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="다음 등급까지"
-                    android:textSize="@dimen/text_body"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/color_text" />
-
-                <TextView
-                    android:id="@+id/tv_next_grade"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="7개 더 구하면 🌳"
-                    android:textSize="@dimen/text_caption"
-                    android:textColor="@color/color_text_sub" />
-            </LinearLayout>
-
-            <!-- Progress bar -->
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="8dp"
-                android:background="@drawable/bg_progress_track">
-
-                <View
-                    android:id="@+id/progress_grade"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/bg_primary_button" />
-            </FrameLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="6dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="23/30"
-                    android:textSize="12sp"
-                    android:textColor="@color/color_text_sub" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="76%"
-                    android:textSize="12sp"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/primary" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Quick stats 3-way -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@color/white"
-            android:layout_marginBottom="12dp">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:orientation="vertical"
-                android:gravity="center"
-                android:padding="16dp">
+                android:background="@color/white"
+                android:padding="@dimen/spacing_lg"
+                android:layout_marginBottom="8dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="🎟️"
-                    android:textSize="22sp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
 
-                <TextView
-                    android:id="@+id/tv_coupon_count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="2"
-                    android:textSize="@dimen/text_title"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/color_text" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/label_weekly_trend"
+                        android:textSize="@dimen/text_title"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/color_text" />
 
-                <TextView
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_unit_kg"
+                        android:textSize="@dimen/text_caption"
+                        android:textColor="@color/color_text_sub"
+                        android:background="@drawable/bg_surface_card"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="3dp" />
+                </LinearLayout>
+
+                <!-- Bar chart: 4 bars -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:orientation="horizontal"
+                    android:gravity="bottom">
+
+                    <!-- Week 1 -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="bottom|center_horizontal">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1.2" android:textSize="11sp" android:textColor="@color/color_text_sub" android:layout_marginBottom="4dp" />
+                        <View android:layout_width="28dp" android:layout_height="34dp" android:background="@drawable/bg_chart_bar_inactive" />
+                    </LinearLayout>
+
+                    <!-- Week 2 -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="bottom|center_horizontal">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2.1" android:textSize="11sp" android:textColor="@color/color_text_sub" android:layout_marginBottom="4dp" />
+                        <View android:layout_width="28dp" android:layout_height="50dp" android:background="@drawable/bg_chart_bar_inactive" />
+                    </LinearLayout>
+
+                    <!-- Week 3 (active) -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="bottom|center_horizontal">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.5" android:textSize="11sp" android:fontFamily="sans-serif-medium" android:textColor="@color/siru_green" android:layout_marginBottom="4dp" />
+                        <View android:id="@+id/bar_week3" android:layout_width="28dp" android:layout_height="80dp" android:background="@drawable/bg_chart_bar_active" />
+                    </LinearLayout>
+
+                    <!-- Week 4 (this week) -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="bottom|center_horizontal">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.8" android:textSize="11sp" android:textColor="@color/color_text_sub" android:layout_marginBottom="4dp" />
+                        <View android:layout_width="28dp" android:layout_height="20dp" android:background="@drawable/bg_chart_bar_inactive" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Week labels -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="쿠폰함"
-                    android:textSize="12sp"
-                    android:textColor="@color/color_text_sub" />
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
+
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="1주차" android:textSize="11sp" android:textColor="@color/color_text_sub" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="2주차" android:textSize="11sp" android:textColor="@color/color_text_sub" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="3주차" android:textSize="11sp" android:fontFamily="sans-serif-medium" android:textColor="@color/siru_green" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="이번주" android:textSize="11sp" android:textColor="@color/color_text_sub" />
+                </LinearLayout>
             </LinearLayout>
 
-            <View android:layout_width="1dp" android:layout_height="match_parent" android:background="@color/color_border" />
-
+            <!-- Quick stats: coupon / points / wishlist -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:padding="16dp">
+                android:orientation="horizontal"
+                android:background="@color/white"
+                android:layout_marginBottom="8dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/menu_coupon"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="💎"
-                    android:textSize="22sp" />
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="16dp"
+                    android:foreground="?attr/selectableItemBackground">
 
-                <TextView
-                    android:id="@+id/tv_points"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="1,200P"
-                    android:textSize="@dimen/text_title"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/color_text" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🎟️" android:textSize="22sp" />
+                    <TextView android:id="@+id/tv_coupon_count" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="2" android:textSize="@dimen/text_title" android:fontFamily="sans-serif-medium" android:textColor="@color/color_text" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/label_coupon_box" android:textSize="12sp" android:textColor="@color/color_text_sub" />
+                </LinearLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <View android:layout_width="1dp" android:layout_height="match_parent" android:background="@color/color_border" />
+
+                <LinearLayout
+                    android:id="@+id/menu_points"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="포인트"
-                    android:textSize="12sp"
-                    android:textColor="@color/color_text_sub" />
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="16dp"
+                    android:foreground="?attr/selectableItemBackground">
+
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="💎" android:textSize="22sp" />
+                    <TextView android:id="@+id/tv_points" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="1,200P" android:textSize="@dimen/text_title" android:fontFamily="sans-serif-medium" android:textColor="@color/color_text" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/label_points" android:textSize="12sp" android:textColor="@color/color_text_sub" />
+                </LinearLayout>
+
+                <View android:layout_width="1dp" android:layout_height="match_parent" android:background="@color/color_border" />
+
+                <LinearLayout
+                    android:id="@+id/menu_wishlist"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="16dp"
+                    android:foreground="?attr/selectableItemBackground">
+
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🤍" android:textSize="22sp" />
+                    <TextView android:id="@+id/tv_wishlist_count" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="5" android:textSize="@dimen/text_title" android:fontFamily="sans-serif-medium" android:textColor="@color/color_text" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/label_wishlist" android:textSize="12sp" android:textColor="@color/color_text_sub" />
+                </LinearLayout>
             </LinearLayout>
 
-            <View android:layout_width="1dp" android:layout_height="match_parent" android:background="@color/color_border" />
-
+            <!-- Menu list -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:orientation="vertical"
-                android:gravity="center"
-                android:padding="16dp">
+                android:background="@color/white">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="🤍"
-                    android:textSize="22sp" />
+                <LinearLayout
+                    android:id="@+id/menu_siru_payment"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/touch_target_min"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="@dimen/spacing_lg"
+                    android:foreground="?attr/selectableItemBackground">
 
-                <TextView
-                    android:id="@+id/tv_wishlist_count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="5"
-                    android:textSize="@dimen/text_title"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/color_text" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/menu_siru_payment" android:textSize="@dimen/text_body" android:textColor="@color/color_text" />
+                    <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_arrow_right" android:contentDescription="이동" />
+                </LinearLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="찜"
-                    android:textSize="12sp"
-                    android:textColor="@color/color_text_sub" />
-            </LinearLayout>
-        </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/color_border" android:layout_marginHorizontal="@dimen/spacing_lg" />
 
-        <!-- Menu list -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@color/white">
+                <LinearLayout
+                    android:id="@+id/menu_favorite_stores"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/touch_target_min"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="@dimen/spacing_lg"
+                    android:foreground="?attr/selectableItemBackground">
 
-            <LinearLayout
-                android:id="@+id/menu_orders"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/touch_target_min"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingHorizontal="@dimen/spacing_lg"
-                android:foreground="?attr/selectableItemBackground">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/menu_favorite_stores" android:textSize="@dimen/text_body" android:textColor="@color/color_text" />
+                    <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_arrow_right" android:contentDescription="이동" />
+                </LinearLayout>
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="주문 내역"
-                    android:textSize="@dimen/text_body"
-                    android:textColor="@color/color_text" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/color_border" android:layout_marginHorizontal="@dimen/spacing_lg" />
 
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_arrow_right"
-                    android:contentDescription="이동" />
+                <LinearLayout
+                    android:id="@+id/menu_settings"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/touch_target_min"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="@dimen/spacing_lg"
+                    android:foreground="?attr/selectableItemBackground">
+
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/menu_settings" android:textSize="@dimen/text_body" android:textColor="@color/color_text" />
+                    <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_arrow_right" android:contentDescription="이동" />
+                </LinearLayout>
             </LinearLayout>
 
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/color_border" android:layout_marginHorizontal="@dimen/spacing_lg" />
-
-            <LinearLayout
-                android:id="@+id/menu_places"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/touch_target_min"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingHorizontal="@dimen/spacing_lg"
-                android:foreground="?attr/selectableItemBackground">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="자주 가는 위치"
-                    android:textSize="@dimen/text_body"
-                    android:textColor="@color/color_text" />
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_arrow_right"
-                    android:contentDescription="이동" />
-            </LinearLayout>
-
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/color_border" android:layout_marginHorizontal="@dimen/spacing_lg" />
-
-            <LinearLayout
-                android:id="@+id/menu_notifications"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/touch_target_min"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingHorizontal="@dimen/spacing_lg"
-                android:foreground="?attr/selectableItemBackground">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="알림 설정"
-                    android:textSize="@dimen/text_body"
-                    android:textColor="@color/color_text" />
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_arrow_right"
-                    android:contentDescription="이동" />
-            </LinearLayout>
-
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/color_border" android:layout_marginHorizontal="@dimen/spacing_lg" />
-
-            <LinearLayout
-                android:id="@+id/menu_support"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/touch_target_min"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingHorizontal="@dimen/spacing_lg"
-                android:foreground="?attr/selectableItemBackground">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="고객 문의"
-                    android:textSize="@dimen/text_body"
-                    android:textColor="@color/color_text" />
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_arrow_right"
-                    android:contentDescription="이동" />
-            </LinearLayout>
+            <View android:layout_width="match_parent" android:layout_height="24dp" />
 
         </LinearLayout>
+    </ScrollView>
 
-        <View android:layout_width="match_parent" android:layout_height="24dp" />
-    </LinearLayout>
-</ScrollView>
+</LinearLayout>

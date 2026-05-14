@@ -47,142 +47,102 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="@dimen/spacing_lg">
+            android:orientation="vertical">
 
-            <!-- Order summary -->
+            <!-- Order summary card -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
+                android:orientation="vertical"
                 android:background="@color/white"
                 android:padding="@dimen/spacing_lg"
-                android:layout_marginBottom="@dimen/spacing_md">
+                android:layout_marginBottom="8dp">
 
-                <FrameLayout
-                    android:layout_width="@dimen/payment_thumbnail_size"
-                    android:layout_height="@dimen/payment_thumbnail_size">
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/bg_thumbnail_placeholder" />
+                <!-- Store name header -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="🥐"
-                        android:textSize="@dimen/emoji_lg" />
-                </FrameLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="@dimen/spacing_md">
+                        android:text="🏪"
+                        android:textSize="16sp"
+                        android:layout_marginEnd="6dp" />
 
                     <TextView
                         android:id="@+id/tv_store_name"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="파리바게뜨 정왕점"
+                        android:text="정왕동 꿀맛 베이커리"
                         android:textSize="@dimen/text_body"
                         android:fontFamily="sans-serif-medium"
                         android:textColor="@color/color_text" />
+                </LinearLayout>
+
+                <!-- Item row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <FrameLayout
+                        android:layout_width="@dimen/payment_thumbnail_size"
+                        android:layout_height="@dimen/payment_thumbnail_size">
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_thumbnail_placeholder" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="🥐"
+                            android:textSize="@dimen/emoji_lg" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="@dimen/spacing_md">
+
+                        <TextView
+                            android:id="@+id/tv_menu_name"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="소금빵 3개 세트"
+                            android:textSize="@dimen/text_body"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/color_text" />
+
+                        <TextView
+                            android:id="@+id/tv_pickup_time_display"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_xs"
+                            android:text="오늘 오후 6:00 ~ 7:30 픽업"
+                            android:textSize="@dimen/text_caption"
+                            android:textColor="@color/color_text_sub" />
+                    </LinearLayout>
 
                     <TextView
-                        android:id="@+id/tv_menu_name"
-                        android:layout_width="match_parent"
+                        android:id="@+id/tv_item_price"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_xs"
-                        android:text="아침 세트 A 외 1개"
-                        android:textSize="@dimen/text_caption"
-                        android:textColor="@color/color_text_sub" />
+                        android:text="9,000원"
+                        android:textSize="@dimen/text_body"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/color_text" />
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Pickup time selection -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/label_pickup_time_select"
-                android:textSize="@dimen/text_title"
-                android:fontFamily="sans-serif-medium"
-                android:textColor="@color/color_text"
-                android:layout_marginBottom="@dimen/spacing_sm" />
-
-            <androidx.gridlayout.widget.GridLayout
-                android:id="@+id/grid_time_slots"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/spacing_lg"
-                app:columnCount="2"
-                app:rowCount="2">
-
-                <Button
-                    android:id="@+id/slot_1"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/payment_slot_height"
-                    app:layout_columnWeight="1"
-                    android:layout_margin="@dimen/spacing_xs"
-                    android:text="17:00"
-                    android:textSize="@dimen/text_body"
-                    android:textColor="@color/color_text"
-                    android:background="@drawable/bg_time_slot_selected"
-                    app:backgroundTint="@null"
-                    android:stateListAnimator="@null" />
-
-                <Button
-                    android:id="@+id/slot_2"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/payment_slot_height"
-                    app:layout_columnWeight="1"
-                    android:layout_margin="@dimen/spacing_xs"
-                    android:text="17:30"
-                    android:textSize="@dimen/text_body"
-                    android:textColor="@color/color_text"
-                    android:background="@drawable/bg_time_slot"
-                    app:backgroundTint="@null"
-                    android:stateListAnimator="@null" />
-
-                <Button
-                    android:id="@+id/slot_3"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/payment_slot_height"
-                    app:layout_columnWeight="1"
-                    android:layout_margin="@dimen/spacing_xs"
-                    android:text="18:00"
-                    android:textSize="@dimen/text_body"
-                    android:textColor="@color/color_text"
-                    android:background="@drawable/bg_time_slot"
-                    app:backgroundTint="@null"
-                    android:stateListAnimator="@null" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/payment_slot_height"
-                    app:layout_columnWeight="1"
-                    android:layout_margin="@dimen/spacing_xs"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:background="@drawable/bg_time_slot">
-
-                    <Button
-                        android:id="@+id/slot_4"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="@string/payment_deadline_slot_1830"
-                        android:textSize="@dimen/text_caption"
-                        android:textColor="@color/danger"
-                        android:background="@android:color/transparent"
-                        app:backgroundTint="@null"
-                        android:stateListAnimator="@null" />
-                </LinearLayout>
-
-            </androidx.gridlayout.widget.GridLayout>
-
-            <!-- Payment method -->
+            <!-- Payment method section -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -190,8 +150,12 @@
                 android:textSize="@dimen/text_title"
                 android:fontFamily="sans-serif-medium"
                 android:textColor="@color/color_text"
-                android:layout_marginBottom="@dimen/spacing_sm" />
+                android:paddingHorizontal="@dimen/spacing_lg"
+                android:paddingTop="@dimen/spacing_lg"
+                android:paddingBottom="@dimen/spacing_sm"
+                android:background="@color/white" />
 
+            <!-- Siru payment option (selected state) -->
             <LinearLayout
                 android:id="@+id/ll_siru_payment"
                 android:layout_width="match_parent"
@@ -199,69 +163,152 @@
                 android:orientation="vertical"
                 android:background="@drawable/bg_siru_payment"
                 android:padding="@dimen/spacing_lg"
-                android:layout_marginBottom="@dimen/spacing_md">
+                android:layout_marginHorizontal="@dimen/spacing_lg"
+                android:layout_marginBottom="@dimen/spacing_sm">
 
-                <RadioButton
-                    android:id="@+id/rb_siru"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/touch_target_min"
-                    android:text="@string/payment_method_siru"
-                    android:textSize="@dimen/text_body"
+                <!-- Incentive badge -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/payment_method_siru_incentive"
+                    android:textSize="11sp"
                     android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/siru_green"
-                    android:buttonTint="@color/siru_green"
-                    android:clickable="false"
-                    android:checked="true" />
+                    android:textColor="@color/white"
+                    android:background="@drawable/bg_incentive_badge"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="3dp"
+                    android:layout_gravity="end"
+                    android:layout_marginBottom="8dp" />
 
-                <TextView
+                <!-- Radio + label + recommended -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/touch_target_min"
-                    android:text="@string/payment_method_siru_balance"
-                    android:textSize="@dimen/text_caption"
-                    android:textColor="@color/color_text" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
-                <TextView
+                    <RadioButton
+                        android:id="@+id/rb_siru"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/touch_target_min"
+                        android:text="@string/payment_method_siru"
+                        android:textSize="@dimen/text_body"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/siru_green"
+                        android:buttonTint="@color/siru_green"
+                        android:clickable="false"
+                        android:checked="true" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/payment_method_siru_recommended"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/siru_green"
+                        android:background="@drawable/bg_grade_badge"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="2dp"
+                        android:layout_marginStart="8dp" />
+                </LinearLayout>
+
+                <!-- Balance row + charge button -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/touch_target_min"
-                    android:layout_marginTop="@dimen/spacing_xs"
-                    android:text="@string/payment_method_siru_notice"
-                    android:textSize="@dimen/text_caption"
-                    android:textColor="@color/color_text_sub" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginStart="40dp"
+                    android:layout_marginTop="4dp">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_receipt"
+                        android:contentDescription="잔액"
+                        android:layout_marginEnd="4dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/payment_method_siru_balance_label"
+                        android:textSize="@dimen/text_caption"
+                        android:textColor="@color/color_text_sub" />
+
+                    <TextView
+                        android:id="@+id/tv_siru_balance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/payment_method_siru_balance_amount"
+                        android:textSize="@dimen/text_caption"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/color_text"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:id="@+id/btn_charge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/payment_method_siru_charge"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/siru_green"
+                        android:background="@drawable/bg_siru_payment"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="4dp"
+                        android:foreground="?attr/selectableItemBackground" />
+                </LinearLayout>
             </LinearLayout>
 
-            <!-- Coupon row -->
+            <!-- Card payment option -->
             <LinearLayout
+                android:id="@+id/ll_card_payment"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/touch_target_min"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:background="@color/white"
                 android:paddingHorizontal="@dimen/spacing_lg"
-                android:layout_marginBottom="@dimen/spacing_md">
+                android:layout_marginHorizontal="@dimen/spacing_lg"
+                android:layout_marginBottom="@dimen/spacing_sm"
+                android:foreground="?attr/selectableItemBackground">
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/label_coupon"
-                    android:textSize="@dimen/text_body"
-                    android:textColor="@color/color_text" />
-
-                <TextView
+                <RadioButton
+                    android:id="@+id/rb_card"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/payment_coupon_available_none"
+                    android:layout_height="match_parent"
+                    android:text="@string/payment_method_card"
                     android:textSize="@dimen/text_body"
-                    android:textColor="@color/primary" />
+                    android:textColor="@color/color_text"
+                    android:buttonTint="@color/color_text_muted"
+                    android:clickable="false"
+                    android:checked="false" />
+            </LinearLayout>
 
-                <ImageView
-                    android:layout_width="@dimen/icon_sm"
-                    android:layout_height="@dimen/icon_sm"
-                    android:src="@drawable/ic_arrow_right"
-                    android:layout_marginStart="@dimen/spacing_xs"
-                    android:contentDescription="쿠폰 선택" />
+            <!-- Easy pay option -->
+            <LinearLayout
+                android:id="@+id/ll_easy_payment"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/touch_target_min"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@color/white"
+                android:paddingHorizontal="@dimen/spacing_lg"
+                android:layout_marginHorizontal="@dimen/spacing_lg"
+                android:layout_marginBottom="@dimen/spacing_lg"
+                android:foreground="?attr/selectableItemBackground">
+
+                <RadioButton
+                    android:id="@+id/rb_easy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="@string/payment_method_easy"
+                    android:textSize="@dimen/text_body"
+                    android:textColor="@color/color_text"
+                    android:buttonTint="@color/color_text_muted"
+                    android:clickable="false"
+                    android:checked="false" />
             </LinearLayout>
 
             <!-- Price breakdown -->
@@ -271,7 +318,16 @@
                 android:orientation="vertical"
                 android:background="@color/white"
                 android:padding="@dimen/spacing_lg"
-                android:layout_marginBottom="@dimen/spacing_md">
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="결제 금액"
+                    android:textSize="@dimen/text_title"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/color_text"
+                    android:layout_marginBottom="@dimen/spacing_sm" />
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/touch_target_min" android:orientation="horizontal" android:gravity="center_vertical">
                     <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/label_order_price" android:textSize="@dimen/text_body" android:textColor="@color/color_text_sub" />
@@ -280,30 +336,29 @@
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/touch_target_min" android:orientation="horizontal" android:gravity="center_vertical">
                     <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/label_closing_discount" android:textSize="@dimen/text_body" android:textColor="@color/color_text_sub" />
-                    <TextView android:id="@+id/tv_discount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-9,000원" android:textSize="@dimen/text_body" android:textColor="@color/danger" />
-                </LinearLayout>
-
-                <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/touch_target_min" android:orientation="horizontal" android:gravity="center_vertical">
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/label_first_order_discount" android:textSize="@dimen/text_body" android:textColor="@color/color_text_sub" />
-                    <TextView android:id="@+id/tv_extra_discount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-1,000원" android:textSize="@dimen/text_body" android:textColor="@color/danger" />
+                    <TextView android:id="@+id/tv_discount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="-6,000원" android:textSize="@dimen/text_body" android:textColor="@color/danger" />
                 </LinearLayout>
 
                 <View android:layout_width="match_parent" android:layout_height="@dimen/payment_divider_height" android:background="@color/color_border" android:layout_marginVertical="@dimen/spacing_sm" />
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="@dimen/touch_target_min" android:orientation="horizontal" android:gravity="center_vertical">
                     <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/label_final_price" android:textSize="@dimen/text_title" android:fontFamily="sans-serif-medium" android:textColor="@color/color_text" />
-                    <TextView android:id="@+id/tv_final_price" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="5,000원" android:textSize="@dimen/text_title" android:fontFamily="sans-serif-medium" android:textColor="@color/primary" />
+                    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                        <TextView android:id="@+id/tv_final_price" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="9,000" android:textSize="@dimen/text_title" android:fontFamily="sans-serif-medium" android:textColor="@color/primary" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="원" android:textSize="@dimen/text_caption" android:textColor="@color/primary" android:layout_marginStart="2dp" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Savings message -->
+            <!-- Carbon savings message -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:background="@drawable/bg_success_message"
-                android:padding="@dimen/spacing_lg">
+                android:padding="@dimen/spacing_lg"
+                android:layout_marginBottom="8dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -317,32 +372,34 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="10,100원을 절약하고 음식 1개를 구해요"
+                    android:text="이 주문으로 시흥시 탄소 배출량을 약 0.3kg 줄이는 데 기여하게 됩니다! 🌿"
                     android:textSize="@dimen/text_body"
                     android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/success" />
+                    android:textColor="@color/success"
+                    android:lineSpacingExtra="2dp" />
             </LinearLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Bottom CTA -->
+    <!-- Bottom CTA: green siru button -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="@color/white"
-        android:padding="@dimen/spacing_lg">
+        android:padding="@dimen/spacing_lg"
+        android:elevation="8dp">
 
         <Button
             android:id="@+id/btn_pay"
             android:layout_width="match_parent"
             android:layout_height="@dimen/cta_button_height"
-            android:text="@string/btn_pay_placeholder"
+            android:text="@string/btn_pay_siru_placeholder"
             android:textSize="@dimen/text_button"
             android:fontFamily="sans-serif-medium"
             android:textColor="@color/white"
-            android:background="@drawable/bg_primary_button"
+            android:background="@drawable/bg_siru_button"
             android:stateListAnimator="@null" />
     </LinearLayout>
 

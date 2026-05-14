@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark mode semantic aliases — 기존 레이아웃 호환 -->
+    <color name="primary">#FFB4A0</color>
+    <color name="primary_light">#832800</color>
+    <color name="primary_dark">#FFE0D6</color>
+    <color name="danger">#FFB4AB</color>
+    <color name="warning">#FDBC00</color>
+    <color name="success">#6AD4A4</color>
+    <color name="siru_green">#6AD4A4</color>
+    <color name="siru_light">#005237</color>
+    <color name="color_text">#EDE0DD</color>
+    <color name="color_text_sub">#D8C2BE</color>
+    <color name="color_text_muted">#998C8A</color>
+    <color name="color_border">#534341</color>
+    <color name="color_surface">#2A2120</color>
+    <color name="color_border_light">#3A3130</color>
+    <color name="color_overlay">#80000000</color>
+</resources>

@@ -1,36 +1,41 @@
 package com.example.deuktemsiru_buyer.ui.home
 
-import android.graphics.Color
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.core.os.bundleOf
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import androidx.core.view.isVisible
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.CartManager
 import com.example.deuktemsiru_buyer.data.SessionManager
-import com.example.deuktemsiru_buyer.data.Store
-import com.example.deuktemsiru_buyer.data.categoryToApi
-import com.example.deuktemsiru_buyer.data.toStore
+import com.example.deuktemsiru_buyer.data.StoreRepository
 import com.example.deuktemsiru_buyer.databinding.FragmentHomeBinding
 import com.example.deuktemsiru_buyer.network.RetrofitClient
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
+    private val viewModel: HomeViewModel by viewModels {
+        HomeViewModel.Factory(StoreRepository(RetrofitClient.api))
+    }
+
     private lateinit var storeAdapter: StoreAdapter
-    private var currentCategory = "전체"
-    private val allStores = mutableListOf<Store>()
     private lateinit var session: SessionManager
 
     override fun onCreateView(
@@ -45,86 +50,68 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         session = SessionManager(requireContext())
+
         setupRecyclerView()
+        setupSearch()
         setupCategoryChips()
-        loadStores(null)
+        observeUiState()
 
         binding.btnCart.setOnClickListener {
             findNavController().navigate(R.id.action_home_to_cart)
         }
     }
 
-    private fun loadStores(category: String?) {
-        lifecycleScope.launch {
-            try {
-                val apiCategory = if (category != null) categoryToApi(category) else null
-                val stores = RetrofitClient.api.getStores(apiCategory).data
-                    ?.map { it.toStore() }
-                    ?: emptyList()
-                allStores.clear()
-                allStores.addAll(stores)
-                updateList(stores)
-            } catch (e: Exception) {
-                if (e is HttpException && (e.code() == 401 || e.code() == 403)) {
-                    handleAuthFailure()
-                    return@launch
+    private fun observeUiState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect { state ->
+                    // Loading
+                    binding.rvStores.isVisible = !state.isLoading
+                    binding.llEmpty.isVisible = !state.isLoading && state.filteredStores.isEmpty() && state.error == null
+
+                    // Store list
+                    storeAdapter.submitList(state.filteredStores)
+                    binding.rvStores.isVisible = state.filteredStores.isNotEmpty() && !state.isLoading
+                    binding.llEmpty.isVisible = state.filteredStores.isEmpty() && !state.isLoading && state.error == null
+
+                    // Auth error → redirect to onboarding
+                    if (state.authError) {
+                        session.clear()
+                        viewModel.authErrorHandled()
+                        findNavController().navigate(
+                            R.id.onboardingFragment,
+                            null,
+                            NavOptions.Builder().setPopUpTo(R.id.homeFragment, true).build()
+                        )
+                        return@collect
+                    }
+
+                    // General error → Snackbar
+                    state.error?.let { msg ->
+                        Snackbar.make(binding.root, msg, Snackbar.LENGTH_SHORT).show()
+                        viewModel.errorShown()
+                    }
+
+                    // Category chip visual sync
+                    syncCategoryChips(state.selectedCategory)
                 }
-                Toast.makeText(requireContext(), "가게 목록을 불러오지 못했어요.", Toast.LENGTH_SHORT).show()
             }
-        }
-    }
-
-    private fun handleAuthFailure() {
-        session.clear()
-        Toast.makeText(requireContext(), "다시 로그인해주세요.", Toast.LENGTH_SHORT).show()
-        findNavController().navigate(
-            R.id.onboardingFragment,
-            null,
-            NavOptions.Builder()
-                .setPopUpTo(R.id.homeFragment, true)
-                .build()
-        )
-    }
-
-    private fun updateList(stores: List<Store>) {
-        if (stores.isEmpty()) {
-            binding.rvStores.visibility = View.GONE
-            binding.llEmpty.visibility = View.VISIBLE
-        } else {
-            binding.rvStores.visibility = View.VISIBLE
-            binding.llEmpty.visibility = View.GONE
-            storeAdapter.updateStores(stores)
         }
     }
 
     private fun setupRecyclerView() {
         storeAdapter = StoreAdapter(
-            stores = allStores,
             onStoreClick = { store ->
                 findNavController().navigate(
                     R.id.action_home_to_storeDetail,
-                    bundleOf("storeId" to store.id)
+                    Bundle().apply { putInt("storeId", store.id) }
                 )
             },
             onWishlistClick = { store ->
                 if (!session.isLoggedIn()) return@StoreAdapter
-                lifecycleScope.launch {
-                    try {
-                        val result = RetrofitClient.api.toggleWishlist(store.id.toLong()).data
-                            ?: emptyMap<String, Any>()
-                        val isWishlisted = result["isWishlisted"] as? Boolean ?: false
-                        val idx = allStores.indexOfFirst { it.id == store.id }
-                        if (idx >= 0) {
-                            allStores[idx] = allStores[idx].copy(isWishlisted = isWishlisted)
-                            storeAdapter.updateStores(allStores.toList())
-                        }
-                    } catch (e: Exception) {
-                        Toast.makeText(requireContext(), "찜 처리 중 오류가 발생했어요.", Toast.LENGTH_SHORT).show()
-                    }
-                }
+                viewModel.toggleWishlist(store)
             }
         )
-
         binding.rvStores.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = storeAdapter
@@ -132,29 +119,61 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupCategoryChips() {
-        binding.chipLunchbox.text = "음식점"
-        binding.chipSalad.visibility = View.GONE
-
         val chips = mapOf(
             binding.chipAll to "전체",
+            binding.chipKorean to "한식",
+            binding.chipWestern to "양식",
+            binding.chipCafeDessert to "카페·디저트",
             binding.chipBakery to "베이커리",
-            binding.chipLunchbox to "음식점",
-            binding.chipCafe to "카페"
+            binding.chipCafe to "카페",
         )
-
         chips.forEach { (chip, category) ->
-            chip.setOnClickListener {
-                currentCategory = category
-                chips.forEach { (c, _) ->
-                    c.setBackgroundResource(R.drawable.bg_chip_unselected)
-                    c.setTextColor(Color.parseColor("#1A1A1A"))
-                }
-                chip.setBackgroundResource(R.drawable.bg_chip_selected)
-                chip.setTextColor(Color.WHITE)
-                val apiCategory = if (category == "전체") null else category
-                loadStores(apiCategory)
+            chip.setOnClickListener { viewModel.selectCategory(category) }
+        }
+    }
+
+    private fun syncCategoryChips(selected: String) {
+        val chips = mapOf(
+            binding.chipAll to "전체",
+            binding.chipKorean to "한식",
+            binding.chipWestern to "양식",
+            binding.chipCafeDessert to "카페·디저트",
+            binding.chipBakery to "베이커리",
+            binding.chipCafe to "카페",
+        )
+        chips.forEach { (chip, category) ->
+            val isSelected = category == selected
+            chip.setBackgroundResource(
+                if (isSelected) R.drawable.bg_chip_selected else R.drawable.bg_chip_unselected
+            )
+            chip.setTextColor(
+                if (isSelected)
+                    requireContext().getColor(R.color.white)
+                else
+                    requireContext().getColor(R.color.color_text)
+            )
+        }
+    }
+
+    private fun setupSearch() {
+        binding.etSearch.doOnTextChanged { text, _, _, _ ->
+            viewModel.updateSearch(text?.toString() ?: "")
+        }
+        binding.etSearch.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                hideKeyboard()
+                true
+            } else {
+                false
             }
         }
+        binding.btnSearch.setOnClickListener { hideKeyboard() }
+    }
+
+    private fun hideKeyboard() {
+        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(binding.etSearch.windowToken, 0)
+        binding.etSearch.clearFocus()
     }
 
     override fun onResume() {
@@ -165,12 +184,8 @@ class HomeFragment : Fragment() {
     private fun updateCartBadge() {
         if (_binding == null) return
         val count = CartManager.totalCount
-        if (count > 0) {
-            binding.tvCartBadge.visibility = View.VISIBLE
-            binding.tvCartBadge.text = if (count > 9) "9+" else count.toString()
-        } else {
-            binding.tvCartBadge.visibility = View.GONE
-        }
+        binding.tvCartBadge.isVisible = count > 0
+        if (count > 0) binding.tvCartBadge.text = if (count > 9) "9+" else count.toString()
     }
 
     override fun onDestroyView() {

@@ -9,21 +9,26 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.CartManager
+import com.example.deuktemsiru_buyer.data.CartItem
+import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.FragmentCartBinding
+import com.example.deuktemsiru_buyer.network.RetrofitClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import kotlinx.coroutines.launch
 
 class CartFragment : Fragment() {
 
     private var _binding: FragmentCartBinding? = null
     private val binding get() = _binding!!
     private lateinit var adapter: CartAdapter
+    private lateinit var session: SessionManager
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentCartBinding.inflate(inflater, container, false)
@@ -32,12 +37,14 @@ class CartFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        session = SessionManager(requireContext())
 
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
 
         adapter = CartAdapter(
             items = CartManager.items,
             onDelete = { item ->
+                removeServerItem(item.menuId)
                 CartManager.remove(item.menuId)
                 refresh()
             },
@@ -63,14 +70,17 @@ class CartFragment : Fragment() {
         }
 
         binding.btnDeleteSelected.setOnClickListener {
-            adapter.selectedIds.toList().forEach { CartManager.remove(it) }
+            adapter.selectedIds.toList().forEach {
+                removeServerItem(it)
+                CartManager.remove(it)
+            }
             refresh()
         }
 
         binding.btnAddMore.setOnClickListener {
             findNavController().navigate(
                 R.id.action_cart_to_storeDetail,
-                bundleOf("storeId" to CartManager.storeId.toInt())
+                Bundle().apply { putInt("storeId", CartManager.storeId.toInt()) }
             )
         }
 
@@ -78,16 +88,54 @@ class CartFragment : Fragment() {
             if (CartManager.isEmpty) return@setOnClickListener
             findNavController().navigate(
                 R.id.action_cart_to_payment,
-                bundleOf(
-                    "storeId" to CartManager.storeId.toInt(),
-                    "totalPrice" to CartManager.totalPrice,
-                    "fromCart" to true,
-                )
+                Bundle().apply {
+                    putInt("storeId", CartManager.storeId.toInt())
+                    putInt("totalPrice", CartManager.totalPrice)
+                    putBoolean("fromCart", true)
+                }
             )
         }
 
         refresh()
+        loadServerCart()
         fetchDistanceAndCarbon()
+    }
+
+    private fun loadServerCart() {
+        if (!session.isLoggedIn()) return
+        lifecycleScope.launch {
+            runCatching { RetrofitClient.api.getCart().data }
+                .onSuccess { cart ->
+                    val items = cart?.items.orEmpty()
+                    if (items.isNotEmpty()) {
+                        val first = items.first()
+                        CartManager.replaceFromServer(
+                            storeId = first.storeId,
+                            storeName = first.storeName,
+                            items = items.map {
+                                CartItem(
+                                    menuId = it.productId,
+                                    menuName = it.productName,
+                                    emoji = "🛍️",
+                                    originalPrice = it.discountPrice,
+                                    discountedPrice = it.discountPrice,
+                                    quantity = it.quantity,
+                                )
+                            },
+                            serverIds = items.associate { it.productId to it.cartItemId },
+                        )
+                    }
+                    refresh()
+                }
+        }
+    }
+
+    private fun removeServerItem(productId: Long) {
+        val cartItemId = CartManager.serverCartItemIds[productId] ?: return
+        if (!session.isLoggedIn()) return
+        lifecycleScope.launch {
+            runCatching { RetrofitClient.api.removeCartItem(cartItemId) }
+        }
     }
 
     private fun refresh() {

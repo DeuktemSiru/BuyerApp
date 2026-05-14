@@ -3,6 +3,8 @@ package com.example.deuktemsiru_buyer.ui.pickup
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -80,7 +82,11 @@ class PickupFragment : Fragment() {
 
         binding.btnCall.setOnClickListener {
             val phone = binding.tvStoreAddress.tag as? String ?: ""
-            Toast.makeText(requireContext(), phone.ifEmpty { "전화번호를 불러오는 중..." }, Toast.LENGTH_SHORT).show()
+            if (phone.isBlank()) {
+                Toast.makeText(requireContext(), "전화번호를 불러오는 중...", Toast.LENGTH_SHORT).show()
+            } else {
+                startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phone")))
+            }
         }
     }
 
@@ -88,24 +94,16 @@ class PickupFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 val order = RetrofitClient.api.getOrder(orderId).data ?: return@launch
-                pickupCode = order.pickupCode
+                pickupCode = order.pickupCode.orEmpty()
 
-                binding.tvPickupTime.text = "${order.pickupTime}까지"
-                binding.tvPickupCode.text = order.pickupCode.chunked(1).joinToString(" ")
+                binding.tvPickupTime.text = "18:00까지"
+                binding.tvPickupCode.text = pickupCode.ifBlank { "----" }.chunked(1).joinToString(" ")
                 binding.tvStoreName.text = order.storeName
-                binding.tvOrderMenu.text = order.items.joinToString(", ") { "${it.emoji} ${it.name}" }
-                binding.tvPaidPrice.text = "%,d원".format(order.totalAmount)
+                binding.tvOrderMenu.text = order.items.joinToString(", ") { "${it.productName} x${it.quantity}" }
+                binding.tvPaidPrice.text = "%,d원".format(order.totalPrice)
 
-                val store = RetrofitClient.api.getStore(order.storeId).data ?: return@launch
-                binding.tvStoreAddress.text = store.address
-                binding.tvStoreAddress.tag = store.phone
-                storeLat = store.latitude
-                storeLng = store.longitude
                 storeName = order.storeName
-
-                if (storeLat == 0.0 && storeLng == 0.0) {
-                    loadStoreFallback(storeId.takeIf { it > 0 } ?: order.storeId.toInt())
-                }
+                loadStoreFallback(storeId)
             } catch (e: Exception) {
                 loadStoreFallback(storeId)
             }

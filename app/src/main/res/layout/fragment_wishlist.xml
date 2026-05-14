@@ -6,51 +6,105 @@
     android:orientation="vertical"
     android:background="@color/color_surface">
 
-    <!-- 헤더 -->
     <LinearLayout
+        android:id="@+id/ll_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@color/white">
+        android:background="@color/white"
+        android:paddingHorizontal="@dimen/spacing_lg"
+        android:paddingTop="16dp"
+        android:paddingBottom="12dp"
+        android:elevation="4dp">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/touch_target_min"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingTop="12dp"
-            android:paddingBottom="4dp"
-            android:paddingStart="4dp"
-            android:paddingEnd="@dimen/spacing_lg">
+            android:gravity="center_vertical">
 
-            <ImageButton
-                android:id="@+id/btn_back"
-                android:layout_width="@dimen/touch_target_min"
-                android:layout_height="@dimen/touch_target_min"
-                android:src="@drawable/ic_back"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="뒤로가기" />
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_location"
+                android:contentDescription="위치" />
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="찜"
-                android:textSize="22sp"
+                android:text="시흥시 정왕동"
+                android:textSize="16sp"
                 android:fontFamily="sans-serif-medium"
                 android:textColor="@color/color_text"
-                android:paddingBottom="8dp"
-                android:paddingTop="8dp" />
+                android:layout_marginStart="4dp" />
 
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:src="@drawable/ic_arrow_right"
+                android:rotation="90"
+                android:layout_marginStart="4dp"
+                android:contentDescription="위치 변경" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:contentDescription="시흥시 BI"
+                android:scaleType="fitCenter"
+                android:src="@drawable/img_siheung_bi" />
         </LinearLayout>
 
-        <!-- 카테고리 칩 -->
+        <LinearLayout
+            android:id="@+id/ll_search"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_search_bar"
+            android:paddingHorizontal="12dp">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_search"
+                android:contentDescription="검색"
+                android:layout_marginEnd="8dp" />
+
+            <EditText
+                android:id="@+id/et_wishlist_search"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:hint="@string/home_search_hint"
+                android:textSize="@dimen/text_body"
+                android:textColor="@color/color_text"
+                android:textColorHint="@color/color_text_muted"
+                android:background="@android:color/transparent"
+                android:inputType="text"
+                android:imeOptions="actionSearch"
+                android:maxLines="1" />
+
+            <ImageButton
+                android:id="@+id/btn_wishlist_search"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:src="@drawable/ic_search"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="검색" />
+        </LinearLayout>
+
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:scrollbars="none"
-            android:paddingHorizontal="@dimen/spacing_lg"
-            android:paddingBottom="12dp">
+            android:layout_marginTop="10dp"
+            android:clipToPadding="false">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -61,10 +115,10 @@
                 <TextView
                     android:id="@+id/chip_all"
                     android:layout_width="wrap_content"
-                    android:layout_height="36dp"
+                    android:layout_height="34dp"
                     android:gravity="center"
                     android:paddingHorizontal="16dp"
-                    android:text="전체"
+                    android:text="@string/cat_all"
                     android:textSize="13sp"
                     android:fontFamily="sans-serif-medium"
                     android:textColor="@color/white"
@@ -72,36 +126,48 @@
                     android:layout_marginEnd="8dp" />
 
                 <TextView
+                    android:id="@+id/chip_korean"
+                    android:layout_width="wrap_content"
+                    android:layout_height="34dp"
+                    android:gravity="center"
+                    android:paddingHorizontal="16dp"
+                    android:text="@string/cat_korean"
+                    android:textSize="13sp"
+                    android:textColor="@color/color_text"
+                    android:background="@drawable/bg_chip_unselected"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:id="@+id/chip_western"
+                    android:layout_width="wrap_content"
+                    android:layout_height="34dp"
+                    android:gravity="center"
+                    android:paddingHorizontal="16dp"
+                    android:text="@string/cat_western"
+                    android:textSize="13sp"
+                    android:textColor="@color/color_text"
+                    android:background="@drawable/bg_chip_unselected"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:id="@+id/chip_cafe_dessert"
+                    android:layout_width="wrap_content"
+                    android:layout_height="34dp"
+                    android:gravity="center"
+                    android:paddingHorizontal="16dp"
+                    android:text="@string/cat_cafe_dessert"
+                    android:textSize="13sp"
+                    android:textColor="@color/color_text"
+                    android:background="@drawable/bg_chip_unselected"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
                     android:id="@+id/chip_bakery"
                     android:layout_width="wrap_content"
-                    android:layout_height="36dp"
+                    android:layout_height="34dp"
                     android:gravity="center"
                     android:paddingHorizontal="16dp"
-                    android:text="베이커리"
-                    android:textSize="13sp"
-                    android:textColor="@color/color_text"
-                    android:background="@drawable/bg_chip_unselected"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:id="@+id/chip_lunchbox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:gravity="center"
-                    android:paddingHorizontal="16dp"
-                    android:text="음식점"
-                    android:textSize="13sp"
-                    android:textColor="@color/color_text"
-                    android:background="@drawable/bg_chip_unselected"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:id="@+id/chip_salad"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:gravity="center"
-                    android:paddingHorizontal="16dp"
-                    android:visibility="gone"
+                    android:text="@string/cat_bakery"
                     android:textSize="13sp"
                     android:textColor="@color/color_text"
                     android:background="@drawable/bg_chip_unselected"
@@ -110,24 +176,21 @@
                 <TextView
                     android:id="@+id/chip_cafe"
                     android:layout_width="wrap_content"
-                    android:layout_height="36dp"
+                    android:layout_height="34dp"
                     android:gravity="center"
                     android:paddingHorizontal="16dp"
-                    android:text="카페"
+                    android:text="@string/cat_cafe"
                     android:textSize="13sp"
                     android:textColor="@color/color_text"
                     android:background="@drawable/bg_chip_unselected" />
-
             </LinearLayout>
         </HorizontalScrollView>
     </LinearLayout>
 
-    <!-- 컨텐츠 영역 -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- 목록 -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_wishlist"
             android:layout_width="match_parent"
@@ -136,7 +199,6 @@
             android:clipToPadding="false"
             android:visibility="gone" />
 
-        <!-- 빈 상태 -->
         <LinearLayout
             android:id="@+id/layout_empty"
             android:layout_width="match_parent"
@@ -152,14 +214,14 @@
                 android:textSize="96sp"
                 android:fontFamily="sans-serif-black"
                 android:textColor="@color/color_text"
-                android:letterSpacing="-0.05"
                 android:layout_marginBottom="8dp" />
 
             <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:src="@drawable/ic_heart_filled"
-                android:layout_marginBottom="20dp" />
+                android:layout_marginBottom="20dp"
+                android:contentDescription="찜" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -167,17 +229,13 @@
                 android:text="자주 찾는 가게를 찜 해보세요"
                 android:textSize="15sp"
                 android:textColor="@color/color_text_sub" />
-
         </LinearLayout>
 
-        <!-- 로딩 -->
         <ProgressBar
             android:id="@+id/progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:visibility="visible" />
-
     </FrameLayout>
-
 </LinearLayout>

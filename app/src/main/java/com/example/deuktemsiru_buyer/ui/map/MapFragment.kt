@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.graphics.Color
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -14,16 +15,20 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.toColorInt
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.deuktemsiru_buyer.R
-import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.data.Store
+import com.example.deuktemsiru_buyer.data.categoryToApi
 import com.example.deuktemsiru_buyer.data.toStore
 import com.example.deuktemsiru_buyer.databinding.FragmentMapBinding
 import com.example.deuktemsiru_buyer.databinding.ItemMapStoreCardBinding
@@ -32,22 +37,24 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-private val SEOUL = LatLng(37.5665, 126.9780)
+private val SIHEUNG = LatLng(37.3799, 126.8031)
 
 class MapFragment : Fragment(), OnMapReadyCallback {
 
     private var _binding: FragmentMapBinding? = null
     private val binding get() = _binding!!
-    private lateinit var session: SessionManager
+
     private lateinit var mapView: MapView
     private var googleMap: GoogleMap? = null
     private var loadedStores: List<Store> = emptyList()
+    private var currentCategory = "전체"
 
     private val hasLocationPermission get() = ContextCompat.checkSelfPermission(
         requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
@@ -62,7 +69,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             enableMyLocation()
             moveToCurrentLocation()
         } else {
-            Toast.makeText(requireContext(), "위치 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
+            val ctx = context ?: return@registerForActivityResult
+            Snackbar.make(binding.root, "위치 권한이 필요합니다.", Snackbar.LENGTH_SHORT).show()
         }
     }
 
@@ -85,10 +93,11 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        session = SessionManager(requireContext())
 
         mapView.getMapAsync(this)
         requestLocationPermissions()
+        setupSearch()
+        setupCategoryChips()
         loadStores()
 
         binding.btnMyLocation.setOnClickListener { moveToCurrentLocation() }
@@ -97,21 +106,21 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     }
 
     override fun onMapReady(map: GoogleMap) {
+        if (_binding == null) return
         googleMap = map
-        googleMap?.apply {
-            uiSettings.isMyLocationButtonEnabled = false
-            uiSettings.isZoomControlsEnabled = false
-            moveCamera(CameraUpdateFactory.newLatLngZoom(SEOUL, 12f))
-            setOnInfoWindowClickListener { marker ->
-                (marker.tag as? Int)?.let { storeId ->
-                    findNavController().navigate(
-                        R.id.action_map_to_storeDetail,
-                        Bundle().apply { putInt("storeId", storeId) }
-                    )
-                }
+        map.uiSettings.isMyLocationButtonEnabled = false
+        map.uiSettings.isZoomControlsEnabled = false
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(SIHEUNG, 12f))
+        map.setOnInfoWindowClickListener { marker ->
+            if (_binding == null) return@setOnInfoWindowClickListener
+            (marker.tag as? Int)?.let { storeId ->
+                findNavController().navigate(
+                    R.id.action_map_to_storeDetail,
+                    Bundle().apply { putInt("storeId", storeId) }
+                )
             }
         }
-        renderStoreMarkers()
+        renderStoreMarkers(filteredStores())
         enableMyLocation()
         moveToCurrentLocation()
     }
@@ -132,11 +141,13 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     private fun moveToCurrentLocation() {
         if (!hasLocationPermission) return
-
-        val lm = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val ctx = context ?: return
+        val lm = ctx.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            lm.getCurrentLocation(LocationManager.GPS_PROVIDER, null, requireContext().mainExecutor, ::animateTo)
+            lm.getCurrentLocation(LocationManager.GPS_PROVIDER, null, ctx.mainExecutor) { location ->
+                location?.let { animateTo(it) }
+            }
         } else {
             @Suppress("DEPRECATION")
             lm.requestSingleUpdate(LocationManager.GPS_PROVIDER, object : LocationListener {
@@ -159,26 +170,35 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun loadStores() {
-        lifecycleScope.launch {
-            try {
-                val stores = RetrofitClient.api.getStores().data
-                    ?.map { it.toStore() }
-                    ?: emptyList()
-                loadedStores = stores
-                populateBottomSheetCards(stores)
-                renderStoreMarkers()
-            } catch (_: Exception) {
-                Toast.makeText(requireContext(), "지도 매장 정보를 불러오지 못했어요.", Toast.LENGTH_SHORT).show()
+        // viewLifecycleOwner.lifecycleScope: View가 파괴되면 코루틴도 자동 취소 → _binding null 안전
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                try {
+                    val stores = RetrofitClient.api.getStores().data?.stores
+                        ?.map { item ->
+                            runCatching {
+                                RetrofitClient.api.getStore(item.storeId).data?.toStore()
+                            }.getOrNull() ?: item.toStore()
+                        }
+                        ?: emptyList()
+                    loadedStores = stores
+                    if (_binding != null) updateMapStores()
+                } catch (_: Exception) {
+                    if (_binding != null) {
+                        Snackbar.make(binding.root, "지도 매장 정보를 불러오지 못했어요.", Snackbar.LENGTH_SHORT).show()
+                    }
+                }
             }
         }
     }
 
-    private fun renderStoreMarkers() {
+    private fun renderStoreMarkers(stores: List<Store>) {
         val map = googleMap ?: return
-        val storesWithLocation = loadedStores.filter { it.hasValidLocation() }
-        if (storesWithLocation.isEmpty()) return
+        if (_binding == null) return
 
+        val storesWithLocation = stores.filter { it.hasValidLocation() }
         map.clear()
+        if (storesWithLocation.isEmpty()) return
 
         val boundsBuilder = LatLngBounds.builder()
         storesWithLocation.forEach { store ->
@@ -195,15 +215,18 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         val bounds = boundsBuilder.build()
         binding.mapContainer.post {
+            if (_binding == null) return@post
             map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 96))
         }
     }
 
     private fun populateBottomSheetCards(stores: List<Store>) {
+        if (_binding == null) return
+        val ctx = context ?: return
         binding.llMapStores.removeAllViews()
         stores.forEach { store ->
             val cardBinding = ItemMapStoreCardBinding.inflate(
-                LayoutInflater.from(requireContext()), binding.llMapStores, false
+                LayoutInflater.from(ctx), binding.llMapStores, false
             )
             cardBinding.tvEmoji.text = store.emoji
             cardBinding.tvBadge.text = getString(R.string.label_discount_rate, store.discountRate)
@@ -212,14 +235,15 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             cardBinding.tvPrice.text = "%,d원".format(store.discountedPrice)
 
             val (clockIcon, clockColor) = if (store.minutesUntilClose <= 30) {
-                R.drawable.ic_clock to "#FF3B30".toColorInt()
+                R.drawable.ic_clock to ContextCompat.getColor(ctx, R.color.danger)
             } else {
-                R.drawable.ic_clock_warning to "#FF8800".toColorInt()
+                R.drawable.ic_clock_warning to ContextCompat.getColor(ctx, R.color.warning)
             }
             cardBinding.tvTime.setTextColor(clockColor)
             cardBinding.tvTime.setCompoundDrawablesWithIntrinsicBounds(clockIcon, 0, 0, 0)
 
             cardBinding.cardRoot.setOnClickListener {
+                if (_binding == null) return@setOnClickListener
                 findNavController().navigate(
                     R.id.action_map_to_storeDetail,
                     Bundle().apply { putInt("storeId", store.id) }
@@ -229,6 +253,74 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
+    private fun setupSearch() {
+        binding.etMapSearch.doOnTextChanged { _, _, _, _ -> updateMapStores() }
+        binding.etMapSearch.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                hideKeyboard()
+                updateMapStores()
+                true
+            } else {
+                false
+            }
+        }
+        binding.btnMapSearch.setOnClickListener {
+            hideKeyboard()
+            updateMapStores()
+        }
+    }
+
+    private fun setupCategoryChips() {
+        val chips = mapOf(
+            binding.chipAll to "전체",
+            binding.chipKorean to "한식",
+            binding.chipWestern to "양식",
+            binding.chipCafeDessert to "카페·디저트",
+            binding.chipBakery to "베이커리",
+            binding.chipCafe to "카페"
+        )
+        chips.forEach { (chip, category) ->
+            chip.setOnClickListener {
+                currentCategory = category
+                chips.forEach { (c, _) ->
+                    c.setBackgroundResource(R.drawable.bg_chip_unselected)
+                    c.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_text))
+                }
+                chip.setBackgroundResource(R.drawable.bg_chip_selected)
+                chip.setTextColor(Color.WHITE)
+                updateMapStores()
+            }
+        }
+    }
+
+    private fun updateMapStores() {
+        if (_binding == null) return
+        val stores = filteredStores()
+        populateBottomSheetCards(stores)
+        renderStoreMarkers(stores)
+    }
+
+    private fun filteredStores(): List<Store> {
+        val apiCategory = if (currentCategory == "전체") null else categoryToApi(currentCategory)
+        val query = _binding?.etMapSearch?.text?.toString()?.trim().orEmpty()
+        return loadedStores.filter { store ->
+            val matchesCategory = apiCategory == null || categoryToApi(store.category) == apiCategory
+            val matchesQuery = query.isBlank() ||
+                    store.name.contains(query, ignoreCase = true) ||
+                    store.category.contains(query, ignoreCase = true) ||
+                    store.address.contains(query, ignoreCase = true) ||
+                    store.menus.any { it.name.contains(query, ignoreCase = true) }
+            matchesCategory && matchesQuery
+        }
+    }
+
+    private fun hideKeyboard() {
+        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(_binding?.etMapSearch?.windowToken, 0)
+        _binding?.etMapSearch?.clearFocus()
+    }
+
+    // MapView 생명주기: onDestroyView에서는 onDestroy 호출 금지 (탭 재진입 시 크래시 원인)
     override fun onStart() { super.onStart(); mapView.onStart() }
     override fun onResume() { super.onResume(); mapView.onResume() }
     override fun onPause() { super.onPause(); mapView.onPause() }
@@ -245,9 +337,15 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     }
 
     override fun onDestroyView() {
-        if (::mapView.isInitialized) mapView.onDestroy()
+        googleMap = null
         super.onDestroyView()
         _binding = null
+    }
+
+    // MapView의 onDestroy는 Fragment.onDestroy()에서 호출해야 안전
+    override fun onDestroy() {
+        if (::mapView.isInitialized) mapView.onDestroy()
+        super.onDestroy()
     }
 
     private fun Store.hasValidLocation() = latitude != 0.0 || longitude != 0.0

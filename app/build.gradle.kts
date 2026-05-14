@@ -71,6 +71,8 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.gridlayout)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
