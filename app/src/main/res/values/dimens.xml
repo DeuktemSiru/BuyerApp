@@ -6,18 +6,21 @@
     <dimen name="spacing_md">12dp</dimen>
     <dimen name="spacing_lg">16dp</dimen>
     <dimen name="spacing_xl">24dp</dimen>
+    <dimen name="spacing_xxl">32dp</dimen>
 
-    <!-- Corner Radius -->
+    <!-- Corner Radius (M3 Shape scale) -->
+    <dimen name="radius_xs">4dp</dimen>
     <dimen name="radius_sm">8dp</dimen>
-    <dimen name="radius_md">12dp</dimen>
-    <dimen name="radius_lg">14dp</dimen>
+    <dimen name="radius_md">16dp</dimen>
+    <dimen name="radius_lg">24dp</dimen>
+    <dimen name="radius_xl">28dp</dimen>
     <dimen name="radius_pill">999dp</dimen>
 
     <!-- Component sizes -->
-    <dimen name="store_thumbnail_size">76dp</dimen>
-    <dimen name="menu_thumbnail_size">64dp</dimen>
+    <dimen name="store_thumbnail_size">80dp</dimen>
+    <dimen name="menu_thumbnail_size">72dp</dimen>
     <dimen name="bottom_nav_height">64dp</dimen>
-    <dimen name="hero_image_height">200dp</dimen>
+    <dimen name="hero_image_height">220dp</dimen>
     <dimen name="touch_target_min">48dp</dimen>
     <dimen name="toolbar_height">56dp</dimen>
     <dimen name="bottom_cta_offset">80dp</dimen>
@@ -26,13 +29,19 @@
     <dimen name="payment_slot_height">52dp</dimen>
     <dimen name="payment_divider_height">1dp</dimen>
     <dimen name="icon_sm">16dp</dimen>
+    <dimen name="icon_md">20dp</dimen>
     <dimen name="emoji_md">18sp</dimen>
     <dimen name="emoji_lg">24sp</dimen>
 
+    <!-- Card -->
+    <dimen name="card_elevation">0dp</dimen>
+    <dimen name="card_stroke_width">1dp</dimen>
+
     <!-- Typography -->
     <dimen name="text_display">28sp</dimen>
-    <dimen name="text_headline">21sp</dimen>
-    <dimen name="text_title">17sp</dimen>
+    <dimen name="text_headline">22sp</dimen>
+    <dimen name="text_title">18sp</dimen>
+    <dimen name="text_body_lg">16sp</dimen>
     <dimen name="text_body">14sp</dimen>
     <dimen name="text_caption">12sp</dimen>
     <dimen name="text_micro">10sp</dimen>

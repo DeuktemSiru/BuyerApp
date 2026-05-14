@@ -33,87 +33,195 @@ data class LoginData(
 
 data class TokenData(val accessToken: String)
 
-// ── 메뉴 / 상품 ─────────────────────────────────────────────
-data class MenuItemApiResponse(
-    val id: Long,
-    val name: String,
-    val emoji: String,
-    val originalPrice: Int,
-    val discountedPrice: Int,
-    val discountRate: Int,
-    val remainingItems: Int,
-    val isSoldOut: Boolean,
-    val pickupTimeSlot: String,
+// ── 가게 / 상품 ─────────────────────────────────────────────
+data class StoreListResponse(
+    val stores: List<StoreListItemResponse>,
+    val hasNext: Boolean,
 )
 
-// ── 가게 ────────────────────────────────────────────────────
-data class StoreApiResponse(
-    val id: Long,
+data class StoreListItemResponse(
+    val storeId: Long,
     val name: String,
+    val thumbnailUrl: String?,
+    val distanceM: Int,
     val category: String,
-    val emoji: String,
-    val rating: Float,
+    val ratingAvg: Double,
+    val reviewCount: Int,
+    val availableProductCount: Int,
+)
+
+data class StoreDetailApiResponse(
+    val storeId: Long,
+    val name: String,
+    val description: String?,
     val address: String,
-    val phone: String,
     val latitude: Double,
     val longitude: Double,
-    val closingTime: String,
+    val phone: String?,
+    val thumbnailUrl: String?,
+    val images: List<String>,
+    val categories: List<String>,
+    val ratingAvg: Double,
+    val reviewCount: Int,
+    val products: List<StoreProductItem>,
+)
+
+data class StoreProductItem(
+    val productId: Long,
+    val name: String,
+    val discountPrice: Int,
+    val quantityRemaining: Int,
+    val pickupEnd: String,
+    val status: String,
+)
+
+// ── 찜 ─────────────────────────────────────────────────────
+data class WishlistToggleResponse(
+    val storeId: Long,
     val isWishlisted: Boolean,
-    val menus: List<MenuItemApiResponse>,
+)
+
+data class WishlistListResponse(
+    val wishlists: List<WishlistItemResponse>,
+)
+
+data class WishlistItemResponse(
+    val wishlistId: Long,
+    val storeId: Long,
+    val name: String,
+    val thumbnailUrl: String?,
+    val ratingAvg: Double,
+    val availableProductCount: Int,
 )
 
 // ── 주문 ────────────────────────────────────────────────────
-data class OrderItemApiResponse(
-    val productId: Long,
-    val menuItemId: Long,
-    val name: String,
-    val emoji: String,
-    val quantity: Int,
-    val price: Int,
-)
-
-data class OrderApiResponse(
-    val id: Long,
-    val orderNumber: String,
-    val storeId: Long,
-    val storeName: String,
-    val status: String,
-    val pickupCode: String,
-    val pickupTime: String,
-    val totalAmount: Int,
-    val createdAt: String,
-    val items: List<OrderItemApiResponse>,
-)
-
-// ── 사용자 ───────────────────────────────────────────────────
-data class UserApiResponse(
-    val id: Long,
-    val nickname: String,
-    val role: String,
-    val grade: String,
-    val totalSavings: Int,
-    val points: Int,
-    val couponCount: Int,
-    val co2Saved: Float,
-)
-
-data class NotificationApiResponse(
-    val id: Long,
-    val storeId: Long,
-    val storeName: String,
-    val message: String,
-    val sentAt: String,
-    val recipientCount: Int,
-)
-
-// ── 주문 요청 ────────────────────────────────────────────────
-data class CreateOrderRequest(
-    val storeId: Long,
-    val items: List<OrderItemRequest>,
-    val pickupTime: String,
-)
-
 data class OrderItemRequest(
     val productId: Long,
     val quantity: Int,
+)
+
+data class CreateOrderRequest(
+    val items: List<OrderItemRequest>,
+    val paymentMethod: String = "SIRU",
+)
+
+data class PaymentInfo(
+    val method: String,
+    val status: String,
+)
+
+data class CreateOrderResponse(
+    val orderId: Long,
+    val pickupCode: String?,
+    val status: String,
+    val totalPrice: Int,
+    val payment: PaymentInfo,
+)
+
+data class OrderListItemResponse(
+    val orderId: Long,
+    val storeName: String,
+    val status: String,
+    val totalPrice: Int,
+    val pickupCode: String?,
+    val createdAt: String,
+    val itemCount: Int,
+)
+
+data class OrderItemDetailResponse(
+    val productName: String,
+    val quantity: Int,
+    val unitPrice: Int,
+)
+
+data class OrderDetailResponse(
+    val orderId: Long,
+    val pickupCode: String?,
+    val status: String,
+    val totalPrice: Int,
+    val storeName: String,
+    val items: List<OrderItemDetailResponse>,
+    val payment: PaymentInfo,
+)
+
+// ── 사용자 ───────────────────────────────────────────────────
+data class MemberApiResponse(
+    val memberId: Long,
+    val email: String,
+    val nickname: String,
+    val name: String,
+    val role: String,
+    val profileImageUrl: String?,
+    val phone: String?,
+    val gender: String?,
+    val birth: String?,
+    val status: Int,
+    val isSiruLinked: Boolean = false,
+    val siruBalance: Int = 0,
+    val createdAt: String,
+)
+
+data class SiruLinkRequest(val siruAccessToken: String)
+
+data class MemberStatsResponse(
+    val totalSavedAmount: Int,
+    val totalCarbonSavedKg: Double,
+    val totalOrders: Int,
+)
+
+data class NotificationSettingsResponse(
+    val newProduct: Boolean?,
+    val pickupReminder: Boolean?,
+    val orderConfirmed: Boolean?,
+    val newOrder: Boolean?,
+    val pickupComplete: Boolean?,
+    val soldOut: Boolean?,
+    val event: Boolean,
+)
+
+data class UpdateNotificationSettingsRequest(
+    val newProduct: Boolean? = null,
+    val pickupReminder: Boolean? = null,
+    val orderConfirmed: Boolean? = null,
+    val event: Boolean? = null,
+)
+
+// ── 알림 ────────────────────────────────────────────────────
+data class NotificationListResponse(
+    val notifications: List<NotificationApiResponse>,
+    val unreadCount: Int,
+)
+
+data class NotificationApiResponse(
+    val notificationId: Long,
+    val type: String,
+    val title: String,
+    val body: String,
+    val isRead: Boolean,
+    val relatedStoreId: Long?,
+    val relatedOrderId: Long?,
+    val relatedProductId: Long?,
+    val createdAt: String,
+)
+
+// ── 장바구니 ────────────────────────────────────────────────
+data class CartAddRequest(
+    val productId: Long,
+    val quantity: Int,
+)
+
+data class CartApiItem(
+    val cartItemId: Long,
+    val productId: Long,
+    val productName: String,
+    val storeId: Long,
+    val storeName: String,
+    val discountPrice: Int,
+    val quantity: Int,
+    val imageUrl: String?,
+)
+
+data class CartResponse(
+    val items: List<CartApiItem>,
+    val totalPrice: Int,
 )

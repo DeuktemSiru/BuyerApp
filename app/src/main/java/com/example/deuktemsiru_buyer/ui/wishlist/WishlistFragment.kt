@@ -1,13 +1,15 @@
 package com.example.deuktemsiru_buyer.ui.wishlist
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.core.os.bundleOf
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -15,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.data.Store
+import com.example.deuktemsiru_buyer.data.categoryToApi
 import com.example.deuktemsiru_buyer.data.toStore
 import com.example.deuktemsiru_buyer.databinding.FragmentWishlistBinding
 import com.example.deuktemsiru_buyer.network.RetrofitClient
@@ -42,8 +45,8 @@ class WishlistFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.btnBack.setOnClickListener { findNavController().popBackStack() }
         setupRecyclerView()
+        setupSearch()
         setupCategoryChips()
 
         val session = SessionManager(requireContext())
@@ -55,13 +58,17 @@ class WishlistFragment : Fragment() {
 
         lifecycleScope.launch {
             try {
-                val stores = RetrofitClient.api.getWishlist().data
-                    ?.map { it.toStore() }
+                val stores = RetrofitClient.api.getWishlist().data?.wishlists
+                    ?.map { item ->
+                        runCatching {
+                            RetrofitClient.api.getStore(item.storeId).data?.toStore(isWishlisted = true)
+                        }.getOrNull() ?: item.toStore()
+                    }
                     ?: emptyList()
                 allStores.clear()
                 allStores.addAll(stores)
                 binding.progress.visibility = View.GONE
-                updateList(allStores)
+                updateList(filterStores())
             } catch (e: Exception) {
                 binding.progress.visibility = View.GONE
                 binding.layoutEmpty.visibility = View.VISIBLE
@@ -72,11 +79,10 @@ class WishlistFragment : Fragment() {
 
     private fun setupRecyclerView() {
         adapter = StoreAdapter(
-            stores = emptyList(),
             onStoreClick = { store ->
                 findNavController().navigate(
                     R.id.action_wishlist_to_storeDetail,
-                    bundleOf("storeId" to store.id)
+                    Bundle().apply { putInt("storeId", store.id) }
                 )
             },
             onWishlistClick = {}
@@ -88,13 +94,12 @@ class WishlistFragment : Fragment() {
     }
 
     private fun setupCategoryChips() {
-        binding.chipLunchbox.text = "음식점"
-        binding.chipSalad.visibility = View.GONE
-
         val chips = mapOf(
             binding.chipAll to "전체",
+            binding.chipKorean to "한식",
+            binding.chipWestern to "양식",
+            binding.chipCafeDessert to "카페·디저트",
             binding.chipBakery to "베이커리",
-            binding.chipLunchbox to "음식점",
             binding.chipCafe to "카페"
         )
 
@@ -108,11 +113,49 @@ class WishlistFragment : Fragment() {
                 chip.setBackgroundResource(R.drawable.bg_chip_selected)
                 chip.setTextColor(Color.WHITE)
 
-                val filtered = if (category == "전체") allStores
-                               else allStores.filter { it.category == category }
-                updateList(filtered)
+                updateList(filterStores())
             }
         }
+    }
+
+    private fun setupSearch() {
+        binding.etWishlistSearch.doOnTextChanged { _, _, _, _ ->
+            updateList(filterStores())
+        }
+        binding.etWishlistSearch.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                hideKeyboard()
+                updateList(filterStores())
+                true
+            } else {
+                false
+            }
+        }
+        binding.btnWishlistSearch.setOnClickListener {
+            hideKeyboard()
+            updateList(filterStores())
+        }
+    }
+
+    private fun filterStores(): List<Store> {
+        val apiCategory = if (currentCategory == "전체") null else categoryToApi(currentCategory)
+        val query = binding.etWishlistSearch.text?.toString()?.trim().orEmpty()
+
+        return allStores.filter { store ->
+            val matchesCategory = apiCategory == null || categoryToApi(store.category) == apiCategory
+            val matchesQuery = query.isBlank() ||
+                    store.name.contains(query, ignoreCase = true) ||
+                    store.category.contains(query, ignoreCase = true) ||
+                    store.address.contains(query, ignoreCase = true) ||
+                    store.menus.any { it.name.contains(query, ignoreCase = true) }
+            matchesCategory && matchesQuery
+        }
+    }
+
+    private fun hideKeyboard() {
+        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(binding.etWishlistSearch.windowToken, 0)
+        binding.etWishlistSearch.clearFocus()
     }
 
     private fun updateList(stores: List<Store>) {
@@ -122,7 +165,7 @@ class WishlistFragment : Fragment() {
         } else {
             binding.layoutEmpty.visibility = View.GONE
             binding.rvWishlist.visibility = View.VISIBLE
-            adapter.updateStores(stores)
+            adapter.submitList(stores)
         }
     }
 

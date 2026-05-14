@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.FragmentOrdersBinding
 import com.example.deuktemsiru_buyer.databinding.ItemOrderHistoryBinding
-import com.example.deuktemsiru_buyer.network.OrderApiResponse
+import com.example.deuktemsiru_buyer.network.OrderListItemResponse
 import com.example.deuktemsiru_buyer.network.RetrofitClient
 import kotlinx.coroutines.launch
 
@@ -60,7 +60,7 @@ class OrdersFragment : Fragment() {
 }
 
 private class OrderHistoryAdapter(
-    private val orders: List<OrderApiResponse>
+    private val orders: List<OrderListItemResponse>
 ) : RecyclerView.Adapter<OrderHistoryAdapter.VH>() {
 
     inner class VH(val binding: ItemOrderHistoryBinding) : RecyclerView.ViewHolder(binding.root)
@@ -75,16 +75,17 @@ private class OrderHistoryAdapter(
         val order = orders[position]
         val b = holder.binding
         b.tvStoreName.text = order.storeName
-        b.tvOrderNumber.text = order.orderNumber
+        b.tvOrderNumber.text = "#${order.orderId}"
         b.tvStatus.text = statusLabel(order.status)
-        b.tvMenuSummary.text = order.items.joinToString(", ") { "${it.emoji} ${it.name}" }
-        b.tvTotalAmount.text = "%,d원".format(order.totalAmount)
-        b.tvPickupTime.text = "픽업: ${order.pickupTime}"
-        b.tvPickupCode.text = "코드: ${order.pickupCode}"
+        b.tvMenuSummary.text = "주문 상품 ${order.itemCount}개"
+        b.tvTotalAmount.text = "%,d원".format(order.totalPrice)
+        b.tvPickupTime.text = "주문: ${order.createdAt.substringBefore('T')}"
+        b.tvPickupCode.text = "코드: ${order.pickupCode ?: "----"}"
     }
 
     private fun statusLabel(status: String) = when (status) {
         "PENDING" -> "접수 대기"
+        "CONFIRMED" -> "접수 완료"
         "PREPARING" -> "준비중"
         "READY" -> "픽업 대기"
         "COMPLETED" -> "완료"

@@ -80,8 +80,11 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:background="@color/white"
-                android:padding="@dimen/spacing_lg">
+                android:paddingHorizontal="@dimen/spacing_lg"
+                android:paddingTop="@dimen/spacing_lg"
+                android:paddingBottom="@dimen/spacing_md">
 
+                <!-- Name + grade badge -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -93,23 +96,25 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="파리바게뜨 정왕점"
+                        android:text="정왕동 꿀맛 베이커리"
                         android:textSize="@dimen/text_title"
                         android:fontFamily="sans-serif-medium"
                         android:textColor="@color/color_text" />
 
                     <TextView
+                        android:id="@+id/tv_grade_badge"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingHorizontal="10dp"
                         android:paddingVertical="4dp"
-                        android:text="단골"
+                        android:text="@string/label_regular"
                         android:textSize="11sp"
                         android:fontFamily="sans-serif-medium"
                         android:textColor="@color/primary_dark"
                         android:background="@drawable/bg_grade_badge" />
                 </LinearLayout>
 
+                <!-- Rating + distance -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -149,7 +154,93 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="3dp"
-                        android:text="도보 4분"
+                        android:text="300m · 도보 4분"
+                        android:textSize="@dimen/text_caption"
+                        android:textColor="@color/color_text_sub" />
+                </LinearLayout>
+
+                <!-- Store message -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_siru_payment"
+                    android:padding="12dp"
+                    android:layout_marginTop="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🥐"
+                        android:textSize="16sp"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:id="@+id/tv_store_message"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="아까운 음식을 구매해주셔서 감사해요😊"
+                        android:textSize="@dimen/text_caption"
+                        android:textColor="@color/siru_green" />
+                </LinearLayout>
+
+                <!-- Address -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="12dp">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_location"
+                        android:contentDescription="주소"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:id="@+id/tv_address"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="경기 시흥시 중앙상가로 123 1층"
+                        android:textSize="@dimen/text_caption"
+                        android:textColor="@color/color_text_sub" />
+
+                    <TextView
+                        android:id="@+id/tv_directions"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="지도보기"
+                        android:textSize="@dimen/text_caption"
+                        android:textColor="@color/primary"
+                        android:foreground="?attr/selectableItemBackground" />
+                </LinearLayout>
+
+                <!-- Phone -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="8dp">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_phone"
+                        android:contentDescription="전화"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:id="@+id/tv_phone"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="031-123-4567"
                         android:textSize="@dimen/text_caption"
                         android:textColor="@color/color_text_sub" />
                 </LinearLayout>
@@ -163,7 +254,7 @@
                 android:gravity="center_vertical"
                 android:background="@drawable/bg_timer_card"
                 android:padding="16dp"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="4dp">
@@ -250,14 +341,24 @@
                 android:background="@color/white"
                 android:padding="@dimen/spacing_lg">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <!-- Section header with count -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="오늘만이 픽업 메뉴"
-                    android:textSize="@dimen/text_title"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/color_text"
-                    android:layout_marginBottom="12dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:id="@+id/tv_menu_section_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="오늘의 득템 메뉴 (0)"
+                        android:textSize="@dimen/text_title"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/color_text" />
+                </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_menus"
@@ -315,17 +416,18 @@
 
         </FrameLayout>
 
+        <!-- Green CTA: 시루로 바로 예약하기 -->
         <Button
             android:id="@+id/btn_reserve"
             android:layout_width="0dp"
             android:layout_height="52dp"
             android:layout_weight="1"
             android:layout_marginStart="8dp"
-            android:text="5,900원 예약하기"
-            android:textSize="15sp"
+            android:text="@string/btn_reserve_siru"
+            android:textSize="@dimen/text_button"
             android:fontFamily="sans-serif-medium"
             android:textColor="@color/white"
-            android:background="@drawable/bg_primary_button"
+            android:background="@drawable/bg_siru_button"
             android:stateListAnimator="@null" />
     </LinearLayout>
 

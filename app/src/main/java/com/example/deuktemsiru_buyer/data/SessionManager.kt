@@ -40,6 +40,14 @@ class SessionManager(context: Context) {
         get() = prefs.getLong("lastOrderId", -1L)
         set(value) { prefs.edit().putLong("lastOrderId", value).apply() }
 
+    var isSiruLinked: Boolean
+        get() = prefs.getBoolean("isSiruLinked", false)
+        set(value) { prefs.edit().putBoolean("isSiruLinked", value).apply() }
+
+    var siruBalance: Int
+        get() = prefs.getInt("siruBalance", 0)
+        set(value) { prefs.edit().putInt("siruBalance", value).apply() }
+
     fun isLoggedIn() = memberId > 0L && accessToken.isNotBlank()
 
     fun restoreToken() {

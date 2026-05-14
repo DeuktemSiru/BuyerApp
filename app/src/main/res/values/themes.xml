@@ -1,52 +1,169 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Base.Theme.Deuktemsiru" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryVariant">@color/primary_dark</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <item name="colorSecondary">@color/primary</item>
-        <item name="colorSurface">@color/white</item>
-        <item name="android:colorBackground">@color/white</item>
-        <item name="android:statusBarColor" tools:targetApi="l">@color/white</item>
+
+    <!-- ============================================================ -->
+    <!-- Base Theme (Light)                                            -->
+    <!-- ============================================================ -->
+    <style name="Base.Theme.Deuktemsiru" parent="Theme.Material3.Light.NoActionBar">
+        <!-- M3 Color roles -->
+        <item name="colorPrimary">@color/md_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/md_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/md_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/md_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/md_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/md_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/md_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/md_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/md_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/md_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/md_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/md_theme_light_error</item>
+        <item name="colorOnError">@color/md_theme_light_onError</item>
+        <item name="colorErrorContainer">@color/md_theme_light_errorContainer</item>
+        <item name="colorOnErrorContainer">@color/md_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/md_theme_light_background</item>
+        <item name="colorOnBackground">@color/md_theme_light_onBackground</item>
+        <item name="colorSurface">@color/md_theme_light_surface</item>
+        <item name="colorOnSurface">@color/md_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/md_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/md_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/md_theme_light_outline</item>
+        <item name="colorOutlineVariant">@color/md_theme_light_outlineVariant</item>
+
+        <!-- Status bar -->
+        <item name="android:statusBarColor" tools:targetApi="l">@color/md_theme_light_surface</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
-        <item name="android:fontFamily">sans-serif</item>
+
+        <!-- Shape scale (M3) -->
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Deuktemsiru.Small</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Deuktemsiru.Medium</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Deuktemsiru.Large</item>
+
+        <!-- MaterialCardView default -->
+        <item name="materialCardViewStyle">@style/Widget.Deuktemsiru.CardView</item>
     </style>
 
     <style name="Theme.Deuktemsiru" parent="Base.Theme.Deuktemsiru" />
 
-    <!-- Button Styles -->
-    <style name="Button.Primary" parent="Widget.MaterialComponents.Button">
-        <item name="android:minHeight">52dp</item>
-        <item name="android:textSize">15sp</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="backgroundTint">@color/primary</item>
-        <item name="cornerRadius">12dp</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
+    <!-- ============================================================ -->
+    <!-- Shape Appearances                                             -->
+    <!-- ============================================================ -->
+    <style name="ShapeAppearance.Deuktemsiru.Small" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerSize">@dimen/radius_sm</item>
+    </style>
+
+    <style name="ShapeAppearance.Deuktemsiru.Medium" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerSize">@dimen/radius_md</item>
+    </style>
+
+    <style name="ShapeAppearance.Deuktemsiru.Large" parent="ShapeAppearance.Material3.LargeComponent">
+        <item name="cornerSize">@dimen/radius_lg</item>
+    </style>
+
+    <style name="ShapeAppearance.Deuktemsiru.ExtraLarge" parent="ShapeAppearance.Material3.LargeComponent">
+        <item name="cornerSize">@dimen/radius_xl</item>
+    </style>
+
+    <!-- ============================================================ -->
+    <!-- MaterialCardView                                              -->
+    <!-- ============================================================ -->
+    <style name="Widget.Deuktemsiru.CardView" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardElevation">@dimen/card_elevation</item>
+        <item name="strokeWidth">@dimen/card_stroke_width</item>
+        <item name="strokeColor">@color/md_theme_light_outlineVariant</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Deuktemsiru.Medium</item>
+    </style>
+
+    <!-- ============================================================ -->
+    <!-- Button Styles                                                 -->
+    <!-- ============================================================ -->
+    <style name="Button.Primary" parent="Widget.Material3.Button">
+        <item name="android:minHeight">@dimen/cta_button_height</item>
+        <item name="android:textSize">@dimen/text_button</item>
+        <item name="android:textColor">@color/md_theme_light_onPrimary</item>
+        <item name="backgroundTint">@color/md_theme_light_primary</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Deuktemsiru.Medium</item>
         <item name="android:letterSpacing">-0.01</item>
     </style>
 
-    <style name="Button.Dark" parent="Widget.MaterialComponents.Button">
-        <item name="android:minHeight">52dp</item>
-        <item name="android:textSize">15sp</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="backgroundTint">@color/color_text</item>
-        <item name="cornerRadius">12dp</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
+    <style name="Button.Dark" parent="Widget.Material3.Button">
+        <item name="android:minHeight">@dimen/cta_button_height</item>
+        <item name="android:textSize">@dimen/text_button</item>
+        <item name="android:textColor">@color/md_theme_light_onSurface</item>
+        <item name="backgroundTint">@color/md_theme_light_inverseSurface</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Deuktemsiru.Medium</item>
     </style>
 
-    <style name="Button.Secondary" parent="Widget.MaterialComponents.Button.OutlinedButton">
+    <style name="Button.Secondary" parent="Widget.Material3.Button.OutlinedButton">
         <item name="android:minHeight">44dp</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/color_text</item>
-        <item name="strokeColor">@color/color_border</item>
-        <item name="cornerRadius">12dp</item>
+        <item name="android:textSize">@dimen/text_body</item>
+        <item name="android:textColor">@color/md_theme_light_onSurface</item>
+        <item name="strokeColor">@color/md_theme_light_outlineVariant</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Deuktemsiru.Medium</item>
     </style>
 
-    <style name="Button.Tertiary" parent="Widget.MaterialComponents.Button">
+    <style name="Button.Tertiary" parent="Widget.Material3.Button.TonalButton">
         <item name="android:minHeight">38dp</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/color_text</item>
-        <item name="backgroundTint">@color/color_surface</item>
-        <item name="cornerRadius">8dp</item>
+        <item name="android:textSize">@dimen/text_body</item>
+        <item name="backgroundTint">@color/md_theme_light_surfaceVariant</item>
+        <item name="android:textColor">@color/md_theme_light_onSurfaceVariant</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Deuktemsiru.Small</item>
+    </style>
+
+    <style name="Button.Siru" parent="Widget.Material3.Button">
+        <item name="android:minHeight">@dimen/cta_button_height</item>
+        <item name="android:textSize">@dimen/text_button</item>
+        <item name="android:textColor">@color/md_theme_light_onSecondary</item>
+        <item name="backgroundTint">@color/md_theme_light_secondary</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Deuktemsiru.Medium</item>
+    </style>
+
+    <!-- ============================================================ -->
+    <!-- Typography Styles                                             -->
+    <!-- ============================================================ -->
+    <style name="TextAppearance.Deuktemsiru.Display" parent="TextAppearance.Material3.DisplaySmall">
+        <item name="android:textSize">@dimen/text_display</item>
+        <item name="android:textColor">@color/md_theme_light_onBackground</item>
+    </style>
+
+    <style name="TextAppearance.Deuktemsiru.Headline" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:textSize">@dimen/text_headline</item>
+        <item name="android:textColor">@color/md_theme_light_onBackground</item>
+    </style>
+
+    <style name="TextAppearance.Deuktemsiru.Title" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textSize">@dimen/text_title</item>
+        <item name="android:textColor">@color/md_theme_light_onSurface</item>
+    </style>
+
+    <style name="TextAppearance.Deuktemsiru.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textSize">@dimen/text_body</item>
+        <item name="android:textColor">@color/md_theme_light_onSurface</item>
+    </style>
+
+    <style name="TextAppearance.Deuktemsiru.Caption" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:textSize">@dimen/text_caption</item>
+        <item name="android:textColor">@color/md_theme_light_onSurfaceVariant</item>
+    </style>
+
+    <style name="TextAppearance.Deuktemsiru.Price" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textSize">@dimen/text_body_lg</item>
+        <item name="android:textColor">@color/md_theme_light_primary</item>
+    </style>
+
+    <!-- ============================================================ -->
+    <!-- BottomNavigationView                                          -->
+    <!-- ============================================================ -->
+    <style name="Widget.Deuktemsiru.BottomNavigation" parent="Widget.Material3.BottomNavigationView">
+        <item name="itemIconTint">@color/bottom_nav_color</item>
+        <item name="itemTextColor">@color/bottom_nav_color</item>
+        <item name="backgroundTint">@color/md_theme_light_surface</item>
+        <item name="itemActiveIndicatorStyle">@style/Widget.Deuktemsiru.BottomNavigation.ActiveIndicator</item>
+    </style>
+
+    <style name="Widget.Deuktemsiru.BottomNavigation.ActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/md_theme_light_primaryContainer</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Deuktemsiru.ExtraLarge</item>
     </style>
 
 </resources>

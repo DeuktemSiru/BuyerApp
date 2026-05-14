@@ -4,9 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -24,9 +22,7 @@ class PaymentFragment : Fragment() {
 
     private var _binding: FragmentPaymentBinding? = null
     private val binding get() = _binding!!
-
-    private var selectedSlot = 1
-    private val timeSlots = listOf("17:00", "17:30", "18:00", "18:30")
+    private val pickupTime = "18:00"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,7 +43,7 @@ class PaymentFragment : Fragment() {
         val fromCart = arguments?.getBoolean("fromCart") ?: false
 
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
-        setupTimeSlots()
+        binding.tvSiruBalance.text = "%,d원".format(session.siruBalance)
 
         if (fromCart) {
             loadFromCart(session, storeId)
@@ -63,15 +59,20 @@ class PaymentFragment : Fragment() {
 
         binding.tvStoreName.text = CartManager.storeName
         binding.tvMenuName.text = "장바구니 메뉴 ${CartManager.totalCount}개"
+        binding.tvPickupTimeDisplay.text = formatPickupTime(pickupTime)
+        binding.tvItemPrice.text = formatPrice(discountedTotal)
         binding.tvOrderPrice.text = formatPrice(originalTotal)
         binding.tvDiscount.text = "-${formatPrice(discountAmount)}"
-        binding.tvExtraDiscount.text = "-0원"
-        binding.tvFinalPrice.text = formatPrice(discountedTotal)
+        binding.tvFinalPrice.text = formatPriceAmount(discountedTotal)
         binding.tvSavingsMessage.text = "${formatPrice(discountAmount)}을 절약하고 음식 ${CartManager.totalCount}개를 구해요"
         binding.btnPay.text = getString(R.string.btn_pay_siru, formatPrice(discountedTotal))
 
         binding.btnPay.setOnClickListener {
-            val pickupTime = timeSlots.getOrElse(selectedSlot - 1) { "17:00" }
+            if (!session.isSiruLinked) {
+                Toast.makeText(requireContext(), "시루 계정 연동 후 결제할 수 있어요.", Toast.LENGTH_SHORT).show()
+                findNavController().navigate(R.id.siruLinkFragment)
+                return@setOnClickListener
+            }
             val orderItems = CartManager.items.map {
                 OrderItemRequest(productId = it.menuId, quantity = it.quantity)
             }
@@ -82,13 +83,14 @@ class PaymentFragment : Fragment() {
             lifecycleScope.launch {
                 try {
                     val order = RetrofitClient.api.createOrder(
-                        CreateOrderRequest(
-                            storeId = CartManager.storeId,
-                            items = orderItems,
-                            pickupTime = pickupTime,
-                        )
+                        CreateOrderRequest(items = orderItems)
                     ).data ?: return@launch
-                    session.lastOrderId = order.id
+                    session.lastOrderId = order.orderId
+                    runCatching { RetrofitClient.api.clearCart() }
+                    runCatching { RetrofitClient.api.getMe().data }.getOrNull()?.let {
+                        session.isSiruLinked = it.isSiruLinked
+                        session.siruBalance = it.siruBalance
+                    }
                     CartManager.clear()
                     findNavController().navigate(
                         R.id.action_payment_to_pickup,
@@ -111,28 +113,33 @@ class PaymentFragment : Fragment() {
                     return@launch
                 }
                 val store = storeResponse.toStore()
-                val selectedMenu = storeResponse.menus
-                    .firstOrNull { it.id.toInt() == menuId && !it.isSoldOut }
-                    ?: storeResponse.menus.firstOrNull { !it.isSoldOut }
+                val selectedMenu = storeResponse.products
+                    .firstOrNull { it.productId.toInt() == menuId && it.status != "SOLD_OUT" && it.quantityRemaining > 0 }
+                    ?: storeResponse.products.firstOrNull { it.status != "SOLD_OUT" && it.quantityRemaining > 0 }
 
                 binding.tvStoreName.text = store.name
                 binding.tvMenuName.text = selectedMenu?.name ?: "주문 가능한 메뉴 없음"
+                binding.tvPickupTimeDisplay.text = formatPickupTime(pickupTime)
 
-                val originalTotal = selectedMenu?.originalPrice ?: totalPrice
-                val discountedTotal = selectedMenu?.discountedPrice ?: totalPrice
+                val discountedTotal = selectedMenu?.discountPrice ?: totalPrice
+                val originalTotal = if (discountedTotal > 0) (discountedTotal / 0.7).toInt() else totalPrice
                 val discountAmount = (originalTotal - discountedTotal).coerceAtLeast(0)
 
+                binding.tvItemPrice.text = "%,d원".format(discountedTotal)
                 binding.tvOrderPrice.text = "%,d원".format(originalTotal)
                 binding.tvDiscount.text = "-%,d원".format(discountAmount)
-                binding.tvExtraDiscount.text = "-0원"
-                binding.tvFinalPrice.text = "%,d원".format(discountedTotal)
+                binding.tvFinalPrice.text = "%,d".format(discountedTotal)
                 binding.tvSavingsMessage.text = "%,d원을 절약하고 음식 1개를 구해요".format(discountAmount)
                 binding.btnPay.text = getString(R.string.btn_pay_siru, "%,d원".format(discountedTotal))
 
                 binding.btnPay.setOnClickListener {
-                    val pickupTime = timeSlots.getOrElse(selectedSlot - 1) { "17:00" }
+                    if (!session.isSiruLinked) {
+                        Toast.makeText(requireContext(), "시루 계정 연동 후 결제할 수 있어요.", Toast.LENGTH_SHORT).show()
+                        findNavController().navigate(R.id.siruLinkFragment)
+                        return@setOnClickListener
+                    }
                     val orderItems = selectedMenu?.let {
-                        listOf(OrderItemRequest(productId = it.id, quantity = 1))
+                        listOf(OrderItemRequest(productId = it.productId, quantity = 1))
                     }.orEmpty()
 
                     if (orderItems.isEmpty()) {
@@ -146,14 +153,14 @@ class PaymentFragment : Fragment() {
                     lifecycleScope.launch {
                         try {
                             val order = RetrofitClient.api.createOrder(
-                                CreateOrderRequest(
-                                    storeId = storeId.toLong(),
-                                    items = orderItems,
-                                    pickupTime = pickupTime,
-                                )
+                                CreateOrderRequest(items = orderItems)
                             ).data ?: return@launch
 
-                            session.lastOrderId = order.id
+                            session.lastOrderId = order.orderId
+                            runCatching { RetrofitClient.api.getMe().data }.getOrNull()?.let {
+                                session.isSiruLinked = it.isSiruLinked
+                                session.siruBalance = it.siruBalance
+                            }
                             findNavController().navigate(
                                 R.id.action_payment_to_pickup,
                                 Bundle().apply { putInt("storeId", storeId) }
@@ -172,31 +179,20 @@ class PaymentFragment : Fragment() {
         }
     }
 
-    private fun setupTimeSlots() {
-        val slots = listOf(binding.slot1, binding.slot2, binding.slot3, binding.slot4)
-        slots.forEachIndexed { index, slot ->
-            slot.setOnClickListener {
-                selectedSlot = index + 1
-                updateSlotSelection(slots)
-            }
-        }
-        updateSlotSelection(slots)
-    }
-
-    private fun updateSlotSelection(slots: List<Button>) {
-        slots.forEachIndexed { index, slot ->
-            slot.backgroundTintList = null
-            if (index + 1 == selectedSlot) {
-                slot.setBackgroundResource(R.drawable.bg_time_slot_selected)
-                slot.setTextColor(ContextCompat.getColor(requireContext(), R.color.primary_dark))
-            } else {
-                slot.setBackgroundResource(R.drawable.bg_time_slot)
-                slot.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_text))
-            }
-        }
-    }
-
     private fun formatPrice(price: Int): String = "%,d원".format(price)
+    private fun formatPriceAmount(price: Int): String = "%,d".format(price)
+    private fun formatPickupTime(time: String): String = "오늘 오후 ${time.toDisplayHour()} 픽업"
+
+    private fun String.toDisplayHour(): String {
+        val hour = substringBefore(":").toIntOrNull() ?: return this
+        val minute = substringAfter(":", "00")
+        val displayHour = when {
+            hour == 0 -> 12
+            hour > 12 -> hour - 12
+            else -> hour
+        }
+        return "$displayHour:${minute.padStart(2, '0')}"
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

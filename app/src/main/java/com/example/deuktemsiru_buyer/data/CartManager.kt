@@ -10,6 +10,7 @@ data class CartItem(
 )
 
 object CartManager {
+    var serverCartItemIds: Map<Long, Long> = emptyMap()
     var storeId: Long = 0L
     var storeName: String = ""
     var storeEmoji: String = ""
@@ -51,6 +52,21 @@ object CartManager {
         storeLat = 0.0
         storeLng = 0.0
         _items.clear()
+        serverCartItemIds = emptyMap()
+    }
+
+    fun replaceFromServer(
+        storeId: Long,
+        storeName: String,
+        items: List<CartItem>,
+        serverIds: Map<Long, Long>,
+    ) {
+        clear()
+        this.storeId = storeId
+        this.storeName = storeName
+        this.storeEmoji = "🛍️"
+        _items.addAll(items)
+        serverCartItemIds = serverIds
     }
 
     val totalPrice: Int get() = _items.sumOf { it.discountedPrice * it.quantity }

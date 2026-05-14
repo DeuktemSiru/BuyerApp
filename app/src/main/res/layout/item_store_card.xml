@@ -1,194 +1,209 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/card_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
-    android:background="@drawable/bg_store_card"
-    android:padding="@dimen/spacing_md"
-    android:foreground="?attr/selectableItemBackground">
+    android:layout_marginBottom="10dp"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardElevation="0dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/color_border"
+    app:cardCornerRadius="@dimen/radius_md"
+    app:cardBackgroundColor="?attr/colorSurface">
 
-    <!-- Thumbnail -->
-    <FrameLayout
-        android:id="@+id/fl_thumbnail"
-        android:layout_width="76dp"
-        android:layout_height="76dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/spacing_md">
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/bg_thumbnail_placeholder" />
-
-        <TextView
-            android:id="@+id/tv_thumbnail_emoji"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="🍞"
-            android:textSize="28sp" />
-
-        <!-- Discount badge (top-left) -->
-        <TextView
-            android:id="@+id/tv_discount_badge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|start"
-            android:paddingHorizontal="6dp"
-            android:paddingVertical="3dp"
-            android:text="60%"
-            android:textSize="10sp"
-            android:fontFamily="sans-serif-medium"
-            android:textColor="@color/white"
-            android:background="@drawable/bg_discount_badge" />
-    </FrameLayout>
-
-    <!-- Info area -->
-    <LinearLayout
-        android:id="@+id/ll_info"
-        android:layout_width="0dp"
-        android:layout_height="76dp"
-        android:orientation="vertical"
-        android:layout_marginStart="12dp"
-        app:layout_constraintStart_toEndOf="@id/fl_thumbnail"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <!-- Top row: store name + time badge -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+        <!-- Thumbnail container -->
+        <FrameLayout
+            android:id="@+id/fl_thumbnail"
+            android:layout_width="@dimen/store_thumbnail_size"
+            android:layout_height="@dimen/store_thumbnail_size"
+            android:background="@drawable/bg_thumbnail_placeholder"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
 
             <TextView
-                android:id="@+id/tv_store_name"
-                android:layout_width="0dp"
+                android:id="@+id/tv_thumbnail_emoji"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="파리바게뜨 정왕점"
-                android:textSize="@dimen/text_body"
-                android:fontFamily="sans-serif-medium"
-                android:textColor="@color/color_text"
-                android:maxLines="1"
-                android:ellipsize="end" />
+                android:layout_gravity="center"
+                android:text="🍞"
+                android:textSize="30sp" />
 
-            <!-- Time badge -->
+            <!-- Discount badge -->
+            <TextView
+                android:id="@+id/tv_discount_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|start"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="3dp"
+                android:text="60%"
+                android:textSize="10sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/white"
+                android:background="@drawable/bg_discount_badge" />
+        </FrameLayout>
+
+        <!-- Info area -->
+        <LinearLayout
+            android:id="@+id/ll_info"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/store_thumbnail_size"
+            android:orientation="vertical"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:layout_marginEnd="@dimen/spacing_xs"
+            app:layout_constraintStart_toEndOf="@id/fl_thumbnail"
+            app:layout_constraintEnd_toStartOf="@id/btn_wishlist"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <!-- Store name + time badge row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tv_store_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="파리바게뜨 정왕점"
+                    android:textSize="@dimen/text_body"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="?attr/colorOnSurface"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <!-- Time badge pill -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_time_badge"
+                    android:paddingHorizontal="7dp"
+                    android:layout_marginStart="6dp">
+
+                    <ImageView
+                        android:id="@+id/iv_clock"
+                        android:layout_width="11dp"
+                        android:layout_height="11dp"
+                        android:src="@drawable/ic_clock"
+                        android:contentDescription="마감 시간" />
+
+                    <TextView
+                        android:id="@+id/tv_time_left"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="3dp"
+                        android:text="42분 후 마감"
+                        android:textSize="10sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/danger" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Category + distance -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginStart="8dp">
-
-                <ImageView
-                    android:id="@+id/iv_clock"
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
-                    android:src="@drawable/ic_clock"
-                    android:contentDescription="마감 시간" />
+                android:layout_marginTop="4dp">
 
                 <TextView
-                    android:id="@+id/tv_time_left"
+                    android:id="@+id/tv_category"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="3dp"
-                    android:text="42분 후 마감"
-                    android:textSize="11sp"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/danger" />
+                    android:text="베이커리"
+                    android:textSize="@dimen/text_caption"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="3dp"
+                    android:layout_marginHorizontal="6dp"
+                    android:background="@color/color_text_muted" />
+
+                <ImageView
+                    android:layout_width="11dp"
+                    android:layout_height="11dp"
+                    android:src="@drawable/ic_location"
+                    android:contentDescription="거리" />
+
+                <TextView
+                    android:id="@+id/tv_distance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="도보 4분"
+                    android:textSize="@dimen/text_caption"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:layout_marginStart="2dp" />
             </LinearLayout>
-        </LinearLayout>
 
-        <!-- Category + distance -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="3dp">
-
-            <TextView
-                android:id="@+id/tv_category"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="베이커리"
-                android:textSize="@dimen/text_caption"
-                android:textColor="@color/color_text_sub" />
-
+            <!-- Spacer -->
             <View
-                android:layout_width="3dp"
-                android:layout_height="3dp"
-                android:layout_marginHorizontal="6dp"
-                android:background="@color/color_text_muted" />
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
-            <ImageView
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:src="@drawable/ic_location"
-                android:contentDescription="거리" />
-
-            <TextView
-                android:id="@+id/tv_distance"
+            <!-- Price row -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="도보 4분"
-                android:textSize="@dimen/text_caption"
-                android:textColor="@color/color_text_sub"
-                android:layout_marginStart="2dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tv_original_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="15,000원"
+                    android:textSize="11sp"
+                    android:textColor="@color/color_text_muted" />
+
+                <TextView
+                    android:id="@+id/tv_discount_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="5,900원"
+                    android:textSize="@dimen/text_body_lg"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="?attr/colorPrimary" />
+            </LinearLayout>
+
+            <!-- Stock chip -->
+            <TextView
+                android:id="@+id/tv_stock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="3개 남음"
+                android:textSize="10sp"
+                android:textColor="?attr/colorSecondary"
+                android:fontFamily="sans-serif-medium" />
         </LinearLayout>
 
-        <!-- Price row -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="4dp">
+        <!-- Wishlist button -->
+        <ImageButton
+            android:id="@+id/btn_wishlist"
+            android:layout_width="@dimen/touch_target_min"
+            android:layout_height="@dimen/touch_target_min"
+            android:src="@drawable/ic_heart"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="찜하기"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/tv_original_price"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="15,000원"
-                android:textSize="11sp"
-                android:textColor="@color/color_text_muted" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <TextView
-                android:id="@+id/tv_discount_price"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:text="5,900원"
-                android:textSize="16sp"
-                android:fontFamily="sans-serif-medium"
-                android:textColor="@color/primary" />
-        </LinearLayout>
-
-        <!-- Stock -->
-        <TextView
-            android:id="@+id/tv_stock"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
-            android:text="3개 남음"
-            android:textSize="11sp"
-            android:textColor="@color/color_text_muted" />
-    </LinearLayout>
-
-    <!-- Wishlist button -->
-    <ImageButton
-        android:id="@+id/btn_wishlist"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@drawable/ic_heart"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="찜하기"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>
