@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.SessionManager
@@ -19,6 +20,7 @@ class MyPageFragment : Fragment() {
 
     private var _binding: FragmentMypageBinding? = null
     private val binding get() = _binding!!
+    private lateinit var session: SessionManager
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,19 +34,36 @@ class MyPageFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val session = SessionManager(requireContext())
+        session = SessionManager(requireContext())
         if (session.isLoggedIn()) {
             loadUser()
         }
 
-        binding.menuSiruPayment.setOnClickListener {
-            showSiruPaymentInfo()
-        }
-        binding.menuFavoriteStores.setOnClickListener {
-            showFavoriteStores()
-        }
-        binding.menuSettings.setOnClickListener {
-            showSettings()
+        binding.menuSiruPayment.setOnClickListener { showSiruPaymentInfo() }
+        binding.menuFavoriteStores.setOnClickListener { showFavoriteStores() }
+        binding.menuSettings.setOnClickListener { showSettings() }
+
+        binding.btnLogout.setOnClickListener {
+            AlertDialog.Builder(requireContext())
+                .setTitle("로그아웃")
+                .setMessage("로그아웃 하시겠어요?")
+                .setPositiveButton("로그아웃") { _, _ ->
+                    lifecycleScope.launch {
+                        runCatching { RetrofitClient.api.logout() }
+                        session.clear()
+                        RetrofitClient.accessToken = null
+                        RetrofitClient.refreshToken = null
+                        findNavController().navigate(
+                            R.id.onboardingFragment,
+                            null,
+                            NavOptions.Builder()
+                                .setPopUpTo(R.id.onboardingFragment, true)
+                                .build()
+                        )
+                    }
+                }
+                .setNegativeButton("취소", null)
+                .show()
         }
     }
 
@@ -59,12 +78,9 @@ class MyPageFragment : Fragment() {
                 binding.tvCarbonSavedCount.text = "총 ${stats?.totalOrders ?: 0}개의 음식을 구출하셨어요!"
                 binding.tvEcoLevel.text = "에코 레벨: ${gradeLabel(stats?.totalOrders ?: 0)}"
                 binding.tvEcoNext.text = nextGradeHint(stats?.totalOrders ?: 0)
-                binding.tvCouponCount.text = "0"
                 binding.tvPoints.text = "%,dP".format((stats?.totalSavedAmount ?: 0) / 10)
-                SessionManager(requireContext()).apply {
-                    isSiruLinked = user.isSiruLinked
-                    siruBalance = user.siruBalance
-                }
+                session.isSiruLinked = user.isSiruLinked
+                session.siruBalance = user.siruBalance
 
                 val progressRatio = ((stats?.totalOrders ?: 0) / 10f).coerceIn(0.2f, 1.0f)
                 binding.progressEco.post {
@@ -82,9 +98,8 @@ class MyPageFragment : Fragment() {
         AlertDialog.Builder(requireContext())
             .setTitle("시루 결제 관리")
             .setMessage(
-                if (SessionManager(requireContext()).isSiruLinked)
-                    "현재 시루 잔액은 %,d원입니다.\n\n시루 결제 시 5% 추가 인센티브가 적용됩니다."
-                        .format(SessionManager(requireContext()).siruBalance)
+                if (session.isSiruLinked)
+                    "현재 시루 잔액은 %,d원입니다.\n\n시루 결제 시 5% 추가 인센티브가 적용됩니다.".format(session.siruBalance)
                 else
                     "시루 계정이 아직 연동되지 않았어요.\n\n시루 결제 시 5% 추가 인센티브가 적용됩니다."
             )

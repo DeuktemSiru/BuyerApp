@@ -63,7 +63,7 @@ class PaymentFragment : Fragment() {
         binding.tvItemPrice.text = formatPrice(discountedTotal)
         binding.tvOrderPrice.text = formatPrice(originalTotal)
         binding.tvDiscount.text = "-${formatPrice(discountAmount)}"
-        binding.tvFinalPrice.text = formatPriceAmount(discountedTotal)
+        binding.tvFinalPrice.text = formatPrice(discountedTotal)
         binding.tvSavingsMessage.text = "${formatPrice(discountAmount)}을 절약하고 음식 ${CartManager.totalCount}개를 구해요"
         binding.btnPay.text = getString(R.string.btn_pay_siru, formatPrice(discountedTotal))
 
@@ -122,13 +122,13 @@ class PaymentFragment : Fragment() {
                 binding.tvPickupTimeDisplay.text = formatPickupTime(pickupTime)
 
                 val discountedTotal = selectedMenu?.discountPrice ?: totalPrice
-                val originalTotal = if (discountedTotal > 0) (discountedTotal / 0.7).toInt() else totalPrice
+                val originalTotal = selectedMenu?.let { if (it.originalPrice > 0) it.originalPrice else it.discountPrice } ?: totalPrice
                 val discountAmount = (originalTotal - discountedTotal).coerceAtLeast(0)
 
                 binding.tvItemPrice.text = "%,d원".format(discountedTotal)
                 binding.tvOrderPrice.text = "%,d원".format(originalTotal)
                 binding.tvDiscount.text = "-%,d원".format(discountAmount)
-                binding.tvFinalPrice.text = "%,d".format(discountedTotal)
+                binding.tvFinalPrice.text = "%,d원".format(discountedTotal)
                 binding.tvSavingsMessage.text = "%,d원을 절약하고 음식 1개를 구해요".format(discountAmount)
                 binding.btnPay.text = getString(R.string.btn_pay_siru, "%,d원".format(discountedTotal))
 
@@ -180,7 +180,6 @@ class PaymentFragment : Fragment() {
     }
 
     private fun formatPrice(price: Int): String = "%,d원".format(price)
-    private fun formatPriceAmount(price: Int): String = "%,d".format(price)
     private fun formatPickupTime(time: String): String = "오늘 오후 ${time.toDisplayHour()} 픽업"
 
     private fun String.toDisplayHour(): String {

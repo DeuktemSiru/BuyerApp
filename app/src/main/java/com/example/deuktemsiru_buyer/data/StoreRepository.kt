@@ -6,21 +6,30 @@ import retrofit2.HttpException
 
 class StoreRepository(private val api: ApiService) {
 
+    private val storeCache = mutableMapOf<Long, Store>()
+
     suspend fun getStores(category: String? = null): Result<List<Store>> = safeCall {
         val apiCategory = if (category != null) categoryToApi(category) else null
         api.getStores(category = apiCategory).data?.stores
             ?.map { item ->
-                runCatching {
+                storeCache[item.storeId] ?: runCatching {
                     api.getStore(item.storeId).data?.toStore()
+                        ?.also { storeCache[item.storeId] = it }
                 }.getOrNull() ?: item.toStore()
             }
             ?: emptyList()
     }
 
     suspend fun getStore(storeId: Long): Result<Store> = safeCall {
-        val response = api.getStore(storeId).data
-            ?: error("Store $storeId not found")
-        response.toStore()
+        storeCache[storeId] ?: run {
+            val response = api.getStore(storeId).data
+                ?: error("Store $storeId not found")
+            response.toStore().also { storeCache[storeId] = it }
+        }
+    }
+
+    fun invalidateCache(storeId: Long? = null) {
+        if (storeId == null) storeCache.clear() else storeCache.remove(storeId)
     }
 
     suspend fun toggleWishlist(storeId: Long): Result<Boolean> = safeCall {

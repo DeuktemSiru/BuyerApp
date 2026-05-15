@@ -117,7 +117,7 @@ class CartFragment : Fragment() {
                                     menuId = it.productId,
                                     menuName = it.productName,
                                     emoji = "🛍️",
-                                    originalPrice = it.discountPrice,
+                                    originalPrice = it.originalPrice,
                                     discountedPrice = it.discountPrice,
                                     quantity = it.quantity,
                                 )

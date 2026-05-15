@@ -3,7 +3,6 @@ package com.example.deuktemsiru_buyer.ui.route
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.deuktemsiru_buyer.BuildConfig
+import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.databinding.FragmentRouteMapBinding
 import com.example.deuktemsiru_buyer.network.TmapClient
 import com.example.deuktemsiru_buyer.network.TmapRouteRequest
@@ -39,6 +39,7 @@ class RouteMapFragment : Fragment(), OnMapReadyCallback {
     private val binding get() = _binding!!
     private var googleMap: GoogleMap? = null
     private var locationCallback: LocationCallback? = null
+    private var mapViewRef: com.google.android.gms.maps.MapView? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentRouteMapBinding.inflate(inflater, container, false)
@@ -47,6 +48,7 @@ class RouteMapFragment : Fragment(), OnMapReadyCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        mapViewRef = binding.mapView
         binding.mapView.onCreate(savedInstanceState)
         binding.mapView.getMapAsync(this)
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
@@ -132,7 +134,7 @@ class RouteMapFragment : Fragment(), OnMapReadyCallback {
                 map.addPolyline(
                     PolylineOptions()
                         .addAll(coords)
-                        .color(Color.parseColor("#FF6B00"))
+                        .color(ContextCompat.getColor(requireContext(), R.color.primary))
                         .width(10f)
                 )
 
@@ -173,19 +175,19 @@ class RouteMapFragment : Fragment(), OnMapReadyCallback {
         binding.cardRouteInfo.visibility = View.VISIBLE
     }
 
-    override fun onStart() { super.onStart(); binding.mapView.onStart() }
-    override fun onResume() { super.onResume(); binding.mapView.onResume() }
-    override fun onPause() { super.onPause(); binding.mapView.onPause() }
-    override fun onStop() { super.onStop(); binding.mapView.onStop() }
+    override fun onStart() { super.onStart(); mapViewRef?.onStart() }
+    override fun onResume() { super.onResume(); mapViewRef?.onResume() }
+    override fun onPause() { super.onPause(); mapViewRef?.onPause() }
+    override fun onStop() { super.onStop(); mapViewRef?.onStop() }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        if (_binding != null) binding.mapView.onSaveInstanceState(outState)
+        mapViewRef?.onSaveInstanceState(outState)
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        if (_binding != null) binding.mapView.onLowMemory()
+        mapViewRef?.onLowMemory()
     }
 
     override fun onDestroyView() {
@@ -193,7 +195,8 @@ class RouteMapFragment : Fragment(), OnMapReadyCallback {
             LocationServices.getFusedLocationProviderClient(requireContext()).removeLocationUpdates(it)
         }
         locationCallback = null
-        binding.mapView.onDestroy()
+        mapViewRef?.onDestroy()
+        mapViewRef = null
         super.onDestroyView()
         _binding = null
     }

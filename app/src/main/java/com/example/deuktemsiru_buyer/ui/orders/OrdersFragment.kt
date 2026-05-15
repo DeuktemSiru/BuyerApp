@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -35,6 +36,10 @@ class OrdersFragment : Fragment() {
         val session = SessionManager(requireContext())
         if (!session.isLoggedIn()) return
 
+        loadOrders()
+    }
+
+    private fun loadOrders() {
         lifecycleScope.launch {
             try {
                 val orders = RetrofitClient.api.getOrders().data ?: emptyList()
@@ -45,12 +50,52 @@ class OrdersFragment : Fragment() {
                     binding.llEmpty.visibility = View.GONE
                     binding.rvOrders.visibility = View.VISIBLE
                     binding.rvOrders.layoutManager = LinearLayoutManager(requireContext())
-                    binding.rvOrders.adapter = OrderHistoryAdapter(orders)
+                    binding.rvOrders.adapter = OrderHistoryAdapter(orders) { order ->
+                        showOrderDetail(order)
+                    }
                 }
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "주문 내역을 불러오지 못했어요.", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun showOrderDetail(order: OrderListItemResponse) {
+        val items = "주문번호: #${order.orderId}\n" +
+                "매장: ${order.storeName}\n" +
+                "상태: ${statusLabel(order.status)}\n" +
+                "픽업코드: ${order.pickupCode ?: "—"}\n" +
+                "주문일: ${order.createdAt.substringBefore('T')}"
+        val builder = AlertDialog.Builder(requireContext())
+            .setTitle("주문 상세")
+            .setMessage(items)
+            .setPositiveButton("닫기", null)
+
+        if (order.status == "PENDING" || order.status == "CONFIRMED") {
+            builder.setNegativeButton("주문 취소") { _, _ ->
+                confirmCancel(order)
+            }
+        }
+        builder.show()
+    }
+
+    private fun confirmCancel(order: OrderListItemResponse) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("주문을 취소할까요?")
+            .setMessage("${order.storeName} 주문을 취소하면 되돌릴 수 없어요.")
+            .setPositiveButton("취소하기") { _, _ ->
+                lifecycleScope.launch {
+                    try {
+                        RetrofitClient.api.cancelOrder(order.orderId)
+                        Toast.makeText(requireContext(), "주문이 취소됐어요.", Toast.LENGTH_SHORT).show()
+                        loadOrders()
+                    } catch (e: Exception) {
+                        Toast.makeText(requireContext(), "취소에 실패했어요.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .setNegativeButton("돌아가기", null)
+            .show()
     }
 
     override fun onDestroyView() {
@@ -59,8 +104,19 @@ class OrdersFragment : Fragment() {
     }
 }
 
+private fun statusLabel(status: String) = when (status) {
+    "PENDING" -> "접수 대기"
+    "CONFIRMED" -> "접수 완료"
+    "PREPARING" -> "준비중"
+    "READY" -> "픽업 대기"
+    "COMPLETED" -> "완료"
+    "CANCELLED" -> "취소됨"
+    else -> status
+}
+
 private class OrderHistoryAdapter(
-    private val orders: List<OrderListItemResponse>
+    private val orders: List<OrderListItemResponse>,
+    private val onItemClick: (OrderListItemResponse) -> Unit,
 ) : RecyclerView.Adapter<OrderHistoryAdapter.VH>() {
 
     inner class VH(val binding: ItemOrderHistoryBinding) : RecyclerView.ViewHolder(binding.root)
@@ -81,15 +137,6 @@ private class OrderHistoryAdapter(
         b.tvTotalAmount.text = "%,d원".format(order.totalPrice)
         b.tvPickupTime.text = "주문: ${order.createdAt.substringBefore('T')}"
         b.tvPickupCode.text = "코드: ${order.pickupCode ?: "----"}"
-    }
-
-    private fun statusLabel(status: String) = when (status) {
-        "PENDING" -> "접수 대기"
-        "CONFIRMED" -> "접수 완료"
-        "PREPARING" -> "준비중"
-        "READY" -> "픽업 대기"
-        "COMPLETED" -> "완료"
-        "CANCELLED" -> "취소됨"
-        else -> status
+        b.root.setOnClickListener { onItemClick(order) }
     }
 }

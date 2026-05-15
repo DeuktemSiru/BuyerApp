@@ -22,6 +22,9 @@ import com.example.deuktemsiru_buyer.data.toStore
 import com.example.deuktemsiru_buyer.databinding.FragmentStoreDetailBinding
 import com.example.deuktemsiru_buyer.network.CartAddRequest
 import com.example.deuktemsiru_buyer.network.RetrofitClient
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -55,6 +58,10 @@ class StoreDetailFragment : Fragment() {
 
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
         binding.btnShare.setOnClickListener {
+            val storeId = arguments?.getInt("storeId") ?: return@setOnClickListener
+            val shareText = "득템시루에서 ${currentStore?.name ?: "가게"}를 확인해보세요! (storeId=$storeId)"
+            val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            clipboard.setPrimaryClip(ClipData.newPlainText("가게 공유", shareText))
             Snackbar.make(binding.root, "링크가 복사되었어요.", Snackbar.LENGTH_SHORT).show()
         }
 
