@@ -55,7 +55,8 @@
         <LinearLayout
             android:id="@+id/ll_info"
             android:layout_width="0dp"
-            android:layout_height="@dimen/store_thumbnail_size"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/store_thumbnail_size"
             android:orientation="vertical"
             android:layout_marginStart="@dimen/spacing_md"
             android:layout_marginEnd="@dimen/spacing_xs"

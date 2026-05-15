@@ -80,7 +80,7 @@ class PaymentFragment : Fragment() {
             binding.btnPay.isEnabled = false
             binding.btnPay.text = getString(R.string.payment_processing_siru)
 
-            lifecycleScope.launch {
+            viewLifecycleOwner.lifecycleScope.launch {
                 try {
                     val order = RetrofitClient.api.createOrder(
                         CreateOrderRequest(items = orderItems)
@@ -106,7 +106,7 @@ class PaymentFragment : Fragment() {
     }
 
     private fun loadFromStore(session: SessionManager, storeId: Int, menuId: Int, totalPrice: Int) {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val storeResponse = RetrofitClient.api.getStore(storeId.toLong()).data ?: run {
                     findNavController().popBackStack()
@@ -150,7 +150,7 @@ class PaymentFragment : Fragment() {
                     binding.btnPay.isEnabled = false
                     binding.btnPay.text = getString(R.string.payment_processing_siru)
 
-                    lifecycleScope.launch {
+                    viewLifecycleOwner.lifecycleScope.launch {
                         try {
                             val order = RetrofitClient.api.createOrder(
                                 CreateOrderRequest(items = orderItems)

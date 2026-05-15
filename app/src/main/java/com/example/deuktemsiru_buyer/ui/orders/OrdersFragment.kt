@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -40,7 +39,7 @@ class OrdersFragment : Fragment() {
     }
 
     private fun loadOrders() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val orders = RetrofitClient.api.getOrders().data ?: emptyList()
                 if (orders.isEmpty()) {
@@ -61,41 +60,8 @@ class OrdersFragment : Fragment() {
     }
 
     private fun showOrderDetail(order: OrderListItemResponse) {
-        val items = "주문번호: #${order.orderId}\n" +
-                "매장: ${order.storeName}\n" +
-                "상태: ${statusLabel(order.status)}\n" +
-                "픽업코드: ${order.pickupCode ?: "—"}\n" +
-                "주문일: ${order.createdAt.substringBefore('T')}"
-        val builder = AlertDialog.Builder(requireContext())
-            .setTitle("주문 상세")
-            .setMessage(items)
-            .setPositiveButton("닫기", null)
-
-        if (order.status == "PENDING" || order.status == "CONFIRMED") {
-            builder.setNegativeButton("주문 취소") { _, _ ->
-                confirmCancel(order)
-            }
-        }
-        builder.show()
-    }
-
-    private fun confirmCancel(order: OrderListItemResponse) {
-        AlertDialog.Builder(requireContext())
-            .setTitle("주문을 취소할까요?")
-            .setMessage("${order.storeName} 주문을 취소하면 되돌릴 수 없어요.")
-            .setPositiveButton("취소하기") { _, _ ->
-                lifecycleScope.launch {
-                    try {
-                        RetrofitClient.api.cancelOrder(order.orderId)
-                        Toast.makeText(requireContext(), "주문이 취소됐어요.", Toast.LENGTH_SHORT).show()
-                        loadOrders()
-                    } catch (e: Exception) {
-                        Toast.makeText(requireContext(), "취소에 실패했어요.", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-            .setNegativeButton("돌아가기", null)
-            .show()
+        OrderDetailBottomSheet.newInstance(order.orderId) { loadOrders() }
+            .show(childFragmentManager, "order_detail")
     }
 
     override fun onDestroyView() {

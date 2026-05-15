@@ -48,7 +48,7 @@ class MyPageFragment : Fragment() {
                 .setTitle("로그아웃")
                 .setMessage("로그아웃 하시겠어요?")
                 .setPositiveButton("로그아웃") { _, _ ->
-                    lifecycleScope.launch {
+                    viewLifecycleOwner.lifecycleScope.launch {
                         runCatching { RetrofitClient.api.logout() }
                         session.clear()
                         RetrofitClient.accessToken = null
@@ -68,7 +68,7 @@ class MyPageFragment : Fragment() {
     }
 
     private fun loadUser() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val user = RetrofitClient.api.getMe().data ?: return@launch
                 val stats = RetrofitClient.api.getMyStats().data
@@ -112,7 +112,7 @@ class MyPageFragment : Fragment() {
     }
 
     private fun showSettings() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val settings = RetrofitClient.api.getNotificationSettings().data
                 val labels = arrayOf("새 상품 알림", "픽업 리마인드", "주문 상태 알림", "이벤트 알림")
@@ -126,7 +126,7 @@ class MyPageFragment : Fragment() {
                     .setTitle("알림 설정")
                     .setMultiChoiceItems(labels, checked) { _, which, isChecked -> checked[which] = isChecked }
                     .setPositiveButton("저장") { _, _ ->
-                        lifecycleScope.launch {
+                        viewLifecycleOwner.lifecycleScope.launch {
                             RetrofitClient.api.updateNotificationSettings(
                                 com.example.deuktemsiru_buyer.network.UpdateNotificationSettingsRequest(
                                     newProduct = checked[0],

@@ -212,6 +212,10 @@ data class CartAddRequest(
     val quantity: Int,
 )
 
+data class CartUpdateRequest(
+    val quantity: Int,
+)
+
 data class CartApiItem(
     val cartItemId: Long,
     val productId: Long,

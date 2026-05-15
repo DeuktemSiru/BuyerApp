@@ -1,6 +1,7 @@
 package com.example.deuktemsiru_buyer.data
 
 import com.example.deuktemsiru_buyer.network.ApiService
+import com.example.deuktemsiru_buyer.util.AppError
 import com.example.deuktemsiru_buyer.util.Result
 import retrofit2.HttpException
 
@@ -44,13 +45,13 @@ class StoreRepository(private val api: ApiService) {
 private inline fun <T> safeCall(block: () -> T): Result<T> = try {
     Result.Success(block())
 } catch (e: HttpException) {
-    val msg = when (e.code()) {
-        401, 403 -> "auth_error"
-        404 -> "데이터를 찾을 수 없어요."
-        in 500..599 -> "서버에 일시적인 문제가 있어요. 잠시 후 다시 시도해주세요."
-        else -> "네트워크 오류가 발생했어요. (${e.code()})"
+    val appError = when (e.code()) {
+        401, 403 -> AppError.AUTH_ERROR
+        404 -> AppError.NOT_FOUND
+        in 500..599 -> AppError.SERVER_ERROR
+        else -> AppError.UNKNOWN
     }
-    Result.Error(msg, e)
+    Result.Error(appError, httpCode = e.code(), cause = e)
 } catch (e: Exception) {
-    Result.Error("네트워크에 연결할 수 없어요.", e)
+    Result.Error(AppError.NETWORK_ERROR, cause = e)
 }

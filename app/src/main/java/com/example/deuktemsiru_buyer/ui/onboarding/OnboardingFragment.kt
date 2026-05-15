@@ -57,7 +57,7 @@ class OnboardingFragment : Fragment() {
 
     private fun debugLogin(session: SessionManager) {
         setLoading(true)
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val loginData = RetrofitClient.api.debugLogin(DebugLoginRequest()).data
                 if (loginData == null) {
@@ -112,7 +112,7 @@ class OnboardingFragment : Fragment() {
     }
 
     private fun loginToBackend(kakaoAccessToken: String, session: SessionManager) {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val loginData = RetrofitClient.api.kakaoLogin(
                     KakaoLoginRequest(kakaoAccessToken = kakaoAccessToken, role = "CONSUMER")

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.deuktemsiru_buyer.data.Store
 import com.example.deuktemsiru_buyer.data.StoreRepository
+import com.example.deuktemsiru_buyer.util.AppError
 import com.example.deuktemsiru_buyer.util.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -47,12 +48,12 @@ class HomeViewModel(private val repository: StoreRepository) : ViewModel() {
                     }
                 }
                 is Result.Error -> {
-                    val isAuth = result.message == "auth_error"
+                    val isAuth = result.error == AppError.AUTH_ERROR
                     _uiState.update {
                         it.copy(
                             isLoading = false,
                             authError = isAuth,
-                            error = if (isAuth) null else result.message,
+                            error = if (isAuth) null else errorMessage(result.error, result.httpCode),
                         )
                     }
                 }
@@ -104,13 +105,21 @@ class HomeViewModel(private val repository: StoreRepository) : ViewModel() {
         _uiState.update { it.copy(authError = false) }
     }
 
+    private fun errorMessage(error: AppError, httpCode: Int): String = when (error) {
+        AppError.NOT_FOUND -> "데이터를 찾을 수 없어요."
+        AppError.SERVER_ERROR -> "서버에 일시적인 문제가 있어요. 잠시 후 다시 시도해주세요."
+        AppError.NETWORK_ERROR -> "네트워크에 연결할 수 없어요."
+        AppError.UNKNOWN -> "네트워크 오류가 발생했어요. ($httpCode)"
+        AppError.AUTH_ERROR -> null // handled as authError flag, never shown as message
+    } ?: "알 수 없는 오류가 발생했어요."
+
     private fun filterStores(stores: List<Store>, query: String): List<Store> {
         if (query.isBlank()) return stores
         return stores.filter { store ->
             store.name.contains(query, ignoreCase = true) ||
                 store.category.contains(query, ignoreCase = true) ||
                 store.address.contains(query, ignoreCase = true) ||
-                store.menus.any { it.name.contains(query, ignoreCase = true) }
+                store.menus.orEmpty().any { it.name.contains(query, ignoreCase = true) }
         }
     }
 

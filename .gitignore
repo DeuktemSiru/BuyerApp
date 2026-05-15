@@ -41,4 +41,5 @@ Thumbs.db
 # Keystore
 *.jks
 *.keystore
+*.pem
 keystore.properties
