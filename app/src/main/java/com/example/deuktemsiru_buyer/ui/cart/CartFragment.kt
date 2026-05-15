@@ -19,6 +19,7 @@ import com.example.deuktemsiru_buyer.data.CartItem
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.FragmentCartBinding
 import com.example.deuktemsiru_buyer.network.RetrofitClient
+import com.example.deuktemsiru_buyer.network.CartUpdateRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import kotlinx.coroutines.launch
@@ -50,10 +51,12 @@ class CartFragment : Fragment() {
             },
             onIncrease = { item ->
                 CartManager.increaseQuantity(item.menuId)
+                syncServerQuantity(item.menuId)
                 refresh()
             },
             onDecrease = { item ->
                 CartManager.decreaseQuantity(item.menuId)
+                syncServerQuantity(item.menuId)
                 refresh()
             },
             onSelectionChanged = { updateSelectAllState() },
@@ -103,7 +106,7 @@ class CartFragment : Fragment() {
 
     private fun loadServerCart() {
         if (!session.isLoggedIn()) return
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             runCatching { RetrofitClient.api.getCart().data }
                 .onSuccess { cart ->
                     val items = cart?.items.orEmpty()
@@ -124,6 +127,8 @@ class CartFragment : Fragment() {
                             },
                             serverIds = items.associate { it.productId to it.cartItemId },
                         )
+                    } else {
+                        CartManager.clear()
                     }
                     refresh()
                 }
@@ -133,8 +138,23 @@ class CartFragment : Fragment() {
     private fun removeServerItem(productId: Long) {
         val cartItemId = CartManager.serverCartItemIds[productId] ?: return
         if (!session.isLoggedIn()) return
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             runCatching { RetrofitClient.api.removeCartItem(cartItemId) }
+                .onFailure { loadServerCart() }
+        }
+    }
+
+    private fun syncServerQuantity(productId: Long) {
+        val cartItemId = CartManager.serverCartItemIds[productId] ?: return
+        val quantity = CartManager.items.firstOrNull { it.menuId == productId }?.quantity
+        if (!session.isLoggedIn()) return
+        viewLifecycleOwner.lifecycleScope.launch {
+            if (quantity == null) {
+                runCatching { RetrofitClient.api.removeCartItem(cartItemId) }
+            } else {
+                runCatching { RetrofitClient.api.updateCartItem(cartItemId, CartUpdateRequest(quantity)) }
+                    .onFailure { loadServerCart() }
+            }
         }
     }
 

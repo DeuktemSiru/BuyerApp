@@ -4,6 +4,8 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -18,7 +20,11 @@ import androidx.navigation.fragment.findNavController
 import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.FragmentPickupBinding
+import com.example.deuktemsiru_buyer.network.OrderDetailResponse
 import com.example.deuktemsiru_buyer.network.RetrofitClient
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.EncodeHintType
+import com.google.zxing.qrcode.QRCodeWriter
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
@@ -31,6 +37,7 @@ class PickupFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var timerJob: Job? = null
+    private var pollJob: Job? = null
     private var pickupCode = "----"
     private var storeLat = 0.0
     private var storeLng = 0.0
@@ -52,11 +59,12 @@ class PickupFragment : Fragment() {
         val orderId = session.lastOrderId
         val storeId = arguments?.getInt("storeId") ?: 0
 
+        loadStoreFallback(storeId)
+
         if (orderId > 0L) {
             loadOrder(orderId, storeId)
         } else {
-            loadStoreFallback(storeId)
-            startCountdown(remainingSecondsUntil(null))
+            showPendingUi()
         }
 
         binding.llCode.setOnLongClickListener {
@@ -92,54 +100,106 @@ class PickupFragment : Fragment() {
     }
 
     private fun loadOrder(orderId: Long, storeId: Int) {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val order = RetrofitClient.api.getOrder(orderId).data ?: run {
-                    loadStoreFallback(storeId)
-                    startCountdown(remainingSecondsUntil(null))
+                    showPendingUi()
+                    startStatusPolling(orderId, storeId)
                     return@launch
                 }
-                pickupCode = order.pickupCode.orEmpty()
-
-                val pickupEndTime = order.pickupEnd
-                binding.tvPickupTime.text = if (pickupEndTime != null) "${formatDisplayTime(pickupEndTime)}까지" else "픽업 시간 확인 중"
-                binding.tvPickupCode.text = pickupCode.ifBlank { "----" }.chunked(1).joinToString(" ")
-                binding.tvStoreName.text = order.storeName
-                binding.tvOrderMenu.text = order.items.joinToString(", ") { "${it.productName} x${it.quantity}" }
-                binding.tvPaidPrice.text = "%,d원".format(order.totalPrice)
-
-                storeName = order.storeName
-                startCountdown(remainingSecondsUntil(pickupEndTime))
-                loadStoreFallback(storeId)
+                applyOrderUi(order, storeId)
             } catch (e: Exception) {
-                loadStoreFallback(storeId)
-                startCountdown(remainingSecondsUntil(null))
+                showPendingUi()
+                startStatusPolling(orderId, storeId)
+            }
+        }
+    }
+
+    private fun applyOrderUi(order: OrderDetailResponse, storeId: Int) {
+        if (order.status == "CONFIRMED") {
+            showConfirmedUi(order)
+        } else {
+            showPendingUi()
+            startStatusPolling(order.orderId, storeId)
+        }
+        binding.tvStoreName.text = order.storeName
+        binding.tvOrderMenu.text = order.items.joinToString(", ") { "${it.productName} x${it.quantity}" }
+        binding.tvPaidPrice.text = "%,d원".format(order.totalPrice)
+        storeName = order.storeName
+    }
+
+    private fun showPendingUi() {
+        if (_binding == null) return
+        binding.tvStatusBadge.text = "수락 대기 중"
+        binding.tvPendingMessage.visibility = View.VISIBLE
+        binding.llPickupContent.visibility = View.GONE
+    }
+
+    private fun showConfirmedUi(order: OrderDetailResponse) {
+        if (_binding == null) return
+        pickupCode = order.pickupCode.orEmpty()
+
+        binding.tvStatusBadge.text = "픽업 대기 중"
+        binding.tvPendingMessage.visibility = View.GONE
+        binding.llPickupContent.visibility = View.VISIBLE
+
+        val pickupEndTime = order.pickupEnd
+        binding.tvPickupTime.text = if (pickupEndTime != null) "${formatDisplayTime(pickupEndTime)}까지" else "픽업 시간 확인 중"
+        binding.tvPickupCode.text = pickupCode.ifBlank { "----" }.chunked(1).joinToString(" ")
+        showQrCode(pickupCode)
+        startCountdown(remainingSecondsUntil(pickupEndTime))
+    }
+
+    private fun startStatusPolling(orderId: Long, storeId: Int) {
+        pollJob?.cancel()
+        pollJob = viewLifecycleOwner.lifecycleScope.launch {
+            while (_binding != null) {
+                delay(5_000)
+                try {
+                    val order = RetrofitClient.api.getOrder(orderId).data ?: continue
+                    if (order.status == "CONFIRMED") {
+                        applyOrderUi(order, storeId)
+                        break
+                    }
+                } catch (_: Exception) {}
             }
         }
     }
 
     private fun loadStoreFallback(storeId: Int) {
         if (storeId <= 0) return
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val store = RetrofitClient.api.getStore(storeId.toLong()).data ?: return@launch
                 storeLat = store.latitude
                 storeLng = store.longitude
-                storeName = store.name
-                binding.tvStoreName.text = store.name
+                if (storeName.isBlank()) {
+                    storeName = store.name
+                    binding.tvStoreName.text = store.name
+                }
                 binding.tvStoreAddress.text = store.address
                 binding.tvStoreAddress.tag = store.phone
-
-                if (binding.tvPickupTime.text == "픽업 시간 확인 중") {
-                    val pickupEnd = store.products.firstOrNull()?.pickupEnd
-                    binding.tvPickupTime.text = if (pickupEnd != null) "${formatDisplayTime(pickupEnd)}까지" else "—"
-                    if (timerJob == null || timerJob?.isActive == false) {
-                        startCountdown(remainingSecondsUntil(pickupEnd))
-                    }
-                }
             } catch (_: Exception) {
                 binding.tvStoreAddress.tag = ""
             }
+        }
+    }
+
+    private fun showQrCode(code: String) {
+        if (code.isBlank()) return
+        try {
+            val hints = mapOf(EncodeHintType.MARGIN to 1)
+            val bits = QRCodeWriter().encode(code, BarcodeFormat.QR_CODE, 400, 400, hints)
+            val bitmap = Bitmap.createBitmap(400, 400, Bitmap.Config.RGB_565)
+            for (x in 0 until 400) {
+                for (y in 0 until 400) {
+                    bitmap.setPixel(x, y, if (bits[x, y]) Color.BLACK else Color.WHITE)
+                }
+            }
+            binding.ivQrCode.setImageBitmap(bitmap)
+            binding.ivQrCode.visibility = View.VISIBLE
+        } catch (_: Exception) {
+            binding.ivQrCode.visibility = View.GONE
         }
     }
 
@@ -184,6 +244,7 @@ class PickupFragment : Fragment() {
 
     override fun onDestroyView() {
         timerJob?.cancel()
+        pollJob?.cancel()
         super.onDestroyView()
         _binding = null
     }

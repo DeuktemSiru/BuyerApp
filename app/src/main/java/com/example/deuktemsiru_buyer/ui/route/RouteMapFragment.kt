@@ -106,7 +106,7 @@ class RouteMapFragment : Fragment(), OnMapReadyCallback {
         destLat: Double, destLng: Double,
         destName: String,
     ) {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val response = TmapClient.api.getPedestrianRoute(
                     appKey = BuildConfig.TMAP_API_KEY,

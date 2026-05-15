@@ -52,7 +52,8 @@
     <LinearLayout
         android:id="@+id/ll_info"
         android:layout_width="0dp"
-        android:layout_height="64dp"
+        android:layout_height="wrap_content"
+        android:minHeight="64dp"
         android:orientation="vertical"
         android:layout_marginStart="12dp"
         app:layout_constraintStart_toEndOf="@id/fl_thumbnail"

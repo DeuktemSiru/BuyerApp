@@ -30,97 +30,128 @@
 
             <!-- Status badge -->
             <TextView
+                android:id="@+id/tv_status_badge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="14dp"
                 android:paddingVertical="6dp"
-                android:text="픽업 대기 중"
+                android:text="수락 대기 중"
                 android:textSize="12sp"
                 android:fontFamily="sans-serif-medium"
                 android:textColor="@color/primary"
                 android:background="@drawable/bg_pickup_badge"
                 android:layout_marginBottom="16dp" />
 
+            <!-- Pending state: shown while waiting for seller confirmation -->
             <TextView
-                android:id="@+id/tv_pickup_time"
+                android:id="@+id/tv_pending_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="5시 30분까지"
-                android:textSize="@dimen/text_headline"
-                android:fontFamily="sans-serif-medium"
-                android:textColor="@color/color_text"
-                android:gravity="center" />
+                android:text="판매자가 주문을 확인하고 있어요"
+                android:textSize="@dimen/text_body"
+                android:textColor="@color/color_text_sub"
+                android:gravity="center"
+                android:layout_marginTop="8dp" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="가게에서 받아 가세요!"
-                android:textSize="@dimen/text_headline"
-                android:fontFamily="sans-serif-medium"
-                android:textColor="@color/color_text"
-                android:gravity="center" />
-
-            <!-- Pickup code -->
+            <!-- Confirmed state: shown after seller accepts -->
             <LinearLayout
-                android:id="@+id/ll_code"
+                android:id="@+id/ll_pickup_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_code_box"
-                android:padding="20dp"
-                android:gravity="center"
-                android:layout_marginTop="24dp">
+                android:gravity="center_horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tv_pickup_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="5시 30분까지"
+                    android:textSize="@dimen/text_headline"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/color_text"
+                    android:gravity="center" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="픽업 코드"
-                    android:textSize="12sp"
-                    android:textColor="@color/primary_dark"
-                    android:layout_marginBottom="8dp" />
+                    android:text="가게에서 받아 가세요!"
+                    android:textSize="@dimen/text_headline"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/color_text"
+                    android:gravity="center" />
 
-                <TextView
-                    android:id="@+id/tv_pickup_code"
+                <!-- Pickup code -->
+                <LinearLayout
+                    android:id="@+id/ll_code"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_code_box"
+                    android:padding="20dp"
+                    android:gravity="center"
+                    android:layout_marginTop="24dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="픽업 코드"
+                        android:textSize="12sp"
+                        android:textColor="@color/primary_dark"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/tv_pickup_code"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="A 4 2 K"
+                        android:textSize="32sp"
+                        android:fontFamily="monospace"
+                        android:letterSpacing="0.3"
+                        android:textColor="@color/primary" />
+
+                    <ImageView
+                        android:id="@+id/iv_qr_code"
+                        android:layout_width="160dp"
+                        android:layout_height="160dp"
+                        android:layout_marginTop="16dp"
+                        android:contentDescription="QR 코드"
+                        android:scaleType="fitCenter" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="길게 눌러 코드 복사"
+                        android:textSize="11sp"
+                        android:textColor="@color/color_text_muted" />
+                </LinearLayout>
+
+                <!-- Countdown -->
+                <LinearLayout
+                    android:id="@+id/ll_countdown"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="A 4 2 K"
-                    android:textSize="32sp"
-                    android:fontFamily="monospace"
-                    android:letterSpacing="0.3"
-                    android:textColor="@color/primary" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="16dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="길게 눌러 복사"
-                    android:textSize="11sp"
-                    android:textColor="@color/color_text_muted" />
-            </LinearLayout>
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_clock"
+                        android:contentDescription="남은 시간"
+                        android:layout_marginEnd="6dp" />
 
-            <!-- Countdown -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="16dp">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_clock"
-                    android:contentDescription="남은 시간"
-                    android:layout_marginEnd="6dp" />
-
-                <TextView
-                    android:id="@+id/tv_countdown"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="42:00"
-                    android:textSize="28sp"
-                    android:fontFamily="monospace"
-                    android:textColor="@color/danger" />
+                    <TextView
+                        android:id="@+id/tv_countdown"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="42:00"
+                        android:textSize="28sp"
+                        android:fontFamily="monospace"
+                        android:textColor="@color/danger" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 
@@ -170,9 +201,10 @@
                     android:layout_marginEnd="8dp"
                     android:text="길찾기"
                     android:textSize="14sp"
-                    android:textColor="@color/color_text"
+                    android:textColor="@color/primary"
                     android:background="@drawable/bg_surface_card"
-                    android:stateListAnimator="@null" />
+                    android:stateListAnimator="@null"
+                    app:backgroundTint="@null" />
 
                 <Button
                     android:id="@+id/btn_call"
@@ -181,9 +213,10 @@
                     android:layout_weight="1"
                     android:text="전화하기"
                     android:textSize="14sp"
-                    android:textColor="@color/color_text"
+                    android:textColor="@color/primary"
                     android:background="@drawable/bg_surface_card"
-                    android:stateListAnimator="@null" />
+                    android:stateListAnimator="@null"
+                    app:backgroundTint="@null" />
             </LinearLayout>
         </LinearLayout>
 

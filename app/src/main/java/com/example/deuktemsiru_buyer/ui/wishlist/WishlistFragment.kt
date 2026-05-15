@@ -57,7 +57,7 @@ class WishlistFragment : Fragment() {
             return
         }
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val stores = RetrofitClient.api.getWishlist().data?.wishlists
                     ?.map { item -> item.toStore() }
@@ -83,7 +83,7 @@ class WishlistFragment : Fragment() {
                 )
             },
             onWishlistClick = { store ->
-                lifecycleScope.launch {
+                viewLifecycleOwner.lifecycleScope.launch {
                     runCatching {
                         RetrofitClient.api.toggleWishlist(store.id.toLong())
                         allStores.removeAll { it.id == store.id }

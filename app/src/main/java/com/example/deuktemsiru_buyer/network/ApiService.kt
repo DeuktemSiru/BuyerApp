@@ -71,6 +71,12 @@ interface ApiService {
     @DELETE("api/v1/cart/{cartItemId}")
     suspend fun removeCartItem(@Path("cartItemId") cartItemId: Long): ApiResponse<Unit>
 
+    @PATCH("api/v1/cart/{cartItemId}")
+    suspend fun updateCartItem(
+        @Path("cartItemId") cartItemId: Long,
+        @Body req: CartUpdateRequest,
+    ): ApiResponse<CartApiItem>
+
     @DELETE("api/v1/cart")
     suspend fun clearCart(): ApiResponse<Unit>
 
