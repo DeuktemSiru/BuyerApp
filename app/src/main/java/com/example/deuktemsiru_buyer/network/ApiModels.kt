@@ -69,6 +69,7 @@ data class StoreDetailApiResponse(
 data class StoreProductItem(
     val productId: Long,
     val name: String,
+    val originalPrice: Int = 0,
     val discountPrice: Int,
     val quantityRemaining: Int,
     val pickupEnd: String,
@@ -142,6 +143,7 @@ data class OrderDetailResponse(
     val storeName: String,
     val items: List<OrderItemDetailResponse>,
     val payment: PaymentInfo,
+    val pickupEnd: String? = null,
 )
 
 // ── 사용자 ───────────────────────────────────────────────────
@@ -216,6 +218,7 @@ data class CartApiItem(
     val productName: String,
     val storeId: Long,
     val storeName: String,
+    val originalPrice: Int = 0,
     val discountPrice: Int,
     val quantity: Int,
     val imageUrl: String?,

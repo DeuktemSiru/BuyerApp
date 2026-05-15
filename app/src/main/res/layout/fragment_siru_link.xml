@@ -106,7 +106,7 @@
         android:fontFamily="sans-serif-medium"
         android:stateListAnimator="@null"
         android:text="시루 연동 완료하고 시작하기"
-        android:textColor="@color/white"
+        android:textColor="?attr/colorOnPrimary"
         android:textSize="@dimen/text_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -5,20 +5,20 @@
 
     <!-- ============================================================ -->
     <!-- M3 Light Color Roles                                          -->
-    <!-- Primary: #FF5C2E (브랜드 오렌지)                              -->
-    <!-- Secondary: #1F8A5B (시루 그린)                                -->
+    <!-- Primary: #C94B28 (따뜻한 코럴 오렌지)                          -->
+    <!-- Secondary: #1D7F52 (시루 그린)                                -->
     <!-- Tertiary: #FFB400 (별점/프로모션 골드)                         -->
     <!-- ============================================================ -->
 
     <!-- Primary -->
-    <color name="md_theme_light_primary">#FF5C2E</color>
+    <color name="md_theme_light_primary">#C94B28</color>
     <color name="md_theme_light_onPrimary">#FFFFFF</color>
-    <color name="md_theme_light_primaryContainer">#FFE0D6</color>
-    <color name="md_theme_light_onPrimaryContainer">#3B0C00</color>
-    <color name="md_theme_light_inversePrimary">#FFB4A0</color>
+    <color name="md_theme_light_primaryContainer">#FFE7DE</color>
+    <color name="md_theme_light_onPrimaryContainer">#3F0D05</color>
+    <color name="md_theme_light_inversePrimary">#FFBDAA</color>
 
     <!-- Secondary (시루 그린) -->
-    <color name="md_theme_light_secondary">#1F8A5B</color>
+    <color name="md_theme_light_secondary">#1D7F52</color>
     <color name="md_theme_light_onSecondary">#FFFFFF</color>
     <color name="md_theme_light_secondaryContainer">#B0F1D2</color>
     <color name="md_theme_light_onSecondaryContainer">#002116</color>
@@ -42,13 +42,13 @@
     <color name="md_theme_light_onSurface">#1A1110</color>
     <color name="md_theme_light_surfaceVariant">#F5EFEC</color>
     <color name="md_theme_light_onSurfaceVariant">#534341</color>
-    <color name="md_theme_light_surfaceTint">#FF5C2E</color>
+    <color name="md_theme_light_surfaceTint">#C94B28</color>
     <color name="md_theme_light_inverseSurface">#362F2E</color>
     <color name="md_theme_light_inverseOnSurface">#FFEDEA</color>
 
     <!-- Outline -->
     <color name="md_theme_light_outline">#857370</color>
-    <color name="md_theme_light_outlineVariant">#D8C2BE</color>
+    <color name="md_theme_light_outlineVariant">#E2C8C0</color>
 
     <!-- Scrim -->
     <color name="md_theme_light_scrim">#000000</color>
@@ -57,11 +57,11 @@
     <!-- M3 Dark Color Roles                                           -->
     <!-- ============================================================ -->
 
-    <color name="md_theme_dark_primary">#FFB4A0</color>
-    <color name="md_theme_dark_onPrimary">#5C1900</color>
-    <color name="md_theme_dark_primaryContainer">#832800</color>
-    <color name="md_theme_dark_onPrimaryContainer">#FFE0D6</color>
-    <color name="md_theme_dark_inversePrimary">#FF5C2E</color>
+    <color name="md_theme_dark_primary">#FFBDAA</color>
+    <color name="md_theme_dark_onPrimary">#5C1A0D</color>
+    <color name="md_theme_dark_primaryContainer">#8A2F19</color>
+    <color name="md_theme_dark_onPrimaryContainer">#FFE7DE</color>
+    <color name="md_theme_dark_inversePrimary">#C94B28</color>
 
     <color name="md_theme_dark_secondary">#6AD4A4</color>
     <color name="md_theme_dark_onSecondary">#003825</color>
@@ -84,7 +84,7 @@
     <color name="md_theme_dark_onSurface">#EDE0DD</color>
     <color name="md_theme_dark_surfaceVariant">#534341</color>
     <color name="md_theme_dark_onSurfaceVariant">#D8C2BE</color>
-    <color name="md_theme_dark_surfaceTint">#FFB4A0</color>
+    <color name="md_theme_dark_surfaceTint">#FFBDAA</color>
     <color name="md_theme_dark_inverseSurface">#EDE0DD</color>
     <color name="md_theme_dark_inverseOnSurface">#362F2E</color>
 
@@ -95,19 +95,20 @@
     <!-- ============================================================ -->
     <!-- Semantic aliases — 기존 레이아웃 호환 유지 (Light 기준 직접 값) -->
     <!-- ============================================================ -->
-    <color name="primary">#FF5C2E</color>
-    <color name="primary_light">#FFE0D6</color>
-    <color name="primary_dark">#832800</color>
+    <color name="primary">#C94B28</color>
+    <color name="primary_light">#FFE7DE</color>
+    <color name="primary_dark">#8A2F19</color>
     <color name="danger">#E53935</color>
     <color name="warning">#E07800</color>
-    <color name="success">#1F8A5B</color>
-    <color name="siru_green">#1F8A5B</color>
+    <color name="success">#1D7F52</color>
+    <color name="siru_green">#1D7F52</color>
     <color name="siru_light">#B0F1D2</color>
     <color name="color_text">#1A1110</color>
     <color name="color_text_sub">#534341</color>
     <color name="color_text_muted">#998C8A</color>
-    <color name="color_border">#D8C2BE</color>
+    <color name="color_border">#E2C8C0</color>
     <color name="color_surface">#F5EFEC</color>
+    <color name="color_button_dark_text">#FFEDEA</color>
     <color name="color_border_light">#EDE8E5</color>
     <color name="color_overlay">#80000000</color>
 </resources>

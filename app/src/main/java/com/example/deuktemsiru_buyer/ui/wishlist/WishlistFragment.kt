@@ -1,7 +1,6 @@
 package com.example.deuktemsiru_buyer.ui.wishlist
 
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +9,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -22,6 +22,7 @@ import com.example.deuktemsiru_buyer.data.toStore
 import com.example.deuktemsiru_buyer.databinding.FragmentWishlistBinding
 import com.example.deuktemsiru_buyer.network.RetrofitClient
 import com.example.deuktemsiru_buyer.ui.home.StoreAdapter
+import com.google.android.material.color.MaterialColors
 import kotlinx.coroutines.launch
 
 class WishlistFragment : Fragment() {
@@ -59,11 +60,7 @@ class WishlistFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 val stores = RetrofitClient.api.getWishlist().data?.wishlists
-                    ?.map { item ->
-                        runCatching {
-                            RetrofitClient.api.getStore(item.storeId).data?.toStore(isWishlisted = true)
-                        }.getOrNull() ?: item.toStore()
-                    }
+                    ?.map { item -> item.toStore() }
                     ?: emptyList()
                 allStores.clear()
                 allStores.addAll(stores)
@@ -85,7 +82,18 @@ class WishlistFragment : Fragment() {
                     Bundle().apply { putInt("storeId", store.id) }
                 )
             },
-            onWishlistClick = {}
+            onWishlistClick = { store ->
+                lifecycleScope.launch {
+                    runCatching {
+                        RetrofitClient.api.toggleWishlist(store.id.toLong())
+                        allStores.removeAll { it.id == store.id }
+                        updateList(filterStores())
+                        Toast.makeText(requireContext(), "찜 목록에서 제거했어요", Toast.LENGTH_SHORT).show()
+                    }.onFailure {
+                        Toast.makeText(requireContext(), "찜 처리 중 오류가 발생했어요.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         )
         binding.rvWishlist.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -108,10 +116,10 @@ class WishlistFragment : Fragment() {
                 currentCategory = category
                 chips.forEach { (c, _) ->
                     c.setBackgroundResource(R.drawable.bg_chip_unselected)
-                    c.setTextColor(Color.parseColor("#1A1A1A"))
+                    c.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_text))
                 }
                 chip.setBackgroundResource(R.drawable.bg_chip_selected)
-                chip.setTextColor(Color.WHITE)
+                chip.setTextColor(MaterialColors.getColor(chip, com.google.android.material.R.attr.colorOnPrimary))
 
                 updateList(filterStores())
             }

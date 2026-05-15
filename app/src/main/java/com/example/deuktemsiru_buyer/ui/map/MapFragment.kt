@@ -40,6 +40,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -175,11 +176,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 try {
                     val stores = RetrofitClient.api.getStores().data?.stores
-                        ?.map { item ->
-                            runCatching {
-                                RetrofitClient.api.getStore(item.storeId).data?.toStore()
-                            }.getOrNull() ?: item.toStore()
-                        }
+                        ?.map { item -> item.toStore() }
                         ?: emptyList()
                     loadedStores = stores
                     if (_binding != null) updateMapStores()
@@ -287,7 +284,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                     c.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_text))
                 }
                 chip.setBackgroundResource(R.drawable.bg_chip_selected)
-                chip.setTextColor(Color.WHITE)
+                chip.setTextColor(MaterialColors.getColor(chip, com.google.android.material.R.attr.colorOnPrimary))
                 updateMapStores()
             }
         }
@@ -348,5 +345,5 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         super.onDestroy()
     }
 
-    private fun Store.hasValidLocation() = latitude != 0.0 || longitude != 0.0
+    private fun Store.hasValidLocation() = latitude != 0.0 && longitude != 0.0
 }

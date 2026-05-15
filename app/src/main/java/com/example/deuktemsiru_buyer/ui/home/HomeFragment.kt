@@ -2,6 +2,7 @@ package com.example.deuktemsiru_buyer.ui.home
 
 import android.content.Context
 import android.os.Bundle
+import android.widget.TextView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,6 +24,7 @@ import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.data.StoreRepository
 import com.example.deuktemsiru_buyer.databinding.FragmentHomeBinding
 import com.example.deuktemsiru_buyer.network.RetrofitClient
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 
@@ -37,6 +39,16 @@ class HomeFragment : Fragment() {
 
     private lateinit var storeAdapter: StoreAdapter
     private lateinit var session: SessionManager
+    private val categoryChips: Map<android.widget.TextView, String> by lazy {
+        mapOf(
+            binding.chipAll to "전체",
+            binding.chipKorean to "한식",
+            binding.chipWestern to "양식",
+            binding.chipCafeDessert to "카페·디저트",
+            binding.chipBakery to "베이커리",
+            binding.chipCafe to "카페",
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -119,36 +131,20 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupCategoryChips() {
-        val chips = mapOf(
-            binding.chipAll to "전체",
-            binding.chipKorean to "한식",
-            binding.chipWestern to "양식",
-            binding.chipCafeDessert to "카페·디저트",
-            binding.chipBakery to "베이커리",
-            binding.chipCafe to "카페",
-        )
-        chips.forEach { (chip, category) ->
+        categoryChips.forEach { (chip, category) ->
             chip.setOnClickListener { viewModel.selectCategory(category) }
         }
     }
 
     private fun syncCategoryChips(selected: String) {
-        val chips = mapOf(
-            binding.chipAll to "전체",
-            binding.chipKorean to "한식",
-            binding.chipWestern to "양식",
-            binding.chipCafeDessert to "카페·디저트",
-            binding.chipBakery to "베이커리",
-            binding.chipCafe to "카페",
-        )
-        chips.forEach { (chip, category) ->
+        categoryChips.forEach { (chip, category) ->
             val isSelected = category == selected
             chip.setBackgroundResource(
                 if (isSelected) R.drawable.bg_chip_selected else R.drawable.bg_chip_unselected
             )
             chip.setTextColor(
                 if (isSelected)
-                    requireContext().getColor(R.color.white)
+                    MaterialColors.getColor(chip, com.google.android.material.R.attr.colorOnPrimary)
                 else
                     requireContext().getColor(R.color.color_text)
             )
