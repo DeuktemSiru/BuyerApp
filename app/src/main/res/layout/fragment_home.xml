@@ -90,7 +90,7 @@
                     android:layout_margin="4dp"
                     android:background="@drawable/bg_cart_badge"
                     android:gravity="center"
-                    android:textColor="?attr/colorOnPrimary"
+                    android:textColor="@color/white"
                     android:textSize="10sp"
                     android:fontFamily="sans-serif-medium"
                     android:visibility="gone" />

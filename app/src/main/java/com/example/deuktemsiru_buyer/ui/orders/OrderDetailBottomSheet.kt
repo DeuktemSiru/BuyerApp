@@ -1,7 +1,5 @@
 package com.example.deuktemsiru_buyer.ui.orders
 
-import android.graphics.Bitmap
-import android.graphics.Color
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -17,9 +15,9 @@ import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.databinding.BottomSheetOrderDetailBinding
 import com.example.deuktemsiru_buyer.network.OrderDetailResponse
 import com.example.deuktemsiru_buyer.network.RetrofitClient
+import com.example.deuktemsiru_buyer.util.formatPrice
+import com.example.deuktemsiru_buyer.util.generateQrBitmap
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.MultiFormatWriter
 import kotlinx.coroutines.launch
 
 class OrderDetailBottomSheet : BottomSheetDialogFragment() {
@@ -91,7 +89,7 @@ class OrderDetailBottomSheet : BottomSheetDialogFragment() {
                 setTextColor(textColor)
             }
             val tvPrice = TextView(requireContext()).apply {
-                text = "%,d원".format(item.unitPrice * item.quantity)
+                text = (item.unitPrice * item.quantity).formatPrice()
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
                 setTextColor(textSubColor)
             }
@@ -100,17 +98,17 @@ class OrderDetailBottomSheet : BottomSheetDialogFragment() {
             binding.itemsContainer.addView(row)
         }
 
-        binding.tvPickupTime.text = detail.pickupEnd
+        binding.tvPickupTime.text = detail.pickupTime
             ?.let { formatTime(it) }
             ?: "미정"
 
-        binding.tvTotalAmount.text = "%,d원".format(detail.totalPrice)
+        binding.tvTotalAmount.text = detail.totalPrice.formatPrice()
 
         val code = detail.pickupCode
         if (!code.isNullOrBlank()) {
             binding.layoutQr.visibility = View.VISIBLE
             binding.tvPickupCode.text = code
-            generateQr(code)?.let { binding.ivQrCode.setImageBitmap(it) }
+            generateQrBitmap(code)?.let { binding.ivQrCode.setImageBitmap(it) }
         }
 
         if (detail.status == "PENDING" || detail.status == "CONFIRMED") {
@@ -139,16 +137,6 @@ class OrderDetailBottomSheet : BottomSheetDialogFragment() {
             .show()
     }
 
-    private fun generateQr(content: String): Bitmap? = runCatching {
-        val size = 512
-        val matrix = MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, size, size)
-        val pixels = IntArray(size * size) { i ->
-            if (matrix[i % size, i / size]) Color.BLACK else Color.WHITE
-        }
-        Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-            .also { it.setPixels(pixels, 0, size, 0, 0, size, size) }
-    }.getOrNull()
-
     private fun dpToPx(dp: Int) =
         (dp * resources.displayMetrics.density).toInt()
 
@@ -169,6 +157,7 @@ private fun statusLabel(status: String) = when (status) {
     "CONFIRMED" -> "접수 완료"
     "PREPARING" -> "준비중"
     "READY" -> "픽업 대기"
+    "PICKED_UP" -> "픽업 완료"
     "COMPLETED" -> "완료"
     "CANCELLED" -> "취소됨"
     else -> status

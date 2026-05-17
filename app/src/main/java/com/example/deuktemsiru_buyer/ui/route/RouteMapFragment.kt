@@ -89,15 +89,22 @@ class RouteMapFragment : Fragment(), OnMapReadyCallback {
             .setMaxUpdates(1)
             .build()
 
-        locationCallback = object : LocationCallback() {
+        val callback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
-                val location = result.lastLocation ?: return
+                val location = result.lastLocation
+                if (location == null) {
+                    if (_binding != null) binding.progress.visibility = View.GONE
+                    Toast.makeText(requireContext(), "현재 위치를 확인하지 못했어요", Toast.LENGTH_SHORT).show()
+                    locationCallback = null
+                    return
+                }
                 fusedClient.removeLocationUpdates(this)
                 locationCallback = null
                 drawRoute(map, location.latitude, location.longitude, destLat, destLng, destName)
             }
         }
-        fusedClient.requestLocationUpdates(request, locationCallback!!, Looper.getMainLooper())
+        locationCallback = callback
+        fusedClient.requestLocationUpdates(request, callback, Looper.getMainLooper())
     }
 
     private fun drawRoute(

@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.deuktemsiru_buyer.data.MenuItem
 import com.example.deuktemsiru_buyer.databinding.ItemMenuBinding
+import com.example.deuktemsiru_buyer.util.formatPrice
 
 class MenuAdapter(
     private val menus: List<MenuItem>,
@@ -19,10 +20,10 @@ class MenuAdapter(
         fun bind(menu: MenuItem) {
             binding.tvEmoji.text = menu.emoji
             binding.tvMenuName.text = menu.name
-            binding.tvOriginalPrice.text = "%,d원".format(menu.originalPrice)
+            binding.tvOriginalPrice.text = menu.originalPrice.formatPrice()
             binding.tvOriginalPrice.paintFlags = binding.tvOriginalPrice.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
             binding.tvDiscountRate.text = "${menu.discountRate}%"
-            binding.tvDiscountPrice.text = "%,d원".format(menu.discountedPrice)
+            binding.tvDiscountPrice.text = menu.discountedPrice.formatPrice()
             binding.tvStock.text = "${menu.remainingItems}개 남음"
 
             if (menu.isSoldOut) {

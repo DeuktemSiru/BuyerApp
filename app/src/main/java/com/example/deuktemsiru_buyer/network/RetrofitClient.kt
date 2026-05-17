@@ -11,14 +11,14 @@ import okhttp3.Route
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 
 object RetrofitClient {
 
     private const val EMULATOR_BASE_URL = "http://10.0.2.2:8080/"
     val BASE_URL: String = BuildConfig.BASE_URL.ifBlank { EMULATOR_BASE_URL }
-    var accessToken: String? = null
-    var refreshToken: String? = null
+    @Volatile var accessToken: String? = null
+    @Volatile var refreshToken: String? = null
     var onTokenRefreshed: ((String) -> Unit)? = null
 
     init {
@@ -74,7 +74,7 @@ object RetrofitClient {
 
         private fun refreshTokenSync(refreshToken: String): String? {
             return try {
-                val url = URL("${BASE_URL}api/v1/auth/refresh")
+                val url = URI(BASE_URL).resolve("api/v1/auth/refresh").toURL()
                 val conn = (url.openConnection() as HttpURLConnection).apply {
                     requestMethod = "POST"
                     setRequestProperty("Content-Type", "application/json")
@@ -87,8 +87,11 @@ object RetrofitClient {
                 if (conn.responseCode != HttpURLConnection.HTTP_OK) return null
                 val json = conn.inputStream.bufferedReader().readText()
                 try {
-                    Gson().fromJson(json, Map::class.java)["data"]
-                        ?.let { (it as? Map<*, *>)?.get("accessToken") as? String }
+                    val type = com.google.gson.reflect.TypeToken.getParameterized(
+                        ApiResponse::class.java, TokenData::class.java
+                    ).type
+                    val response: ApiResponse<TokenData>? = Gson().fromJson(json, type)
+                    response?.data?.accessToken
                 } catch (e: Exception) {
                     Log.e("TokenRefresh", "Failed to parse token refresh response", e)
                     null

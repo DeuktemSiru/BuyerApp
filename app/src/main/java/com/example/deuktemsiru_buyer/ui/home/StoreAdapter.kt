@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.Store
 import com.example.deuktemsiru_buyer.databinding.ItemStoreCardBinding
+import com.example.deuktemsiru_buyer.util.formatPrice
 
 class StoreAdapter(
     private val onStoreClick: (Store) -> Unit,
@@ -27,10 +28,10 @@ class StoreAdapter(
             binding.tvCategory.text = store.category
             binding.tvDistance.text = "도보 ${store.walkingMinutes}분"
             binding.tvDiscountBadge.text = "${store.discountRate}%"
-            binding.tvOriginalPrice.text = "%,d원".format(store.originalPrice)
+            binding.tvOriginalPrice.text = store.originalPrice.formatPrice()
             binding.tvOriginalPrice.paintFlags =
                 binding.tvOriginalPrice.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-            binding.tvDiscountPrice.text = "%,d원".format(store.discountedPrice)
+            binding.tvDiscountPrice.text = store.discountedPrice.formatPrice()
             binding.tvStock.text = "${store.remainingItems}개 남음"
 
             val mins = store.minutesUntilClose

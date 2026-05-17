@@ -20,6 +20,7 @@ import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.FragmentCartBinding
 import com.example.deuktemsiru_buyer.network.RetrofitClient
 import com.example.deuktemsiru_buyer.network.CartUpdateRequest
+import com.example.deuktemsiru_buyer.util.formatPrice
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import kotlinx.coroutines.launch
@@ -45,19 +46,23 @@ class CartFragment : Fragment() {
         adapter = CartAdapter(
             items = CartManager.items,
             onDelete = { item ->
-                removeServerItem(item.menuId)
-                CartManager.remove(item.menuId)
-                refresh()
+                syncCart({ removeServerItem(item.menuId) }) {
+                    CartManager.remove(item.menuId)
+                }
             },
             onIncrease = { item ->
-                CartManager.increaseQuantity(item.menuId)
-                syncServerQuantity(item.menuId)
-                refresh()
+                syncCart({ syncServerQuantity(item.menuId, item.quantity + 1) }) {
+                    CartManager.increaseQuantity(item.menuId)
+                }
             },
             onDecrease = { item ->
-                CartManager.decreaseQuantity(item.menuId)
-                syncServerQuantity(item.menuId)
-                refresh()
+                val nextQuantity = item.quantity - 1
+                syncCart({
+                    if (nextQuantity <= 0) removeServerItem(item.menuId)
+                    else syncServerQuantity(item.menuId, nextQuantity)
+                }) {
+                    CartManager.decreaseQuantity(item.menuId)
+                }
             },
             onSelectionChanged = { updateSelectAllState() },
         )
@@ -73,17 +78,18 @@ class CartFragment : Fragment() {
         }
 
         binding.btnDeleteSelected.setOnClickListener {
-            adapter.selectedIds.toList().forEach {
-                removeServerItem(it)
-                CartManager.remove(it)
+            viewLifecycleOwner.lifecycleScope.launch {
+                adapter.selectedIds.toList().forEach {
+                    if (removeServerItem(it)) CartManager.remove(it)
+                }
+                refresh()
             }
-            refresh()
         }
 
         binding.btnAddMore.setOnClickListener {
             findNavController().navigate(
                 R.id.action_cart_to_storeDetail,
-                Bundle().apply { putInt("storeId", CartManager.storeId.toInt()) }
+                Bundle().apply { putLong("storeId", CartManager.storeId) }
             )
         }
 
@@ -92,7 +98,7 @@ class CartFragment : Fragment() {
             findNavController().navigate(
                 R.id.action_cart_to_payment,
                 Bundle().apply {
-                    putInt("storeId", CartManager.storeId.toInt())
+                    putLong("storeId", CartManager.storeId)
                     putInt("totalPrice", CartManager.totalPrice)
                     putBoolean("fromCart", true)
                 }
@@ -100,8 +106,18 @@ class CartFragment : Fragment() {
         }
 
         refresh()
-        loadServerCart()
-        fetchDistanceAndCarbon()
+        if (session.isLoggedIn()) {
+            loadServerCart()
+        } else {
+            fetchDistanceAndCarbon()
+        }
+    }
+
+    private fun syncCart(action: suspend () -> Boolean, onSuccess: () -> Unit) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val ok = action()
+            if (ok) { onSuccess(); refresh() }
+        }
     }
 
     private fun loadServerCart() {
@@ -115,6 +131,8 @@ class CartFragment : Fragment() {
                         CartManager.replaceFromServer(
                             storeId = first.storeId,
                             storeName = first.storeName,
+                            storeLat = first.storeLatitude,
+                            storeLng = first.storeLongitude,
                             items = items.map {
                                 CartItem(
                                     menuId = it.productId,
@@ -122,6 +140,8 @@ class CartFragment : Fragment() {
                                     emoji = "🛍️",
                                     originalPrice = it.originalPrice,
                                     discountedPrice = it.discountPrice,
+                                    pickupStart = it.pickupStart,
+                                    pickupEnd = it.pickupEnd,
                                     quantity = it.quantity,
                                 )
                             },
@@ -131,31 +151,30 @@ class CartFragment : Fragment() {
                         CartManager.clear()
                     }
                     refresh()
+                    fetchDistanceAndCarbon()
+                }
+                .onFailure {
+                    fetchDistanceAndCarbon()
                 }
         }
     }
 
-    private fun removeServerItem(productId: Long) {
-        val cartItemId = CartManager.serverCartItemIds[productId] ?: return
-        if (!session.isLoggedIn()) return
-        viewLifecycleOwner.lifecycleScope.launch {
-            runCatching { RetrofitClient.api.removeCartItem(cartItemId) }
-                .onFailure { loadServerCart() }
-        }
+    private suspend fun removeServerItem(productId: Long): Boolean {
+        val cartItemId = CartManager.serverCartItemIds[productId] ?: return true
+        if (!session.isLoggedIn()) return true
+        return runCatching { RetrofitClient.api.removeCartItem(cartItemId) }
+            .onFailure { loadServerCart() }
+            .isSuccess
     }
 
-    private fun syncServerQuantity(productId: Long) {
-        val cartItemId = CartManager.serverCartItemIds[productId] ?: return
-        val quantity = CartManager.items.firstOrNull { it.menuId == productId }?.quantity
-        if (!session.isLoggedIn()) return
-        viewLifecycleOwner.lifecycleScope.launch {
-            if (quantity == null) {
-                runCatching { RetrofitClient.api.removeCartItem(cartItemId) }
-            } else {
-                runCatching { RetrofitClient.api.updateCartItem(cartItemId, CartUpdateRequest(quantity)) }
-                    .onFailure { loadServerCart() }
-            }
+    private suspend fun syncServerQuantity(productId: Long, quantity: Int): Boolean {
+        val cartItemId = CartManager.serverCartItemIds[productId] ?: return true
+        if (!session.isLoggedIn()) return true
+        return runCatching {
+            RetrofitClient.api.updateCartItem(cartItemId, CartUpdateRequest(quantity))
         }
+            .onFailure { loadServerCart() }
+            .isSuccess
     }
 
     private fun refresh() {
@@ -171,9 +190,9 @@ class CartFragment : Fragment() {
             binding.btnCheckout.isEnabled = true
             binding.tvStoreEmoji.text = CartManager.storeEmoji
             binding.tvStoreName.text = CartManager.storeName
-            binding.tvSubtotal.text = formatPrice(CartManager.totalPrice)
-            binding.tvTotal.text = formatPrice(CartManager.totalPrice)
-            binding.btnCheckout.text = "${formatPrice(CartManager.totalPrice)} 예약하기"
+            binding.tvSubtotal.text = CartManager.totalPrice.formatPrice()
+            binding.tvTotal.text = CartManager.totalPrice.formatPrice()
+            binding.btnCheckout.text = "${CartManager.totalPrice.formatPrice()} 예약하기"
             adapter.update(CartManager.items)
             updateSelectAllState()
             updateCarbonLabel()
@@ -245,8 +264,6 @@ class CartFragment : Fragment() {
         else
             "가게까지 ${distMeters}m"
     }
-
-    private fun formatPrice(price: Int): String = "%,d원".format(price)
 
     override fun onDestroyView() {
         super.onDestroyView()

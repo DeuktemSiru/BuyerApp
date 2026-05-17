@@ -24,7 +24,7 @@ import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.data.StoreRepository
 import com.example.deuktemsiru_buyer.databinding.FragmentHomeBinding
 import com.example.deuktemsiru_buyer.network.RetrofitClient
-import com.google.android.material.color.MaterialColors
+import com.example.deuktemsiru_buyer.util.updateChipSelection
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 
@@ -77,11 +77,6 @@ class HomeFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
-                    // Loading
-                    binding.rvStores.isVisible = !state.isLoading
-                    binding.llEmpty.isVisible = !state.isLoading && state.filteredStores.isEmpty() && state.error == null
-
-                    // Store list
                     storeAdapter.submitList(state.filteredStores)
                     binding.rvStores.isVisible = state.filteredStores.isNotEmpty() && !state.isLoading
                     binding.llEmpty.isVisible = state.filteredStores.isEmpty() && !state.isLoading && state.error == null
@@ -116,7 +111,7 @@ class HomeFragment : Fragment() {
             onStoreClick = { store ->
                 findNavController().navigate(
                     R.id.action_home_to_storeDetail,
-                    Bundle().apply { putInt("storeId", store.id) }
+                    Bundle().apply { putLong("storeId", store.id) }
                 )
             },
             onWishlistClick = { store ->
@@ -137,18 +132,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun syncCategoryChips(selected: String) {
-        categoryChips.forEach { (chip, category) ->
-            val isSelected = category == selected
-            chip.setBackgroundResource(
-                if (isSelected) R.drawable.bg_chip_selected else R.drawable.bg_chip_unselected
-            )
-            chip.setTextColor(
-                if (isSelected)
-                    MaterialColors.getColor(chip, com.google.android.material.R.attr.colorOnPrimary)
-                else
-                    requireContext().getColor(R.color.color_text)
-            )
-        }
+        categoryChips.updateChipSelection(selected, requireContext())
     }
 
     private fun setupSearch() {

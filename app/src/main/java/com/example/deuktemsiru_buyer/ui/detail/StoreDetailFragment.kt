@@ -7,9 +7,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.deuktemsiru_buyer.R
@@ -22,13 +20,13 @@ import com.example.deuktemsiru_buyer.data.toStore
 import com.example.deuktemsiru_buyer.databinding.FragmentStoreDetailBinding
 import com.example.deuktemsiru_buyer.network.CartAddRequest
 import com.example.deuktemsiru_buyer.network.RetrofitClient
+import com.example.deuktemsiru_buyer.util.formatPrice
+import com.example.deuktemsiru_buyer.util.startTimerInto
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 class StoreDetailFragment : Fragment() {
@@ -38,7 +36,7 @@ class StoreDetailFragment : Fragment() {
 
     private var timerJob: Job? = null
     private var currentStore: Store? = null
-    private var selectedMenuId: Int = 0
+    private var selectedMenuId: Long = 0
     private var isWishlisted = false
     private lateinit var session: SessionManager
 
@@ -54,18 +52,23 @@ class StoreDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         session = SessionManager(requireContext())
-        val storeId = arguments?.getInt("storeId") ?: 1
+        val storeId = arguments?.getLong("storeId") ?: 0L
+        if (storeId <= 0L) {
+            Snackbar.make(binding.root, "가게 정보를 확인할 수 없어요.", Snackbar.LENGTH_SHORT).show()
+            findNavController().popBackStack()
+            return
+        }
 
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
         binding.btnShare.setOnClickListener {
-            val storeId = arguments?.getInt("storeId") ?: return@setOnClickListener
+            val storeId = arguments?.getLong("storeId") ?: return@setOnClickListener
             val shareText = "득템시루에서 ${currentStore?.name ?: "가게"}를 확인해보세요! (storeId=$storeId)"
             val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             clipboard.setPrimaryClip(ClipData.newPlainText("가게 공유", shareText))
             Snackbar.make(binding.root, "링크가 복사되었어요.", Snackbar.LENGTH_SHORT).show()
         }
 
-        loadStore(storeId.toLong())
+        loadStore(storeId)
     }
 
     private fun loadStore(storeId: Long) {
@@ -75,9 +78,10 @@ class StoreDetailFragment : Fragment() {
                     findNavController().popBackStack()
                     return@launch
                 }
-                val store = response.toStore(isWishlisted)
+                val currentIsWishlisted = isWishlisted
+                val store = response.toStore(currentIsWishlisted)
                 currentStore = store
-                isWishlisted = store.isWishlisted
+                isWishlisted = currentIsWishlisted
                 bindStore(store)
             } catch (e: Exception) {
                 Snackbar.make(binding.root, "가게 정보를 불러오지 못했어요.", Snackbar.LENGTH_SHORT).show()
@@ -98,7 +102,7 @@ class StoreDetailFragment : Fragment() {
 
         val totalPrice = store.menus.filter { !it.isSoldOut }
             .minByOrNull { it.discountedPrice }?.discountedPrice ?: store.discountedPrice
-        binding.btnReserve.text = "%,d원 예약하기".format(totalPrice)
+        binding.btnReserve.text = "${totalPrice.formatPrice()} 예약하기"
 
         setupMenuList(store)
         startTimer(store.minutesUntilClose)
@@ -127,9 +131,9 @@ class StoreDetailFragment : Fragment() {
                 findNavController().navigate(
                     R.id.action_storeDetail_to_payment,
                     Bundle().apply {
-                        putInt("storeId", store.id)
+                        putLong("storeId", store.id)
                         putInt("totalPrice", totalPrice)
-                        putInt("menuId", selectedMenuId)
+                        putLong("menuId", selectedMenuId)
                     }
                 )
             } else {
@@ -140,17 +144,15 @@ class StoreDetailFragment : Fragment() {
 
     private fun addToCart(store: Store, menu: MenuItem) {
         val item = CartItem(
-            menuId = menu.id.toLong(),
+            menuId = menu.id,
             menuName = menu.name,
             emoji = menu.emoji,
             originalPrice = menu.originalPrice,
             discountedPrice = menu.discountedPrice,
+            pickupStart = menu.pickupStart,
+            pickupEnd = menu.pickupEnd,
         )
-        val addLocal = {
-            CartManager.add(store.id.toLong(), store.name, store.emoji, store.latitude, store.longitude, item)
-        }
-        val added = addLocal()
-        if (!added) {
+        if (CartManager.storeId != 0L && CartManager.storeId != store.id) {
             AlertDialog.Builder(requireContext())
                 .setTitle("다른 가게 메뉴가 있어요")
                 .setMessage("장바구니에 ${CartManager.storeName}의 메뉴가 담겨있어요.\n비우고 ${store.name} 메뉴를 담을까요?")
@@ -158,33 +160,36 @@ class StoreDetailFragment : Fragment() {
                     viewLifecycleOwner.lifecycleScope.launch {
                         if (session.isLoggedIn()) runCatching { RetrofitClient.api.clearCart() }
                         CartManager.clear()
-                        CartManager.add(store.id.toLong(), store.name, store.emoji, store.latitude, store.longitude, item)
-                        syncCartAdd(menu.id.toLong())
-                        updateCartBadge()
-                        Snackbar.make(binding.root, "${menu.name}을(를) 장바구니에 담았어요", Snackbar.LENGTH_SHORT).show()
+                        addSyncedToCart(store, item)
                     }
                 }
                 .setNegativeButton("취소", null)
                 .show()
         } else {
             viewLifecycleOwner.lifecycleScope.launch {
-                syncCartAdd(menu.id.toLong())
-                updateCartBadge()
-                Snackbar.make(binding.root, "${menu.name}을(를) 장바구니에 담았어요", Snackbar.LENGTH_SHORT).show()
+                addSyncedToCart(store, item)
             }
         }
     }
 
-    private suspend fun syncCartAdd(productId: Long) {
-        if (!session.isLoggedIn()) return
-        runCatching {
+    private suspend fun addSyncedToCart(store: Store, item: CartItem) {
+        if (session.isLoggedIn() && !syncCartAdd(item.menuId)) return
+        CartManager.add(store.id, store.name, store.emoji, store.latitude, store.longitude, item)
+        updateCartBadge()
+        Snackbar.make(binding.root, "${item.menuName}을(를) 장바구니에 담았어요", Snackbar.LENGTH_SHORT).show()
+    }
+
+    private suspend fun syncCartAdd(productId: Long): Boolean {
+        if (!session.isLoggedIn()) return true
+        return runCatching {
             val item = RetrofitClient.api.addToCart(CartAddRequest(productId = productId, quantity = 1)).data
             if (item != null) {
-                CartManager.serverCartItemIds =
-                    CartManager.serverCartItemIds + (item.productId to item.cartItemId)
+                CartManager.addServerCartItemId(item.productId, item.cartItemId)
             }
-        }.onFailure {
+            item != null
+        }.getOrElse {
             Snackbar.make(binding.root, "서버 장바구니 동기화에 실패했어요.", Snackbar.LENGTH_SHORT).show()
+            false
         }
     }
 
@@ -200,7 +205,7 @@ class StoreDetailFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 isWishlisted = RetrofitClient.api
-                    .toggleWishlist(store.id.toLong())
+                    .toggleWishlist(store.id)
                     .data
                     ?.isWishlisted
                     ?: !isWishlisted
@@ -223,9 +228,13 @@ class StoreDetailFragment : Fragment() {
         val adapter = MenuAdapter(
             menus = store.menus,
             onMenuClick = { menu ->
-                selectedMenuId = menu.id
-                binding.btnReserve.text = "%,d원 예약하기".format(menu.discountedPrice)
-                Snackbar.make(binding.root, "${menu.name} 선택", Snackbar.LENGTH_SHORT).show()
+                if (menu.isSoldOut) {
+                    Snackbar.make(binding.root, "품절된 메뉴예요.", Snackbar.LENGTH_SHORT).show()
+                } else {
+                    selectedMenuId = menu.id
+                    binding.btnReserve.text = "${menu.discountedPrice.formatPrice()} 예약하기"
+                    Snackbar.make(binding.root, "${menu.name} 선택", Snackbar.LENGTH_SHORT).show()
+                }
             }
         )
         binding.rvMenus.apply {
@@ -235,17 +244,11 @@ class StoreDetailFragment : Fragment() {
     }
 
     private fun startTimer(minutes: Int) {
-        timerJob?.cancel()
-        val totalSeconds = minutes * 60L
-        timerJob = viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                countdownFlow(totalSeconds).collect { remaining ->
-                    if (_binding == null) return@collect
-                    val mins = remaining / 60
-                    val secs = remaining % 60
-                    binding.tvTimer.text = "%02d:%02d".format(mins, secs)
-                }
-            }
+        timerJob = startTimerInto(minutes * 60L, timerJob) { remaining ->
+            if (_binding == null) return@startTimerInto
+            val mins = remaining / 60
+            val secs = remaining % 60
+            binding.tvTimer.text = "%02d:%02d".format(mins, secs)
         }
     }
 
@@ -253,15 +256,5 @@ class StoreDetailFragment : Fragment() {
         timerJob?.cancel()
         super.onDestroyView()
         _binding = null
-    }
-}
-
-private fun countdownFlow(startSeconds: Long) = flow {
-    var remaining = startSeconds
-    while (remaining >= 0) {
-        emit(remaining)
-        if (remaining == 0L) break
-        delay(1_000)
-        remaining--
     }
 }

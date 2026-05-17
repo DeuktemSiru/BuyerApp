@@ -13,12 +13,12 @@ class StoreRepository(private val api: ApiService) {
         val apiCategory = if (category != null) categoryToApi(category) else null
         api.getStores(category = apiCategory).data?.stores
             ?.map { item ->
-                storeCache[item.storeId] ?: runCatching {
-                    api.getStore(item.storeId).data?.toStore()
-                        ?.also { storeCache[item.storeId] = it }
-                }.getOrNull() ?: item.toStore()
+                val listStore = item.toStore()
+                val detailedStore = runCatching { api.getStore(item.storeId).data?.toStore() }.getOrNull()
+                val displayStore = detailedStore?.takeIf { it.remainingItems > 0 && it.discountedPrice > 0 } ?: listStore
+                displayStore.also { storeCache[item.storeId] = it }
             }
-            ?: emptyList()
+            ?: error("Failed to load stores: API returned null data")
     }
 
     suspend fun getStore(storeId: Long): Result<Store> = safeCall {

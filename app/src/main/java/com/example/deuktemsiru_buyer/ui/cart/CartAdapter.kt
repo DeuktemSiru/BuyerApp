@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.deuktemsiru_buyer.data.CartItem
 import com.example.deuktemsiru_buyer.databinding.ItemCartBinding
+import com.example.deuktemsiru_buyer.util.formatPrice
 
 class CartAdapter(
     private var items: List<CartItem>,
@@ -24,10 +25,10 @@ class CartAdapter(
         fun bind(item: CartItem) {
             binding.tvEmoji.text = item.emoji
             binding.tvMenuName.text = item.menuName
-            binding.tvDiscountedPrice.text = formatPrice(item.discountedPrice * item.quantity)
+            binding.tvDiscountedPrice.text = (item.discountedPrice * item.quantity).formatPrice()
             if (item.originalPrice > 0 && item.originalPrice != item.discountedPrice) {
                 binding.tvOriginalPrice.visibility = View.VISIBLE
-                binding.tvOriginalPrice.text = formatPrice(item.originalPrice * item.quantity)
+                binding.tvOriginalPrice.text = (item.originalPrice * item.quantity).formatPrice()
                 binding.tvOriginalPrice.paintFlags =
                     binding.tvOriginalPrice.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
             } else {
@@ -79,5 +80,4 @@ class CartAdapter(
 
     val allSelected: Boolean get() = items.isNotEmpty() && selectedIds.size == items.size
 
-    private fun formatPrice(price: Int): String = "%,d원".format(price)
 }

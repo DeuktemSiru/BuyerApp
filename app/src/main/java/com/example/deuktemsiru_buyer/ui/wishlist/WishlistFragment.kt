@@ -9,7 +9,6 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -22,7 +21,8 @@ import com.example.deuktemsiru_buyer.data.toStore
 import com.example.deuktemsiru_buyer.databinding.FragmentWishlistBinding
 import com.example.deuktemsiru_buyer.network.RetrofitClient
 import com.example.deuktemsiru_buyer.ui.home.StoreAdapter
-import com.google.android.material.color.MaterialColors
+import com.example.deuktemsiru_buyer.util.filterByCategory
+import com.example.deuktemsiru_buyer.util.updateChipSelection
 import kotlinx.coroutines.launch
 
 class WishlistFragment : Fragment() {
@@ -79,7 +79,7 @@ class WishlistFragment : Fragment() {
             onStoreClick = { store ->
                 findNavController().navigate(
                     R.id.action_wishlist_to_storeDetail,
-                    Bundle().apply { putInt("storeId", store.id) }
+                    Bundle().apply { putLong("storeId", store.id) }
                 )
             },
             onWishlistClick = { store ->
@@ -114,13 +114,7 @@ class WishlistFragment : Fragment() {
         chips.forEach { (chip, category) ->
             chip.setOnClickListener {
                 currentCategory = category
-                chips.forEach { (c, _) ->
-                    c.setBackgroundResource(R.drawable.bg_chip_unselected)
-                    c.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_text))
-                }
-                chip.setBackgroundResource(R.drawable.bg_chip_selected)
-                chip.setTextColor(MaterialColors.getColor(chip, com.google.android.material.R.attr.colorOnPrimary))
-
+                chips.updateChipSelection(currentCategory, requireContext())
                 updateList(filterStores())
             }
         }
@@ -146,18 +140,16 @@ class WishlistFragment : Fragment() {
     }
 
     private fun filterStores(): List<Store> {
-        val apiCategory = if (currentCategory == "전체") null else categoryToApi(currentCategory)
         val query = binding.etWishlistSearch.text?.toString()?.trim().orEmpty()
-
-        return allStores.filter { store ->
-            val matchesCategory = apiCategory == null || categoryToApi(store.category) == apiCategory
-            val matchesQuery = query.isBlank() ||
-                    store.name.contains(query, ignoreCase = true) ||
-                    store.category.contains(query, ignoreCase = true) ||
-                    store.address.contains(query, ignoreCase = true) ||
-                    store.menus.any { it.name.contains(query, ignoreCase = true) }
-            matchesCategory && matchesQuery
-        }
+        return allStores.filterByCategory(
+            category = currentCategory,
+            query = query,
+            getCategoryApi = { categoryToApi(it.category) },
+            getName = { it.name },
+            getCategory = { it.category },
+            getAddress = { it.address },
+            getMenuNames = { store -> store.menus.map { it.name } },
+        )
     }
 
     private fun hideKeyboard() {
