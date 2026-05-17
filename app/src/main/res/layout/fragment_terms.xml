@@ -147,6 +147,7 @@
         android:layout_height="@dimen/cta_button_height"
         android:layout_marginBottom="16dp"
         android:background="@drawable/bg_dark_button"
+        android:backgroundTint="@null"
         android:fontFamily="sans-serif-medium"
         android:stateListAnimator="@null"
         android:text="동의하고 계속하기"

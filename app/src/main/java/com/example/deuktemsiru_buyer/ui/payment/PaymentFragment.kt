@@ -16,13 +16,15 @@ import com.example.deuktemsiru_buyer.databinding.FragmentPaymentBinding
 import com.example.deuktemsiru_buyer.network.CreateOrderRequest
 import com.example.deuktemsiru_buyer.network.OrderItemRequest
 import com.example.deuktemsiru_buyer.network.RetrofitClient
+import com.example.deuktemsiru_buyer.util.formatPrice
+import com.example.deuktemsiru_buyer.util.toDisplayHour
 import kotlinx.coroutines.launch
 
 class PaymentFragment : Fragment() {
 
     private var _binding: FragmentPaymentBinding? = null
     private val binding get() = _binding!!
-    private val pickupTime = "18:00"
+    private var autoPayAfterLink = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,13 +39,20 @@ class PaymentFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val session = SessionManager(requireContext())
-        val storeId = arguments?.getInt("storeId") ?: 1
-        val menuId = arguments?.getInt("menuId") ?: 0
-        val totalPrice = arguments?.getInt("totalPrice") ?: 5900
+        val storeId = arguments?.getLong("storeId") ?: 0L
+        if (storeId <= 0L) {
+            Toast.makeText(requireContext(), "주문할 가게를 확인할 수 없어요.", Toast.LENGTH_SHORT).show()
+            findNavController().popBackStack()
+            return
+        }
+        val menuId = arguments?.getLong("menuId") ?: 0L
+        val totalPrice = arguments?.getInt("totalPrice") ?: 0
         val fromCart = arguments?.getBoolean("fromCart") ?: false
+        autoPayAfterLink = arguments?.getBoolean("autoPayAfterLink") ?: false
 
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
-        binding.tvSiruBalance.text = "%,d원".format(session.siruBalance)
+        binding.tvSiruBalance.text = session.siruBalance.formatPrice()
+        refreshSiruState(session)
 
         if (fromCart) {
             loadFromCart(session, storeId)
@@ -52,125 +61,119 @@ class PaymentFragment : Fragment() {
         }
     }
 
-    private fun loadFromCart(session: SessionManager, storeId: Int) {
+    private fun refreshSiruState(session: SessionManager) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            syncSiruState(session)
+        }
+    }
+
+    private suspend fun ensureSiruLinked(session: SessionManager): Boolean {
+        syncSiruState(session)
+        return session.isSiruLinked
+    }
+
+    private suspend fun syncSiruState(session: SessionManager) {
+        runCatching { RetrofitClient.api.getMe().data }.getOrNull()?.let {
+            session.isSiruLinked = it.isSiruLinked
+            session.siruBalance = it.siruBalance
+            if (_binding != null) binding.tvSiruBalance.text = it.siruBalance.formatPrice()
+        }
+    }
+
+    private fun loadFromCart(session: SessionManager, storeId: Long) {
         val originalTotal = CartManager.items.sumOf { it.originalPrice * it.quantity }
         val discountedTotal = CartManager.totalPrice
-        val discountAmount = (originalTotal - discountedTotal).coerceAtLeast(0)
 
         binding.tvStoreName.text = CartManager.storeName
         binding.tvMenuName.text = "장바구니 메뉴 ${CartManager.totalCount}개"
-        binding.tvPickupTimeDisplay.text = formatPickupTime(pickupTime)
-        binding.tvItemPrice.text = formatPrice(discountedTotal)
-        binding.tvOrderPrice.text = formatPrice(originalTotal)
-        binding.tvDiscount.text = "-${formatPrice(discountAmount)}"
-        binding.tvFinalPrice.text = formatPrice(discountedTotal)
-        binding.tvSavingsMessage.text = "${formatPrice(discountAmount)}을 절약하고 음식 ${CartManager.totalCount}개를 구해요"
-        binding.btnPay.text = getString(R.string.btn_pay_siru, formatPrice(discountedTotal))
+        binding.tvPickupTimeDisplay.text = formatPickupRange(
+            CartManager.items.mapNotNull { it.pickupEnd.takeIf { end -> end.isNotBlank() } }.minOrNull()
+        )
+        setupPriceDisplay(originalTotal, discountedTotal, CartManager.totalCount)
 
         binding.btnPay.setOnClickListener {
-            if (!session.isSiruLinked) {
+            payFromCart(session, storeId, discountedTotal)
+        }
+        if (autoPayAfterLink) {
+            autoPayAfterLink = false
+            payFromCart(session, storeId, discountedTotal)
+        }
+    }
+
+    private fun payFromCart(session: SessionManager, storeId: Long, discountedTotal: Int) {
+        binding.btnPay.isEnabled = false
+        viewLifecycleOwner.lifecycleScope.launch {
+            if (!ensureSiruLinked(session)) {
+                binding.btnPay.isEnabled = true
                 Toast.makeText(requireContext(), "시루 계정 연동 후 결제할 수 있어요.", Toast.LENGTH_SHORT).show()
-                findNavController().navigate(R.id.siruLinkFragment)
-                return@setOnClickListener
+                navigateToSiruLink(storeId, menuId = 0L, totalPrice = discountedTotal, fromCart = true)
+                return@launch
             }
             val orderItems = CartManager.items.map {
                 OrderItemRequest(productId = it.menuId, quantity = it.quantity)
             }
 
-            binding.btnPay.isEnabled = false
-            binding.btnPay.text = getString(R.string.payment_processing_siru)
-
-            viewLifecycleOwner.lifecycleScope.launch {
-                try {
-                    val order = RetrofitClient.api.createOrder(
-                        CreateOrderRequest(items = orderItems)
-                    ).data ?: return@launch
-                    session.lastOrderId = order.orderId
-                    runCatching { RetrofitClient.api.clearCart() }
-                    runCatching { RetrofitClient.api.getMe().data }.getOrNull()?.let {
-                        session.isSiruLinked = it.isSiruLinked
-                        session.siruBalance = it.siruBalance
-                    }
-                    CartManager.clear()
-                    findNavController().navigate(
-                        R.id.action_payment_to_pickup,
-                        Bundle().apply { putInt("storeId", storeId) }
-                    )
-                } catch (e: Exception) {
-                    Toast.makeText(requireContext(), "결제 중 오류가 발생했어요.", Toast.LENGTH_SHORT).show()
-                    binding.btnPay.isEnabled = true
-                    binding.btnPay.text = getString(R.string.btn_pay_siru, formatPrice(discountedTotal))
-                }
-            }
+            submitOrder(session, storeId, orderItems, discountedTotal, clearCart = true)
         }
     }
 
-    private fun loadFromStore(session: SessionManager, storeId: Int, menuId: Int, totalPrice: Int) {
+    private fun payFromStore(
+        session: SessionManager,
+        storeId: Long,
+        menuId: Long,
+        discountedTotal: Int,
+        selectedProductId: Long?,
+    ) {
+        binding.btnPay.isEnabled = false
+        viewLifecycleOwner.lifecycleScope.launch {
+            if (!ensureSiruLinked(session)) {
+                binding.btnPay.isEnabled = true
+                Toast.makeText(requireContext(), "시루 계정 연동 후 결제할 수 있어요.", Toast.LENGTH_SHORT).show()
+                navigateToSiruLink(storeId, menuId, discountedTotal, fromCart = false)
+                return@launch
+            }
+            val orderItems = selectedProductId?.let {
+                listOf(OrderItemRequest(productId = it, quantity = 1))
+            }.orEmpty()
+
+            if (orderItems.isEmpty()) {
+                binding.btnPay.isEnabled = true
+                Toast.makeText(requireContext(), "주문 가능한 메뉴가 없어요.", Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+
+            submitOrder(session, storeId, orderItems, discountedTotal, clearCart = false)
+        }
+    }
+
+    private fun loadFromStore(session: SessionManager, storeId: Long, menuId: Long, totalPrice: Int) {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val storeResponse = RetrofitClient.api.getStore(storeId.toLong()).data ?: run {
+                val storeResponse = RetrofitClient.api.getStore(storeId).data ?: run {
                     findNavController().popBackStack()
                     return@launch
                 }
                 val store = storeResponse.toStore()
                 val selectedMenu = storeResponse.products
-                    .firstOrNull { it.productId.toInt() == menuId && it.status != "SOLD_OUT" && it.quantityRemaining > 0 }
+                    .firstOrNull { it.productId == menuId && it.status != "SOLD_OUT" && it.quantityRemaining > 0 }
                     ?: storeResponse.products.firstOrNull { it.status != "SOLD_OUT" && it.quantityRemaining > 0 }
 
                 binding.tvStoreName.text = store.name
                 binding.tvMenuName.text = selectedMenu?.name ?: "주문 가능한 메뉴 없음"
-                binding.tvPickupTimeDisplay.text = formatPickupTime(pickupTime)
+                binding.tvPickupTimeDisplay.text = formatPickupRange(selectedMenu?.pickupEnd)
 
                 val discountedTotal = selectedMenu?.discountPrice ?: totalPrice
-                val originalTotal = selectedMenu?.let { if (it.originalPrice > 0) it.originalPrice else it.discountPrice } ?: totalPrice
-                val discountAmount = (originalTotal - discountedTotal).coerceAtLeast(0)
-
-                binding.tvItemPrice.text = "%,d원".format(discountedTotal)
-                binding.tvOrderPrice.text = "%,d원".format(originalTotal)
-                binding.tvDiscount.text = "-%,d원".format(discountAmount)
-                binding.tvFinalPrice.text = "%,d원".format(discountedTotal)
-                binding.tvSavingsMessage.text = "%,d원을 절약하고 음식 1개를 구해요".format(discountAmount)
-                binding.btnPay.text = getString(R.string.btn_pay_siru, "%,d원".format(discountedTotal))
+                val originalTotal = selectedMenu?.originalPrice?.takeIf { it > 0 }
+                    ?: selectedMenu?.discountPrice
+                    ?: totalPrice
+                setupPriceDisplay(originalTotal, discountedTotal, 1)
 
                 binding.btnPay.setOnClickListener {
-                    if (!session.isSiruLinked) {
-                        Toast.makeText(requireContext(), "시루 계정 연동 후 결제할 수 있어요.", Toast.LENGTH_SHORT).show()
-                        findNavController().navigate(R.id.siruLinkFragment)
-                        return@setOnClickListener
-                    }
-                    val orderItems = selectedMenu?.let {
-                        listOf(OrderItemRequest(productId = it.productId, quantity = 1))
-                    }.orEmpty()
-
-                    if (orderItems.isEmpty()) {
-                        Toast.makeText(requireContext(), "주문 가능한 메뉴가 없어요.", Toast.LENGTH_SHORT).show()
-                        return@setOnClickListener
-                    }
-
-                    binding.btnPay.isEnabled = false
-                    binding.btnPay.text = getString(R.string.payment_processing_siru)
-
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        try {
-                            val order = RetrofitClient.api.createOrder(
-                                CreateOrderRequest(items = orderItems)
-                            ).data ?: return@launch
-
-                            session.lastOrderId = order.orderId
-                            runCatching { RetrofitClient.api.getMe().data }.getOrNull()?.let {
-                                session.isSiruLinked = it.isSiruLinked
-                                session.siruBalance = it.siruBalance
-                            }
-                            findNavController().navigate(
-                                R.id.action_payment_to_pickup,
-                                Bundle().apply { putInt("storeId", storeId) }
-                            )
-                        } catch (e: Exception) {
-                            Toast.makeText(requireContext(), "결제 중 오류가 발생했어요.", Toast.LENGTH_SHORT).show()
-                            binding.btnPay.isEnabled = true
-                            binding.btnPay.text = getString(R.string.btn_pay_siru, "%,d원".format(discountedTotal))
-                        }
-                    }
+                    payFromStore(session, storeId, menuId, discountedTotal, selectedMenu?.productId)
+                }
+                if (autoPayAfterLink) {
+                    autoPayAfterLink = false
+                    payFromStore(session, storeId, menuId, discountedTotal, selectedMenu?.productId)
                 }
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "가게 정보를 불러오지 못했어요.", Toast.LENGTH_SHORT).show()
@@ -179,19 +182,65 @@ class PaymentFragment : Fragment() {
         }
     }
 
-    private fun formatPrice(price: Int): String = "%,d원".format(price)
-    private fun formatPickupTime(time: String): String = "오늘 오후 ${time.toDisplayHour()} 픽업"
-
-    private fun String.toDisplayHour(): String {
-        val hour = substringBefore(":").toIntOrNull() ?: return this
-        val minute = substringAfter(":", "00")
-        val displayHour = when {
-            hour == 0 -> 12
-            hour > 12 -> hour - 12
-            else -> hour
+    private fun submitOrder(
+        session: SessionManager,
+        storeId: Long,
+        orderItems: List<OrderItemRequest>,
+        totalPrice: Int,
+        clearCart: Boolean,
+    ) {
+        binding.btnPay.isEnabled = false
+        binding.btnPay.text = getString(R.string.payment_processing_siru)
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val order = RetrofitClient.api.createOrder(CreateOrderRequest(items = orderItems))
+                    .data ?: throw IllegalStateException("Empty order response")
+                session.lastOrderId = order.orderId
+                if (clearCart) {
+                    runCatching { RetrofitClient.api.clearCart() }
+                    CartManager.clear()
+                }
+                runCatching { RetrofitClient.api.getMe().data }.getOrNull()?.let {
+                    session.isSiruLinked = it.isSiruLinked
+                    session.siruBalance = it.siruBalance
+                }
+                findNavController().navigate(
+                    R.id.action_payment_to_pickup,
+                    Bundle().apply { putLong("storeId", storeId) }
+                )
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "결제 중 오류가 발생했어요.", Toast.LENGTH_SHORT).show()
+                binding.btnPay.isEnabled = true
+                binding.btnPay.text = getString(R.string.btn_pay_siru, totalPrice.formatPrice())
+            }
         }
-        return "$displayHour:${minute.padStart(2, '0')}"
     }
+
+    private fun setupPriceDisplay(originalTotal: Int, discountedTotal: Int, itemCount: Int) {
+        val discountAmount = (originalTotal - discountedTotal).coerceAtLeast(0)
+        binding.tvItemPrice.text = discountedTotal.formatPrice()
+        binding.tvOrderPrice.text = originalTotal.formatPrice()
+        binding.tvDiscount.text = "-${discountAmount.formatPrice()}"
+        binding.tvFinalPrice.text = discountedTotal.formatPrice()
+        binding.tvSavingsMessage.text = "${discountAmount.formatPrice()}을 절약하고 음식 ${itemCount}개를 구해요"
+        binding.btnPay.text = getString(R.string.btn_pay_siru, discountedTotal.formatPrice())
+    }
+
+    private fun navigateToSiruLink(storeId: Long, menuId: Long, totalPrice: Int, fromCart: Boolean) {
+        findNavController().navigate(
+            R.id.siruLinkFragment,
+            Bundle().apply {
+                putBoolean("returnToPayment", true)
+                putLong("storeId", storeId)
+                putLong("menuId", menuId)
+                putInt("totalPrice", totalPrice)
+                putBoolean("fromCart", fromCart)
+            },
+        )
+    }
+
+    private fun formatPickupRange(endTime: String?): String =
+        endTime?.takeIf { it.isNotBlank() }?.let { "오늘 ${it.toDisplayHour()}까지 픽업" } ?: "픽업 시간 확인 중"
 
     override fun onDestroyView() {
         super.onDestroyView()

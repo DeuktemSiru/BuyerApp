@@ -525,7 +525,8 @@
                 android:text="로그아웃"
                 android:textSize="15sp"
                 android:textColor="@color/color_text_sub"
-                android:background="@drawable/bg_surface_card" />
+                android:background="@drawable/bg_surface_card"
+                android:backgroundTint="@null" />
 
         </LinearLayout>
     </ScrollView>

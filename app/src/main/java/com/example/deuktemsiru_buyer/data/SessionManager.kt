@@ -2,12 +2,14 @@ package com.example.deuktemsiru_buyer.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import com.example.deuktemsiru_buyer.network.RetrofitClient
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 class SessionManager(context: Context) {
-    private val prefs = context.getSharedPreferences("buyer_session", Context.MODE_PRIVATE)
+    private val prefs = securePrefs(context, "buyer_session")
 
     init {
         restoreToken()
@@ -20,11 +22,11 @@ class SessionManager(context: Context) {
         }
     }
 
-    var memberId: Long by prefs.long("memberId", -1L)
-    var nickname: String by prefs.string("nickname", "")
-    var lastOrderId: Long by prefs.long("lastOrderId", -1L)
-    var isSiruLinked: Boolean by prefs.boolean("isSiruLinked", false)
-    var siruBalance: Int by prefs.int("siruBalance", 0)
+    var memberId: Long     by prefs.pref("memberId",    getter = { getLong(it, -1L) },      setter = { k, v -> putLong(k, v) })
+    var nickname: String   by prefs.pref("nickname",    getter = { getString(it, "") ?: "" }, setter = { k, v -> putString(k, v) })
+    var lastOrderId: Long  by prefs.pref("lastOrderId", getter = { getLong(it, -1L) },       setter = { k, v -> putLong(k, v) })
+    var isSiruLinked: Boolean by prefs.pref("isSiruLinked", getter = { getBoolean(it, false) }, setter = { k, v -> putBoolean(k, v) })
+    var siruBalance: Int   by prefs.pref("siruBalance", getter = { getInt(it, 0) },           setter = { k, v -> putInt(k, v) })
 
     var accessToken: String
         get() = prefs.getString("accessToken", "") ?: ""
@@ -55,33 +57,33 @@ class SessionManager(context: Context) {
     }
 }
 
-// --- SharedPreferences property delegates ---
+// --- SharedPreferences generic property delegate ---
 
-private fun SharedPreferences.string(key: String, default: String): ReadWriteProperty<Any?, String> =
-    object : ReadWriteProperty<Any?, String> {
-        override fun getValue(thisRef: Any?, property: KProperty<*>) =
-            getString(key, default) ?: default
-        override fun setValue(thisRef: Any?, property: KProperty<*>, value: String) =
-            edit().putString(key, value).apply()
+private fun <T> SharedPreferences.pref(
+    key: String,
+    getter: SharedPreferences.(String) -> T,
+    setter: SharedPreferences.Editor.(String, T) -> SharedPreferences.Editor,
+): ReadWriteProperty<Any?, T> = object : ReadWriteProperty<Any?, T> {
+    override fun getValue(thisRef: Any?, property: KProperty<*>): T = getter(key)
+    override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+        edit().setter(key, value).apply()
     }
+}
 
-private fun SharedPreferences.long(key: String, default: Long): ReadWriteProperty<Any?, Long> =
-    object : ReadWriteProperty<Any?, Long> {
-        override fun getValue(thisRef: Any?, property: KProperty<*>) = getLong(key, default)
-        override fun setValue(thisRef: Any?, property: KProperty<*>, value: Long) =
-            edit().putLong(key, value).apply()
+private fun securePrefs(context: Context, name: String): SharedPreferences {
+    val appContext = context.applicationContext
+    return runCatching {
+        val masterKey = MasterKey.Builder(appContext)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+        EncryptedSharedPreferences.create(
+            appContext,
+            name,
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+        )
+    }.getOrElse {
+        appContext.getSharedPreferences(name, Context.MODE_PRIVATE)
     }
-
-private fun SharedPreferences.boolean(key: String, default: Boolean): ReadWriteProperty<Any?, Boolean> =
-    object : ReadWriteProperty<Any?, Boolean> {
-        override fun getValue(thisRef: Any?, property: KProperty<*>) = getBoolean(key, default)
-        override fun setValue(thisRef: Any?, property: KProperty<*>, value: Boolean) =
-            edit().putBoolean(key, value).apply()
-    }
-
-private fun SharedPreferences.int(key: String, default: Int): ReadWriteProperty<Any?, Int> =
-    object : ReadWriteProperty<Any?, Int> {
-        override fun getValue(thisRef: Any?, property: KProperty<*>) = getInt(key, default)
-        override fun setValue(thisRef: Any?, property: KProperty<*>, value: Int) =
-            edit().putInt(key, value).apply()
-    }
+}

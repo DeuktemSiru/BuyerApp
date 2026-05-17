@@ -41,6 +41,7 @@
 
         <!-- MaterialCardView default -->
         <item name="materialCardViewStyle">@style/Widget.Deuktemsiru.CardView</item>
+        <item name="bottomNavigationStyle">@style/Widget.Deuktemsiru.BottomNav</item>
     </style>
 
     <style name="Theme.Deuktemsiru" parent="Base.Theme.Deuktemsiru" />
@@ -72,6 +73,16 @@
         <item name="strokeWidth">@dimen/card_stroke_width</item>
         <item name="strokeColor">@color/md_theme_light_outlineVariant</item>
         <item name="shapeAppearance">@style/ShapeAppearance.Deuktemsiru.Medium</item>
+    </style>
+
+    <style name="Widget.Deuktemsiru.BottomNav" parent="Widget.Material3.BottomNavigationView">
+        <item name="itemIconTint">@color/bottom_nav_color</item>
+        <item name="itemTextColor">@color/bottom_nav_color</item>
+        <item name="itemActiveIndicatorStyle">@style/Widget.Deuktemsiru.BottomNav.ActiveIndicator</item>
+    </style>
+
+    <style name="Widget.Deuktemsiru.BottomNav.ActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/primary_light</item>
     </style>
 
     <!-- ============================================================ -->

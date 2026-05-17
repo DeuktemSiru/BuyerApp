@@ -40,7 +40,9 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.material.color.MaterialColors
+import com.example.deuktemsiru_buyer.util.filterByCategory
+import com.example.deuktemsiru_buyer.util.formatPrice
+import com.example.deuktemsiru_buyer.util.updateChipSelection
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -117,7 +119,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             (marker.tag as? Int)?.let { storeId ->
                 findNavController().navigate(
                     R.id.action_map_to_storeDetail,
-                    Bundle().apply { putInt("storeId", storeId) }
+                    Bundle().apply { putLong("storeId", storeId.toLong()) }
                 )
             }
         }
@@ -229,7 +231,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             cardBinding.tvBadge.text = getString(R.string.label_discount_rate, store.discountRate)
             cardBinding.tvName.text = store.name
             cardBinding.tvTime.text = getString(R.string.label_minutes_left, store.minutesUntilClose)
-            cardBinding.tvPrice.text = "%,d원".format(store.discountedPrice)
+            cardBinding.tvPrice.text = store.discountedPrice.formatPrice()
 
             val (clockIcon, clockColor) = if (store.minutesUntilClose <= 30) {
                 R.drawable.ic_clock to ContextCompat.getColor(ctx, R.color.danger)
@@ -243,7 +245,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 if (_binding == null) return@setOnClickListener
                 findNavController().navigate(
                     R.id.action_map_to_storeDetail,
-                    Bundle().apply { putInt("storeId", store.id) }
+                    Bundle().apply { putLong("storeId", store.id) }
                 )
             }
             binding.llMapStores.addView(cardBinding.root)
@@ -279,12 +281,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         chips.forEach { (chip, category) ->
             chip.setOnClickListener {
                 currentCategory = category
-                chips.forEach { (c, _) ->
-                    c.setBackgroundResource(R.drawable.bg_chip_unselected)
-                    c.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_text))
-                }
-                chip.setBackgroundResource(R.drawable.bg_chip_selected)
-                chip.setTextColor(MaterialColors.getColor(chip, com.google.android.material.R.attr.colorOnPrimary))
+                chips.updateChipSelection(currentCategory, requireContext())
                 updateMapStores()
             }
         }
@@ -298,17 +295,16 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun filteredStores(): List<Store> {
-        val apiCategory = if (currentCategory == "전체") null else categoryToApi(currentCategory)
         val query = _binding?.etMapSearch?.text?.toString()?.trim().orEmpty()
-        return loadedStores.filter { store ->
-            val matchesCategory = apiCategory == null || categoryToApi(store.category) == apiCategory
-            val matchesQuery = query.isBlank() ||
-                    store.name.contains(query, ignoreCase = true) ||
-                    store.category.contains(query, ignoreCase = true) ||
-                    store.address.contains(query, ignoreCase = true) ||
-                    store.menus.any { it.name.contains(query, ignoreCase = true) }
-            matchesCategory && matchesQuery
-        }
+        return loadedStores.filterByCategory(
+            category = currentCategory,
+            query = query,
+            getCategoryApi = { categoryToApi(it.category) },
+            getName = { it.name },
+            getCategory = { it.category },
+            getAddress = { it.address },
+            getMenuNames = { store -> store.menus.map { it.name } },
+        )
     }
 
     private fun hideKeyboard() {

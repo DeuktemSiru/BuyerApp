@@ -14,6 +14,7 @@ import com.example.deuktemsiru_buyer.databinding.FragmentOrdersBinding
 import com.example.deuktemsiru_buyer.databinding.ItemOrderHistoryBinding
 import com.example.deuktemsiru_buyer.network.OrderListItemResponse
 import com.example.deuktemsiru_buyer.network.RetrofitClient
+import com.example.deuktemsiru_buyer.util.formatPrice
 import kotlinx.coroutines.launch
 
 class OrdersFragment : Fragment() {
@@ -75,6 +76,7 @@ private fun statusLabel(status: String) = when (status) {
     "CONFIRMED" -> "접수 완료"
     "PREPARING" -> "준비중"
     "READY" -> "픽업 대기"
+    "PICKED_UP" -> "픽업 완료"
     "COMPLETED" -> "완료"
     "CANCELLED" -> "취소됨"
     else -> status
@@ -100,7 +102,7 @@ private class OrderHistoryAdapter(
         b.tvOrderNumber.text = "#${order.orderId}"
         b.tvStatus.text = statusLabel(order.status)
         b.tvMenuSummary.text = "주문 상품 ${order.itemCount}개"
-        b.tvTotalAmount.text = "%,d원".format(order.totalPrice)
+        b.tvTotalAmount.text = order.totalPrice.formatPrice()
         b.tvPickupTime.text = "주문: ${order.createdAt.substringBefore('T')}"
         b.tvPickupCode.text = "코드: ${order.pickupCode ?: "----"}"
         b.root.setOnClickListener { onItemClick(order) }

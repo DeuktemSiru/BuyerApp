@@ -4,8 +4,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,23 +11,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.FragmentPickupBinding
 import com.example.deuktemsiru_buyer.network.OrderDetailResponse
+import com.example.deuktemsiru_buyer.data.minutesUntilClose
 import com.example.deuktemsiru_buyer.network.RetrofitClient
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.EncodeHintType
-import com.google.zxing.qrcode.QRCodeWriter
+import com.example.deuktemsiru_buyer.util.formatPrice
+import com.example.deuktemsiru_buyer.util.generateQrBitmap
+import com.example.deuktemsiru_buyer.util.startTimerInto
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import java.util.Calendar
 
 class PickupFragment : Fragment() {
 
@@ -57,7 +52,7 @@ class PickupFragment : Fragment() {
 
         val session = SessionManager(requireContext())
         val orderId = session.lastOrderId
-        val storeId = arguments?.getInt("storeId") ?: 0
+        val storeId = arguments?.getLong("storeId") ?: 0L
 
         loadStoreFallback(storeId)
 
@@ -99,7 +94,7 @@ class PickupFragment : Fragment() {
         }
     }
 
-    private fun loadOrder(orderId: Long, storeId: Int) {
+    private fun loadOrder(orderId: Long, storeId: Long) {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val order = RetrofitClient.api.getOrder(orderId).data ?: run {
@@ -115,7 +110,7 @@ class PickupFragment : Fragment() {
         }
     }
 
-    private fun applyOrderUi(order: OrderDetailResponse, storeId: Int) {
+    private fun applyOrderUi(order: OrderDetailResponse, storeId: Long) {
         if (order.status == "CONFIRMED") {
             showConfirmedUi(order)
         } else {
@@ -124,7 +119,7 @@ class PickupFragment : Fragment() {
         }
         binding.tvStoreName.text = order.storeName
         binding.tvOrderMenu.text = order.items.joinToString(", ") { "${it.productName} x${it.quantity}" }
-        binding.tvPaidPrice.text = "%,d원".format(order.totalPrice)
+        binding.tvPaidPrice.text = order.totalPrice.formatPrice()
         storeName = order.storeName
     }
 
@@ -143,14 +138,14 @@ class PickupFragment : Fragment() {
         binding.tvPendingMessage.visibility = View.GONE
         binding.llPickupContent.visibility = View.VISIBLE
 
-        val pickupEndTime = order.pickupEnd
+        val pickupEndTime = order.pickupTime?.substringAfter("~", order.pickupTime)
         binding.tvPickupTime.text = if (pickupEndTime != null) "${formatDisplayTime(pickupEndTime)}까지" else "픽업 시간 확인 중"
         binding.tvPickupCode.text = pickupCode.ifBlank { "----" }.chunked(1).joinToString(" ")
         showQrCode(pickupCode)
         startCountdown(remainingSecondsUntil(pickupEndTime))
     }
 
-    private fun startStatusPolling(orderId: Long, storeId: Int) {
+    private fun startStatusPolling(orderId: Long, storeId: Long) {
         pollJob?.cancel()
         pollJob = viewLifecycleOwner.lifecycleScope.launch {
             while (_binding != null) {
@@ -166,11 +161,11 @@ class PickupFragment : Fragment() {
         }
     }
 
-    private fun loadStoreFallback(storeId: Int) {
-        if (storeId <= 0) return
+    private fun loadStoreFallback(storeId: Long) {
+        if (storeId <= 0L) return
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val store = RetrofitClient.api.getStore(storeId.toLong()).data ?: return@launch
+                val store = RetrofitClient.api.getStore(storeId).data ?: return@launch
                 storeLat = store.latitude
                 storeLng = store.longitude
                 if (storeName.isBlank()) {
@@ -187,37 +182,18 @@ class PickupFragment : Fragment() {
 
     private fun showQrCode(code: String) {
         if (code.isBlank()) return
-        try {
-            val hints = mapOf(EncodeHintType.MARGIN to 1)
-            val bits = QRCodeWriter().encode(code, BarcodeFormat.QR_CODE, 400, 400, hints)
-            val bitmap = Bitmap.createBitmap(400, 400, Bitmap.Config.RGB_565)
-            for (x in 0 until 400) {
-                for (y in 0 until 400) {
-                    bitmap.setPixel(x, y, if (bits[x, y]) Color.BLACK else Color.WHITE)
-                }
-            }
+        val bitmap = generateQrBitmap(code, size = 400)
+        if (bitmap != null) {
             binding.ivQrCode.setImageBitmap(bitmap)
             binding.ivQrCode.visibility = View.VISIBLE
-        } catch (_: Exception) {
+        } else {
             binding.ivQrCode.visibility = View.GONE
         }
     }
 
     private fun remainingSecondsUntil(pickupEnd: String?): Long {
         if (pickupEnd == null) return 42 * 60L
-        return try {
-            val time = pickupEnd.substringAfter("T", pickupEnd).substringBefore(".")
-            val parts = time.split(":")
-            val endHour = parts.getOrNull(0)?.toIntOrNull() ?: return 42 * 60L
-            val endMin = parts.getOrNull(1)?.toIntOrNull() ?: 0
-            val now = Calendar.getInstance()
-            val nowSecs = now.get(Calendar.HOUR_OF_DAY) * 3600 + now.get(Calendar.MINUTE) * 60 + now.get(Calendar.SECOND)
-            val endSecs = endHour * 3600 + endMin * 60
-            if (endSecs >= nowSecs) (endSecs - nowSecs).toLong()
-            else (24 * 3600 - nowSecs + endSecs).toLong()
-        } catch (_: Exception) {
-            42 * 60L
-        }
+        return minutesUntilClose(pickupEnd) * 60L
     }
 
     private fun formatDisplayTime(pickupEnd: String): String {
@@ -229,16 +205,11 @@ class PickupFragment : Fragment() {
     }
 
     private fun startCountdown(totalSeconds: Long) {
-        timerJob?.cancel()
-        timerJob = viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                countdownFlow(totalSeconds).collect { remaining ->
-                    if (_binding == null) return@collect
-                    val mins = remaining / 60
-                    val secs = remaining % 60
-                    binding.tvCountdown.text = "%02d:%02d".format(mins, secs)
-                }
-            }
+        timerJob = startTimerInto(totalSeconds, timerJob) { remaining ->
+            if (_binding == null) return@startTimerInto
+            val mins = remaining / 60
+            val secs = remaining % 60
+            binding.tvCountdown.text = "%02d:%02d".format(mins, secs)
         }
     }
 
@@ -247,15 +218,5 @@ class PickupFragment : Fragment() {
         pollJob?.cancel()
         super.onDestroyView()
         _binding = null
-    }
-}
-
-private fun countdownFlow(startSeconds: Long) = flow {
-    var remaining = startSeconds
-    while (remaining >= 0) {
-        emit(remaining)
-        if (remaining == 0L) break
-        delay(1_000)
-        remaining--
     }
 }

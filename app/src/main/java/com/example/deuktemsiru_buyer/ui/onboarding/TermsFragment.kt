@@ -48,6 +48,7 @@ class TermsFragment : Fragment() {
 
         binding.cbMarketing.setOnCheckedChangeListener { _, _ ->
             updateAllCheckbox()
+            updateContinueButton()
         }
 
         binding.tvTermsDetail.setOnClickListener {

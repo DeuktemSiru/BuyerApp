@@ -428,6 +428,7 @@
             android:fontFamily="sans-serif-medium"
             android:textColor="?attr/colorOnSecondary"
             android:background="@drawable/bg_siru_button"
+            android:backgroundTint="@null"
             android:stateListAnimator="@null" />
     </LinearLayout>
 
