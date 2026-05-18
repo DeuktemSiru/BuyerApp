@@ -79,8 +79,7 @@ class MyPageFragment : Fragment() {
                 binding.tvEcoLevel.text = "에코 레벨: ${gradeLabel(stats?.totalOrders ?: 0)}"
                 binding.tvEcoNext.text = nextGradeHint(stats?.totalOrders ?: 0)
                 binding.tvPoints.text = "%,dP".format((stats?.totalSavedAmount ?: 0) / 10)
-                session.isSiruLinked = user.isSiruLinked
-                session.siruBalance = user.siruBalance
+                session.syncMe(RetrofitClient.api)
 
                 val progressRatio = ((stats?.totalOrders ?: 0) / 10f).coerceIn(0.2f, 1.0f)
                 binding.progressEco.post {
@@ -146,22 +145,25 @@ class MyPageFragment : Fragment() {
         }
     }
 
-    private fun gradeLabel(totalOrders: Int) = when {
-        totalOrders >= 30 -> "숲"
-        totalOrders >= 15 -> "나무"
-        totalOrders >= 5 -> "새싹+"
-        else -> "새싹"
-    }
+    private fun gradeLabel(totalOrders: Int) =
+        ecoGrades.last { totalOrders >= it.minOrders }.label
 
-    private fun nextGradeHint(totalOrders: Int) = when {
-        totalOrders < 5 -> "5회 주문하면 새싹+로 성장해요"
-        totalOrders < 15 -> "15회 주문하면 나무로 성장해요"
-        totalOrders < 30 -> "30회 주문하면 숲으로 성장해요"
-        else -> "최고 등급이에요!"
-    }
+    private fun nextGradeHint(totalOrders: Int) =
+        ecoGrades.firstOrNull { totalOrders < it.minOrders }
+            ?.let { "${it.minOrders}회 주문하면 ${it.label}로 성장해요" }
+            ?: "최고 등급이에요!"
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 }
+
+private data class EcoGrade(val minOrders: Int, val label: String)
+
+private val ecoGrades = listOf(
+    EcoGrade(0, "새싹"),
+    EcoGrade(5, "새싹+"),
+    EcoGrade(15, "나무"),
+    EcoGrade(30, "숲"),
+)

@@ -1,6 +1,7 @@
 package com.example.deuktemsiru_buyer.ui.home
 
 import android.graphics.Paint
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
@@ -41,8 +42,9 @@ class StoreAdapter(
             val clockRes = if (mins <= 30) R.drawable.ic_clock else R.drawable.ic_clock_warning
             binding.ivClock.setImageResource(clockRes)
 
-            binding.btnWishlist.setImageResource(
-                if (store.isWishlisted) R.drawable.ic_heart_filled else R.drawable.ic_heart
+            binding.btnWishlist.setImageResource(if (store.isWishlisted) R.drawable.ic_heart_filled else R.drawable.ic_heart)
+            binding.btnWishlist.imageTintList = ColorStateList.valueOf(
+                ContextCompat.getColor(ctx, if (store.isWishlisted) R.color.primary else R.color.color_text_muted)
             )
 
             binding.cardRoot.setOnClickListener { onStoreClick(store) }

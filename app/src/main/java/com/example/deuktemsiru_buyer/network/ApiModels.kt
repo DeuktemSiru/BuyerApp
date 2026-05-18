@@ -54,6 +54,7 @@ data class StoreListItemResponse(
     val representativeDiscountPrice: Int = 0,
     val representativeDiscountRate: Int = 0,
     val representativePickupEnd: String? = null,
+    val isWishlisted: Boolean = false,
 )
 
 data class StoreDetailApiResponse(
@@ -70,6 +71,7 @@ data class StoreDetailApiResponse(
     val ratingAvg: Double,
     val reviewCount: Int,
     val products: List<StoreProductItem>,
+    val isWishlisted: Boolean = false,
 )
 
 data class StoreProductItem(
@@ -98,8 +100,13 @@ data class WishlistItemResponse(
     val storeId: Long,
     val name: String,
     val thumbnailUrl: String?,
+    val category: String = "OTHER",
     val ratingAvg: Double,
     val availableProductCount: Int,
+    val representativeOriginalPrice: Int = 0,
+    val representativeDiscountPrice: Int = 0,
+    val representativeDiscountRate: Int = 0,
+    val representativePickupEnd: String? = null,
 )
 
 // ── 주문 ────────────────────────────────────────────────────

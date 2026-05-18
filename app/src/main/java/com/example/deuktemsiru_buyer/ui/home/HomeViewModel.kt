@@ -7,6 +7,7 @@ import com.example.deuktemsiru_buyer.data.Store
 import com.example.deuktemsiru_buyer.data.StoreRepository
 import com.example.deuktemsiru_buyer.util.AppError
 import com.example.deuktemsiru_buyer.util.Result
+import com.example.deuktemsiru_buyer.util.filterStores
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,7 +43,7 @@ class HomeViewModel(private val repository: StoreRepository) : ViewModel() {
                     _uiState.update { state ->
                         state.copy(
                             stores = stores,
-                            filteredStores = filterStores(stores, state.searchQuery),
+                            filteredStores = stores.filterStores(state.selectedCategory, state.searchQuery),
                             isLoading = false,
                         )
                     }
@@ -71,29 +72,37 @@ class HomeViewModel(private val repository: StoreRepository) : ViewModel() {
         _uiState.update { state ->
             state.copy(
                 searchQuery = query,
-                filteredStores = filterStores(state.stores, query),
+                filteredStores = state.stores.filterStores(state.selectedCategory, query),
             )
         }
     }
 
     fun toggleWishlist(store: Store) {
         viewModelScope.launch {
+            val optimisticValue = !store.isWishlisted
+            updateWishlistState(store.id, optimisticValue)
             when (val result = repository.toggleWishlist(store.id.toLong())) {
                 is Result.Success -> {
-                    val isWishlisted = result.data
-                    _uiState.update { state ->
-                        val updated = state.stores.map {
-                            if (it.id == store.id) it.copy(isWishlisted = isWishlisted) else it
-                        }
-                        state.copy(
-                            stores = updated,
-                            filteredStores = filterStores(updated, state.searchQuery),
-                        )
-                    }
+                    updateWishlistState(store.id, result.data)
                 }
-                is Result.Error -> _uiState.update { it.copy(error = "찜 처리 중 오류가 발생했어요.") }
+                is Result.Error -> {
+                    updateWishlistState(store.id, store.isWishlisted)
+                    _uiState.update { it.copy(error = "찜 처리 중 오류가 발생했어요.") }
+                }
                 is Result.Loading -> Unit
             }
+        }
+    }
+
+    private fun updateWishlistState(storeId: Long, isWishlisted: Boolean) {
+        _uiState.update { state ->
+            val updated = state.stores.map {
+                if (it.id == storeId) it.copy(isWishlisted = isWishlisted) else it
+            }
+            state.copy(
+                stores = updated,
+                filteredStores = updated.filterStores(state.selectedCategory, state.searchQuery),
+            )
         }
     }
 
@@ -112,16 +121,6 @@ class HomeViewModel(private val repository: StoreRepository) : ViewModel() {
         AppError.UNKNOWN -> "네트워크 오류가 발생했어요. ($httpCode)"
         AppError.AUTH_ERROR -> null // handled as authError flag, never shown as message
     } ?: "알 수 없는 오류가 발생했어요."
-
-    private fun filterStores(stores: List<Store>, query: String): List<Store> {
-        if (query.isBlank()) return stores
-        return stores.filter { store ->
-            store.name.contains(query, ignoreCase = true) ||
-                store.category.contains(query, ignoreCase = true) ||
-                store.address.contains(query, ignoreCase = true) ||
-                store.menus.orEmpty().any { it.name.contains(query, ignoreCase = true) }
-        }
-    }
 
     class Factory(private val repository: StoreRepository) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")

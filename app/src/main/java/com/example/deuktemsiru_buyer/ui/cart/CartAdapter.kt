@@ -5,19 +5,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.deuktemsiru_buyer.data.CartItem
 import com.example.deuktemsiru_buyer.databinding.ItemCartBinding
 import com.example.deuktemsiru_buyer.util.formatPrice
 
 class CartAdapter(
-    private var items: List<CartItem>,
+    items: List<CartItem>,
     val selectedIds: MutableSet<Long> = items.map { it.menuId }.toMutableSet(),
     private val onDelete: (CartItem) -> Unit,
     private val onIncrease: (CartItem) -> Unit,
     private val onDecrease: (CartItem) -> Unit,
     private val onSelectionChanged: () -> Unit,
-) : RecyclerView.Adapter<CartAdapter.ViewHolder>() {
+) : ListAdapter<CartItem, CartAdapter.ViewHolder>(CartDiffCallback) {
+
+    init {
+        submitList(items)
+    }
 
     inner class ViewHolder(private val binding: ItemCartBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -51,33 +56,28 @@ class CartAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ViewHolder(ItemCartBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bind(items[position])
-
-    override fun getItemCount() = items.size
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bind(getItem(position))
 
     fun update(newItems: List<CartItem>) {
         val newIds = newItems.map { it.menuId }.toSet()
         selectedIds.retainAll(newIds)
-        val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-            override fun getOldListSize() = items.size
-            override fun getNewListSize() = newItems.size
-            override fun areItemsTheSame(o: Int, n: Int) = items[o].menuId == newItems[n].menuId
-            override fun areContentsTheSame(o: Int, n: Int) = items[o] == newItems[n]
-        })
-        items = newItems
-        diff.dispatchUpdatesTo(this)
+        submitList(newItems)
     }
 
     fun selectAll() {
-        selectedIds.addAll(items.map { it.menuId })
-        notifyItemRangeChanged(0, items.size)
+        selectedIds.addAll(currentList.map { it.menuId })
+        notifyItemRangeChanged(0, currentList.size)
     }
 
     fun deselectAll() {
         selectedIds.clear()
-        notifyItemRangeChanged(0, items.size)
+        notifyItemRangeChanged(0, currentList.size)
     }
 
-    val allSelected: Boolean get() = items.isNotEmpty() && selectedIds.size == items.size
+    val allSelected: Boolean get() = currentList.isNotEmpty() && selectedIds.size == currentList.size
 
+    companion object CartDiffCallback : DiffUtil.ItemCallback<CartItem>() {
+        override fun areItemsTheSame(oldItem: CartItem, newItem: CartItem) = oldItem.menuId == newItem.menuId
+        override fun areContentsTheSame(oldItem: CartItem, newItem: CartItem) = oldItem == newItem
+    }
 }

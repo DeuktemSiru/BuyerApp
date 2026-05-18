@@ -66,11 +66,7 @@ class OnboardingFragment : Fragment() {
                     return@launch
                 }
 
-                session.memberId = loginData.member.memberId
-                session.nickname = loginData.member.nickname
-                session.accessToken = loginData.accessToken
-                session.refreshToken = loginData.refreshToken
-
+                session.saveLogin(loginData)
                 navigateHome()
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "디버그 로그인 서버 연결에 실패했어요.", Toast.LENGTH_LONG).show()
@@ -124,11 +120,7 @@ class OnboardingFragment : Fragment() {
                     return@launch
                 }
 
-                session.memberId = loginData.member.memberId
-                session.nickname = loginData.member.nickname
-                session.accessToken = loginData.accessToken
-                session.refreshToken = loginData.refreshToken
-
+                session.saveLogin(loginData)
                 navigateHome()
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "서버 로그인에 실패했어요. 잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show()

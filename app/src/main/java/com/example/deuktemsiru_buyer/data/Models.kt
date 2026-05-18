@@ -39,7 +39,12 @@ data class MenuItem(
     val isSoldOut: Boolean = false
 )
 
-fun StoreDetailApiResponse.toStore(isWishlisted: Boolean = false): Store {
+private object StoreDefaults {
+    const val WALKING_MINUTES = 5
+    const val CLOSE_MINUTES = 60
+}
+
+fun StoreDetailApiResponse.toStore(isWishlisted: Boolean = this.isWishlisted): Store {
     val menus = products.map { it.toMenuItem() }
     val rep = menus.firstOrNull { !it.isSoldOut } ?: menus.firstOrNull()
     return Store(
@@ -48,7 +53,7 @@ fun StoreDetailApiResponse.toStore(isWishlisted: Boolean = false): Store {
         category = categoryToDisplay(categories.firstOrNull() ?: "OTHER"),
         emoji = categoryEmoji(categories.firstOrNull()),
         rating = ratingAvg.toFloat(),
-        walkingMinutes = 5,
+        walkingMinutes = StoreDefaults.WALKING_MINUTES,
         discountRate = rep?.discountRate ?: 0,
         originalPrice = rep?.originalPrice ?: 0,
         discountedPrice = rep?.discountedPrice ?: 0,
@@ -74,24 +79,24 @@ fun StoreListItemResponse.toStore() = Store(
     originalPrice = representativeOriginalPrice,
     discountedPrice = representativeDiscountPrice,
     remainingItems = availableProductCount,
-    minutesUntilClose = representativePickupEnd?.let { minutesUntilClose(it) } ?: 60,
+    minutesUntilClose = representativePickupEnd?.let { minutesUntilClose(it) } ?: StoreDefaults.CLOSE_MINUTES,
     address = "",
     phone = "",
-    isWishlisted = false,
+    isWishlisted = isWishlisted,
 )
 
 fun WishlistItemResponse.toStore() = Store(
     id = storeId,
     name = name,
-    category = "찜한 매장",
-    emoji = "♡",
+    category = categoryToDisplay(category),
+    emoji = categoryEmoji(category),
     rating = ratingAvg.toFloat(),
-    walkingMinutes = 5,
-    discountRate = 0,
-    originalPrice = 0,
-    discountedPrice = 0,
+    walkingMinutes = StoreDefaults.WALKING_MINUTES,
+    discountRate = representativeDiscountRate,
+    originalPrice = representativeOriginalPrice,
+    discountedPrice = representativeDiscountPrice,
     remainingItems = availableProductCount,
-    minutesUntilClose = 60,
+    minutesUntilClose = representativePickupEnd?.let { minutesUntilClose(it) } ?: StoreDefaults.CLOSE_MINUTES,
     address = "",
     phone = "",
     isWishlisted = true,

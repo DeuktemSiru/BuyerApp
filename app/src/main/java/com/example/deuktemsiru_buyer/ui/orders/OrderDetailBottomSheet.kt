@@ -17,6 +17,8 @@ import com.example.deuktemsiru_buyer.network.OrderDetailResponse
 import com.example.deuktemsiru_buyer.network.RetrofitClient
 import com.example.deuktemsiru_buyer.util.formatPrice
 import com.example.deuktemsiru_buyer.util.generateQrBitmap
+import com.example.deuktemsiru_buyer.util.orderStatusLabel
+import com.example.deuktemsiru_buyer.util.toHourMinute
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.launch
 
@@ -71,7 +73,7 @@ class OrderDetailBottomSheet : BottomSheetDialogFragment() {
         binding.tvStoreName.text = detail.storeName
         binding.tvOrderNumber.text = "#${detail.orderId}"
 
-        val statusText = statusLabel(detail.status)
+        val statusText = orderStatusLabel(detail.status)
         binding.tvStatusBadge.text = statusText
 
         binding.itemsContainer.removeAllViews()
@@ -99,7 +101,7 @@ class OrderDetailBottomSheet : BottomSheetDialogFragment() {
         }
 
         binding.tvPickupTime.text = detail.pickupTime
-            ?.let { formatTime(it) }
+            ?.toHourMinute()
             ?: "미정"
 
         binding.tvTotalAmount.text = detail.totalPrice.formatPrice()
@@ -140,25 +142,8 @@ class OrderDetailBottomSheet : BottomSheetDialogFragment() {
     private fun dpToPx(dp: Int) =
         (dp * resources.displayMetrics.density).toInt()
 
-    private fun formatTime(iso: String) = runCatching {
-        val t = iso.substringAfter('T').substringBefore('.')
-        val parts = t.split(":")
-        "${parts[0]}:${parts[1]}"
-    }.getOrDefault(iso)
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
-}
-
-private fun statusLabel(status: String) = when (status) {
-    "PENDING" -> "접수 대기"
-    "CONFIRMED" -> "접수 완료"
-    "PREPARING" -> "준비중"
-    "READY" -> "픽업 대기"
-    "PICKED_UP" -> "픽업 완료"
-    "COMPLETED" -> "완료"
-    "CANCELLED" -> "취소됨"
-    else -> status
 }

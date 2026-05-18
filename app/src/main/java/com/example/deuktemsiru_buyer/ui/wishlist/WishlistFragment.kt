@@ -1,14 +1,10 @@
 package com.example.deuktemsiru_buyer.ui.wishlist
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -16,13 +12,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.data.Store
-import com.example.deuktemsiru_buyer.data.categoryToApi
-import com.example.deuktemsiru_buyer.data.toStore
+import com.example.deuktemsiru_buyer.data.StoreRepository
 import com.example.deuktemsiru_buyer.databinding.FragmentWishlistBinding
 import com.example.deuktemsiru_buyer.network.RetrofitClient
 import com.example.deuktemsiru_buyer.ui.home.StoreAdapter
-import com.example.deuktemsiru_buyer.util.filterByCategory
-import com.example.deuktemsiru_buyer.util.updateChipSelection
+import com.example.deuktemsiru_buyer.util.Result
+import com.example.deuktemsiru_buyer.util.bindCategorySelection
+import com.example.deuktemsiru_buyer.util.bindSearch
+import com.example.deuktemsiru_buyer.util.filterStores
 import kotlinx.coroutines.launch
 
 class WishlistFragment : Fragment() {
@@ -33,6 +30,7 @@ class WishlistFragment : Fragment() {
     private val allStores = mutableListOf<Store>()
     private var currentCategory = "전체"
     private lateinit var adapter: StoreAdapter
+    private val repository by lazy { StoreRepository(RetrofitClient.api) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -58,18 +56,20 @@ class WishlistFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val stores = RetrofitClient.api.getWishlist().data?.wishlists
-                    ?.map { item -> item.toStore() }
-                    ?: emptyList()
-                allStores.clear()
-                allStores.addAll(stores)
-                binding.progress.visibility = View.GONE
-                updateList(filterStores())
-            } catch (e: Exception) {
-                binding.progress.visibility = View.GONE
-                binding.layoutEmpty.visibility = View.VISIBLE
-                Toast.makeText(requireContext(), "찜 목록을 불러오지 못했어요.", Toast.LENGTH_SHORT).show()
+            when (val result = repository.getWishlist()) {
+                is Result.Success -> {
+                    val stores = result.data
+                    allStores.clear()
+                    allStores.addAll(stores)
+                    binding.progress.visibility = View.GONE
+                    updateList(filterStores())
+                }
+                is Result.Error -> {
+                    binding.progress.visibility = View.GONE
+                    binding.layoutEmpty.visibility = View.VISIBLE
+                    Toast.makeText(requireContext(), "찜 목록을 불러오지 못했어요.", Toast.LENGTH_SHORT).show()
+                }
+                is Result.Loading -> Unit
             }
         }
     }
@@ -111,62 +111,29 @@ class WishlistFragment : Fragment() {
             binding.chipCafe to "카페"
         )
 
-        chips.forEach { (chip, category) ->
-            chip.setOnClickListener {
-                currentCategory = category
-                chips.updateChipSelection(currentCategory, requireContext())
+        chips.bindCategorySelection(
+            fragment = this,
+            selected = { currentCategory },
+            onSelected = {
+                currentCategory = it
                 updateList(filterStores())
-            }
-        }
+            },
+        )
     }
 
     private fun setupSearch() {
-        binding.etWishlistSearch.doOnTextChanged { _, _, _, _ ->
-            updateList(filterStores())
-        }
-        binding.etWishlistSearch.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                hideKeyboard()
-                updateList(filterStores())
-                true
-            } else {
-                false
-            }
-        }
-        binding.btnWishlistSearch.setOnClickListener {
-            hideKeyboard()
-            updateList(filterStores())
-        }
+        bindSearch(binding.etWishlistSearch, binding.btnWishlistSearch) { updateList(filterStores()) }
     }
 
     private fun filterStores(): List<Store> {
         val query = binding.etWishlistSearch.text?.toString()?.trim().orEmpty()
-        return allStores.filterByCategory(
-            category = currentCategory,
-            query = query,
-            getCategoryApi = { categoryToApi(it.category) },
-            getName = { it.name },
-            getCategory = { it.category },
-            getAddress = { it.address },
-            getMenuNames = { store -> store.menus.map { it.name } },
-        )
-    }
-
-    private fun hideKeyboard() {
-        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(binding.etWishlistSearch.windowToken, 0)
-        binding.etWishlistSearch.clearFocus()
+        return allStores.filterStores(currentCategory, query)
     }
 
     private fun updateList(stores: List<Store>) {
-        if (stores.isEmpty()) {
-            binding.rvWishlist.visibility = View.GONE
-            binding.layoutEmpty.visibility = View.VISIBLE
-        } else {
-            binding.layoutEmpty.visibility = View.GONE
-            binding.rvWishlist.visibility = View.VISIBLE
-            adapter.submitList(stores)
-        }
+        adapter.submitList(stores)
+        binding.rvWishlist.visibility = if (stores.isEmpty()) View.GONE else View.VISIBLE
+        binding.layoutEmpty.visibility = if (stores.isEmpty()) View.VISIBLE else View.GONE
     }
 
     override fun onDestroyView() {
