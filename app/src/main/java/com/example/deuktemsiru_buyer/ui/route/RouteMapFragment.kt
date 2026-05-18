@@ -17,6 +17,8 @@ import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.databinding.FragmentRouteMapBinding
 import com.example.deuktemsiru_buyer.network.TmapClient
 import com.example.deuktemsiru_buyer.network.TmapRouteRequest
+import com.example.deuktemsiru_buyer.util.formatDistanceMeters
+import com.example.deuktemsiru_buyer.util.MapViewLifecycleDelegate
 import android.os.Looper
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -40,6 +42,7 @@ class RouteMapFragment : Fragment(), OnMapReadyCallback {
     private var googleMap: GoogleMap? = null
     private var locationCallback: LocationCallback? = null
     private var mapViewRef: com.google.android.gms.maps.MapView? = null
+    private val mapLifecycle = MapViewLifecycleDelegate { mapViewRef }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentRouteMapBinding.inflate(inflater, container, false)
@@ -172,29 +175,26 @@ class RouteMapFragment : Fragment(), OnMapReadyCallback {
     private fun showRouteInfo(destName: String, distanceMeters: Int, timeSeconds: Int) {
         if (_binding == null) return
         val minutes = (timeSeconds / 60).coerceAtLeast(1)
-        val distanceText = if (distanceMeters >= 1000) "%.1fkm".format(distanceMeters / 1000.0)
-                           else "${distanceMeters}m"
-
         binding.tvDestName.text = destName
         binding.tvWalkTime.text = "도보 약 ${minutes}분"
-        binding.tvDistance.text = distanceText
+        binding.tvDistance.text = formatDistanceMeters(distanceMeters)
         binding.tvDestLabel.text = destName
         binding.cardRouteInfo.visibility = View.VISIBLE
     }
 
-    override fun onStart() { super.onStart(); mapViewRef?.onStart() }
-    override fun onResume() { super.onResume(); mapViewRef?.onResume() }
-    override fun onPause() { super.onPause(); mapViewRef?.onPause() }
-    override fun onStop() { super.onStop(); mapViewRef?.onStop() }
+    override fun onStart() { super.onStart(); mapLifecycle.onStart() }
+    override fun onResume() { super.onResume(); mapLifecycle.onResume() }
+    override fun onPause() { super.onPause(); mapLifecycle.onPause() }
+    override fun onStop() { super.onStop(); mapLifecycle.onStop() }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        mapViewRef?.onSaveInstanceState(outState)
+        mapLifecycle.onSaveInstanceState(outState)
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        mapViewRef?.onLowMemory()
+        mapLifecycle.onLowMemory()
     }
 
     override fun onDestroyView() {
@@ -202,7 +202,7 @@ class RouteMapFragment : Fragment(), OnMapReadyCallback {
             LocationServices.getFusedLocationProviderClient(requireContext()).removeLocationUpdates(it)
         }
         locationCallback = null
-        mapViewRef?.onDestroy()
+        mapLifecycle.onDestroy()
         mapViewRef = null
         super.onDestroyView()
         _binding = null

@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import com.example.deuktemsiru_buyer.network.ApiService
+import com.example.deuktemsiru_buyer.network.LoginData
 import com.example.deuktemsiru_buyer.network.RetrofitClient
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -43,6 +45,22 @@ class SessionManager(context: Context) {
         }
 
     fun isLoggedIn() = memberId > 0L && accessToken.isNotBlank()
+
+    fun saveLogin(loginData: LoginData) {
+        memberId = loginData.member.memberId
+        nickname = loginData.member.nickname
+        accessToken = loginData.accessToken
+        refreshToken = loginData.refreshToken
+    }
+
+    suspend fun syncMe(api: ApiService): Boolean =
+        runCatching { api.getMe().data }
+            .getOrNull()
+            ?.let {
+                isSiruLinked = it.isSiruLinked
+                siruBalance = it.siruBalance
+                true
+            } ?: false
 
     fun restoreToken() {
         RetrofitClient.accessToken = accessToken.takeIf { it.isNotBlank() }

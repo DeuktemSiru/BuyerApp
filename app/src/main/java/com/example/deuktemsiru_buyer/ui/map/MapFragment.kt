@@ -15,12 +15,8 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.toColorInt
-import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -28,7 +24,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.Store
-import com.example.deuktemsiru_buyer.data.categoryToApi
 import com.example.deuktemsiru_buyer.data.toStore
 import com.example.deuktemsiru_buyer.databinding.FragmentMapBinding
 import com.example.deuktemsiru_buyer.databinding.ItemMapStoreCardBinding
@@ -40,9 +35,11 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
-import com.example.deuktemsiru_buyer.util.filterByCategory
+import com.example.deuktemsiru_buyer.util.bindCategorySelection
+import com.example.deuktemsiru_buyer.util.bindSearch
+import com.example.deuktemsiru_buyer.util.filterStores
 import com.example.deuktemsiru_buyer.util.formatPrice
-import com.example.deuktemsiru_buyer.util.updateChipSelection
+import com.example.deuktemsiru_buyer.util.MapViewLifecycleDelegate
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -55,6 +52,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private val binding get() = _binding!!
 
     private lateinit var mapView: MapView
+    private val mapLifecycle = MapViewLifecycleDelegate { if (::mapView.isInitialized) mapView else null }
     private var googleMap: GoogleMap? = null
     private var loadedStores: List<Store> = emptyList()
     private var currentCategory = "전체"
@@ -253,20 +251,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun setupSearch() {
-        binding.etMapSearch.doOnTextChanged { _, _, _, _ -> updateMapStores() }
-        binding.etMapSearch.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                hideKeyboard()
-                updateMapStores()
-                true
-            } else {
-                false
-            }
-        }
-        binding.btnMapSearch.setOnClickListener {
-            hideKeyboard()
-            updateMapStores()
-        }
+        bindSearch(binding.etMapSearch, binding.btnMapSearch) { updateMapStores() }
     }
 
     private fun setupCategoryChips() {
@@ -278,13 +263,14 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             binding.chipBakery to "베이커리",
             binding.chipCafe to "카페"
         )
-        chips.forEach { (chip, category) ->
-            chip.setOnClickListener {
-                currentCategory = category
-                chips.updateChipSelection(currentCategory, requireContext())
+        chips.bindCategorySelection(
+            fragment = this,
+            selected = { currentCategory },
+            onSelected = {
+                currentCategory = it
                 updateMapStores()
-            }
-        }
+            },
+        )
     }
 
     private fun updateMapStores() {
@@ -296,37 +282,23 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     private fun filteredStores(): List<Store> {
         val query = _binding?.etMapSearch?.text?.toString()?.trim().orEmpty()
-        return loadedStores.filterByCategory(
-            category = currentCategory,
-            query = query,
-            getCategoryApi = { categoryToApi(it.category) },
-            getName = { it.name },
-            getCategory = { it.category },
-            getAddress = { it.address },
-            getMenuNames = { store -> store.menus.map { it.name } },
-        )
-    }
-
-    private fun hideKeyboard() {
-        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(_binding?.etMapSearch?.windowToken, 0)
-        _binding?.etMapSearch?.clearFocus()
+        return loadedStores.filterStores(currentCategory, query)
     }
 
     // MapView 생명주기: onDestroyView에서는 onDestroy 호출 금지 (탭 재진입 시 크래시 원인)
-    override fun onStart() { super.onStart(); mapView.onStart() }
-    override fun onResume() { super.onResume(); mapView.onResume() }
-    override fun onPause() { super.onPause(); mapView.onPause() }
-    override fun onStop() { super.onStop(); mapView.onStop() }
+    override fun onStart() { super.onStart(); mapLifecycle.onStart() }
+    override fun onResume() { super.onResume(); mapLifecycle.onResume() }
+    override fun onPause() { super.onPause(); mapLifecycle.onPause() }
+    override fun onStop() { super.onStop(); mapLifecycle.onStop() }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        if (::mapView.isInitialized) mapView.onSaveInstanceState(outState)
+        mapLifecycle.onSaveInstanceState(outState)
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        if (::mapView.isInitialized) mapView.onLowMemory()
+        mapLifecycle.onLowMemory()
     }
 
     override fun onDestroyView() {
@@ -337,7 +309,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     // MapView의 onDestroy는 Fragment.onDestroy()에서 호출해야 안전
     override fun onDestroy() {
-        if (::mapView.isInitialized) mapView.onDestroy()
+        mapLifecycle.onDestroy()
         super.onDestroy()
     }
 

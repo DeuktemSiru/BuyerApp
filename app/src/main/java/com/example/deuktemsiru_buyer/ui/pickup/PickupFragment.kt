@@ -22,6 +22,7 @@ import com.example.deuktemsiru_buyer.network.RetrofitClient
 import com.example.deuktemsiru_buyer.util.formatPrice
 import com.example.deuktemsiru_buyer.util.generateQrBitmap
 import com.example.deuktemsiru_buyer.util.startTimerInto
+import com.example.deuktemsiru_buyer.util.toHourMinute
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -139,7 +140,7 @@ class PickupFragment : Fragment() {
         binding.llPickupContent.visibility = View.VISIBLE
 
         val pickupEndTime = order.pickupTime?.substringAfter("~", order.pickupTime)
-        binding.tvPickupTime.text = if (pickupEndTime != null) "${formatDisplayTime(pickupEndTime)}까지" else "픽업 시간 확인 중"
+        binding.tvPickupTime.text = if (pickupEndTime != null) "${pickupEndTime.toHourMinute()}까지" else "픽업 시간 확인 중"
         binding.tvPickupCode.text = pickupCode.ifBlank { "----" }.chunked(1).joinToString(" ")
         showQrCode(pickupCode)
         startCountdown(remainingSecondsUntil(pickupEndTime))
@@ -194,14 +195,6 @@ class PickupFragment : Fragment() {
     private fun remainingSecondsUntil(pickupEnd: String?): Long {
         if (pickupEnd == null) return 42 * 60L
         return minutesUntilClose(pickupEnd) * 60L
-    }
-
-    private fun formatDisplayTime(pickupEnd: String): String {
-        val time = pickupEnd.substringAfter("T", pickupEnd).substringBefore(".")
-        val parts = time.split(":")
-        val hour = parts.getOrNull(0)?.toIntOrNull() ?: return time
-        val min = parts.getOrNull(1)?.toIntOrNull() ?: 0
-        return "%02d:%02d".format(hour, min)
     }
 
     private fun startCountdown(totalSeconds: Long) {

@@ -73,10 +73,35 @@ class PaymentFragment : Fragment() {
     }
 
     private suspend fun syncSiruState(session: SessionManager) {
-        runCatching { RetrofitClient.api.getMe().data }.getOrNull()?.let {
-            session.isSiruLinked = it.isSiruLinked
-            session.siruBalance = it.siruBalance
-            if (_binding != null) binding.tvSiruBalance.text = it.siruBalance.formatPrice()
+        if (session.syncMe(RetrofitClient.api) && _binding != null) {
+            binding.tvSiruBalance.text = session.siruBalance.formatPrice()
+        }
+    }
+
+    private fun pay(
+        session: SessionManager,
+        storeId: Long,
+        menuId: Long,
+        discountedTotal: Int,
+        fromCart: Boolean,
+        orderItems: () -> List<OrderItemRequest>,
+        clearCart: Boolean,
+    ) {
+        binding.btnPay.isEnabled = false
+        viewLifecycleOwner.lifecycleScope.launch {
+            if (!ensureSiruLinked(session)) {
+                binding.btnPay.isEnabled = true
+                Toast.makeText(requireContext(), "시루 계정 연동 후 결제할 수 있어요.", Toast.LENGTH_SHORT).show()
+                navigateToSiruLink(storeId, menuId, discountedTotal, fromCart)
+                return@launch
+            }
+            val items = orderItems()
+            if (items.isEmpty()) {
+                binding.btnPay.isEnabled = true
+                Toast.makeText(requireContext(), "주문 가능한 메뉴가 없어요.", Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+            submitOrder(session, storeId, items, discountedTotal, clearCart)
         }
     }
 
@@ -101,20 +126,15 @@ class PaymentFragment : Fragment() {
     }
 
     private fun payFromCart(session: SessionManager, storeId: Long, discountedTotal: Int) {
-        binding.btnPay.isEnabled = false
-        viewLifecycleOwner.lifecycleScope.launch {
-            if (!ensureSiruLinked(session)) {
-                binding.btnPay.isEnabled = true
-                Toast.makeText(requireContext(), "시루 계정 연동 후 결제할 수 있어요.", Toast.LENGTH_SHORT).show()
-                navigateToSiruLink(storeId, menuId = 0L, totalPrice = discountedTotal, fromCart = true)
-                return@launch
-            }
-            val orderItems = CartManager.items.map {
-                OrderItemRequest(productId = it.menuId, quantity = it.quantity)
-            }
-
-            submitOrder(session, storeId, orderItems, discountedTotal, clearCart = true)
-        }
+        pay(
+            session = session,
+            storeId = storeId,
+            menuId = 0L,
+            discountedTotal = discountedTotal,
+            fromCart = true,
+            orderItems = { CartManager.items.map { OrderItemRequest(productId = it.menuId, quantity = it.quantity) } },
+            clearCart = true,
+        )
     }
 
     private fun payFromStore(
@@ -124,26 +144,15 @@ class PaymentFragment : Fragment() {
         discountedTotal: Int,
         selectedProductId: Long?,
     ) {
-        binding.btnPay.isEnabled = false
-        viewLifecycleOwner.lifecycleScope.launch {
-            if (!ensureSiruLinked(session)) {
-                binding.btnPay.isEnabled = true
-                Toast.makeText(requireContext(), "시루 계정 연동 후 결제할 수 있어요.", Toast.LENGTH_SHORT).show()
-                navigateToSiruLink(storeId, menuId, discountedTotal, fromCart = false)
-                return@launch
-            }
-            val orderItems = selectedProductId?.let {
-                listOf(OrderItemRequest(productId = it, quantity = 1))
-            }.orEmpty()
-
-            if (orderItems.isEmpty()) {
-                binding.btnPay.isEnabled = true
-                Toast.makeText(requireContext(), "주문 가능한 메뉴가 없어요.", Toast.LENGTH_SHORT).show()
-                return@launch
-            }
-
-            submitOrder(session, storeId, orderItems, discountedTotal, clearCart = false)
-        }
+        pay(
+            session = session,
+            storeId = storeId,
+            menuId = menuId,
+            discountedTotal = discountedTotal,
+            fromCart = false,
+            orderItems = { selectedProductId?.let { listOf(OrderItemRequest(productId = it, quantity = 1)) }.orEmpty() },
+            clearCart = false,
+        )
     }
 
     private fun loadFromStore(session: SessionManager, storeId: Long, menuId: Long, totalPrice: Int) {
@@ -200,10 +209,7 @@ class PaymentFragment : Fragment() {
                     runCatching { RetrofitClient.api.clearCart() }
                     CartManager.clear()
                 }
-                runCatching { RetrofitClient.api.getMe().data }.getOrNull()?.let {
-                    session.isSiruLinked = it.isSiruLinked
-                    session.siruBalance = it.siruBalance
-                }
+                session.syncMe(RetrofitClient.api)
                 findNavController().navigate(
                     R.id.action_payment_to_pickup,
                     Bundle().apply { putLong("storeId", storeId) }

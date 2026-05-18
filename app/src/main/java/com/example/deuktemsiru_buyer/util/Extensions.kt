@@ -4,12 +4,20 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.TextView
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.deuktemsiru_buyer.R
+import com.example.deuktemsiru_buyer.data.CartManager
+import com.example.deuktemsiru_buyer.data.Store
+import com.example.deuktemsiru_buyer.data.categoryToApi
 import com.google.android.material.color.MaterialColors
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
@@ -31,6 +39,12 @@ fun String.toDisplayHour(): String {
     }
     return "$displayHour:${minute.padStart(2, '0')}"
 }
+
+fun String.toHourMinute(): String = runCatching {
+    val time = substringAfter("T", this).substringBefore(".")
+    val parts = time.split(":")
+    "%02d:%02d".format(parts[0].toInt(), parts.getOrElse(1) { "0" }.toInt())
+}.getOrDefault(this)
 
 // S16 – Shared countdown timer starter for Fragments
 fun Fragment.startTimerInto(
@@ -80,6 +94,47 @@ fun Map<TextView, String>.updateChipSelection(
     }
 }
 
+fun Fragment.bindSearch(
+    editText: EditText,
+    searchButton: ImageButton,
+    onQueryChanged: () -> Unit,
+) {
+    editText.doOnTextChanged { _, _, _, _ -> onQueryChanged() }
+    editText.setOnEditorActionListener { _, actionId, _ ->
+        if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+            hideKeyboard(editText)
+            onQueryChanged()
+            true
+        } else {
+            false
+        }
+    }
+    searchButton.setOnClickListener {
+        hideKeyboard(editText)
+        onQueryChanged()
+    }
+}
+
+fun Fragment.hideKeyboard(editText: EditText) {
+    val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.hideSoftInputFromWindow(editText.windowToken, 0)
+    editText.clearFocus()
+}
+
+fun Map<TextView, String>.bindCategorySelection(
+    fragment: Fragment,
+    selected: () -> String,
+    onSelected: (String) -> Unit,
+) {
+    updateChipSelection(selected(), fragment.requireContext())
+    forEach { (chip, category) ->
+        chip.setOnClickListener {
+            onSelected(category)
+            updateChipSelection(selected(), fragment.requireContext())
+        }
+    }
+}
+
 // S21 – Shared store filtering by category and query
 fun <T> List<T>.filterByCategory(
     category: String,
@@ -103,3 +158,34 @@ fun <T> List<T>.filterByCategory(
         matchesCategory && matchesQuery
     }
 }
+
+fun List<Store>.filterStores(category: String, query: String): List<Store> =
+    filterByCategory(
+        category = category,
+        query = query,
+        getCategoryApi = { categoryToApi(it.category) },
+        getName = { it.name },
+        getCategory = { it.category },
+        getAddress = { it.address },
+        getMenuNames = { store -> store.menus.map { it.name } },
+    )
+
+fun TextView.updateCartBadge() {
+    val count = CartManager.totalCount
+    visibility = if (count > 0) View.VISIBLE else View.GONE
+    if (count > 0) text = if (count > 9) "9+" else count.toString()
+}
+
+fun orderStatusLabel(status: String) = when (status) {
+    "PENDING" -> "접수 대기"
+    "CONFIRMED" -> "접수 완료"
+    "PREPARING" -> "준비중"
+    "READY" -> "픽업 대기"
+    "PICKED_UP" -> "픽업 완료"
+    "COMPLETED" -> "완료"
+    "CANCELLED" -> "취소됨"
+    else -> status
+}
+
+fun formatDistanceMeters(distanceMeters: Int): String =
+    if (distanceMeters >= 1000) "%.1fkm".format(distanceMeters / 1000.0) else "${distanceMeters}m"

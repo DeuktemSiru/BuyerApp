@@ -1,15 +1,10 @@
 package com.example.deuktemsiru_buyer.ui.home
 
-import android.content.Context
 import android.os.Bundle
-import android.widget.TextView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
-import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -19,11 +14,13 @@ import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.deuktemsiru_buyer.R
-import com.example.deuktemsiru_buyer.data.CartManager
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.data.StoreRepository
 import com.example.deuktemsiru_buyer.databinding.FragmentHomeBinding
 import com.example.deuktemsiru_buyer.network.RetrofitClient
+import com.example.deuktemsiru_buyer.util.bindCategorySelection
+import com.example.deuktemsiru_buyer.util.bindSearch
+import com.example.deuktemsiru_buyer.util.updateCartBadge
 import com.example.deuktemsiru_buyer.util.updateChipSelection
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
@@ -39,7 +36,7 @@ class HomeFragment : Fragment() {
 
     private lateinit var storeAdapter: StoreAdapter
     private lateinit var session: SessionManager
-    private val categoryChips: Map<android.widget.TextView, String> by lazy {
+    private val categoryChips by lazy {
         mapOf(
             binding.chipAll to "전체",
             binding.chipKorean to "한식",
@@ -126,9 +123,11 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupCategoryChips() {
-        categoryChips.forEach { (chip, category) ->
-            chip.setOnClickListener { viewModel.selectCategory(category) }
-        }
+        categoryChips.bindCategorySelection(
+            fragment = this,
+            selected = { viewModel.uiState.value.selectedCategory },
+            onSelected = viewModel::selectCategory,
+        )
     }
 
     private fun syncCategoryChips(selected: String) {
@@ -136,24 +135,9 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupSearch() {
-        binding.etSearch.doOnTextChanged { text, _, _, _ ->
-            viewModel.updateSearch(text?.toString() ?: "")
+        bindSearch(binding.etSearch, binding.btnSearch) {
+            viewModel.updateSearch(binding.etSearch.text?.toString().orEmpty())
         }
-        binding.etSearch.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                hideKeyboard()
-                true
-            } else {
-                false
-            }
-        }
-        binding.btnSearch.setOnClickListener { hideKeyboard() }
-    }
-
-    private fun hideKeyboard() {
-        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(binding.etSearch.windowToken, 0)
-        binding.etSearch.clearFocus()
     }
 
     override fun onResume() {
@@ -163,9 +147,7 @@ class HomeFragment : Fragment() {
 
     private fun updateCartBadge() {
         if (_binding == null) return
-        val count = CartManager.totalCount
-        binding.tvCartBadge.isVisible = count > 0
-        if (count > 0) binding.tvCartBadge.text = if (count > 9) "9+" else count.toString()
+        binding.tvCartBadge.updateCartBadge()
     }
 
     override fun onDestroyView() {

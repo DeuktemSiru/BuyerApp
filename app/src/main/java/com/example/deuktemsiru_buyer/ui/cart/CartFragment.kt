@@ -20,6 +20,7 @@ import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.FragmentCartBinding
 import com.example.deuktemsiru_buyer.network.RetrofitClient
 import com.example.deuktemsiru_buyer.network.CartUpdateRequest
+import com.example.deuktemsiru_buyer.util.formatDistanceMeters
 import com.example.deuktemsiru_buyer.util.formatPrice
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
@@ -160,19 +161,21 @@ class CartFragment : Fragment() {
     }
 
     private suspend fun removeServerItem(productId: Long): Boolean {
-        val cartItemId = CartManager.serverCartItemIds[productId] ?: return true
-        if (!session.isLoggedIn()) return true
-        return runCatching { RetrofitClient.api.removeCartItem(cartItemId) }
-            .onFailure { loadServerCart() }
-            .isSuccess
+        return withServerCartItem(productId) { cartItemId ->
+            RetrofitClient.api.removeCartItem(cartItemId)
+        }
     }
 
     private suspend fun syncServerQuantity(productId: Long, quantity: Int): Boolean {
-        val cartItemId = CartManager.serverCartItemIds[productId] ?: return true
-        if (!session.isLoggedIn()) return true
-        return runCatching {
+        return withServerCartItem(productId) { cartItemId ->
             RetrofitClient.api.updateCartItem(cartItemId, CartUpdateRequest(quantity))
         }
+    }
+
+    private suspend fun withServerCartItem(productId: Long, action: suspend (Long) -> Unit): Boolean {
+        val cartItemId = CartManager.serverCartItemIds[productId] ?: return true
+        if (!session.isLoggedIn()) return true
+        return runCatching { action(cartItemId) }
             .onFailure { loadServerCart() }
             .isSuccess
     }
@@ -259,10 +262,7 @@ class CartFragment : Fragment() {
         val results = FloatArray(1)
         Location.distanceBetween(userLocation.latitude, userLocation.longitude, storeLat, storeLng, results)
         val distMeters = results[0].toInt()
-        binding.tvDistance.text = if (distMeters >= 1000)
-            "가게까지 %.1fkm".format(distMeters / 1000.0)
-        else
-            "가게까지 ${distMeters}m"
+        binding.tvDistance.text = "가게까지 ${formatDistanceMeters(distMeters)}"
     }
 
     override fun onDestroyView() {

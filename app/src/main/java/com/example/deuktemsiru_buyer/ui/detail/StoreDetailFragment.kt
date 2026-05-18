@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -22,6 +21,7 @@ import com.example.deuktemsiru_buyer.network.CartAddRequest
 import com.example.deuktemsiru_buyer.network.RetrofitClient
 import com.example.deuktemsiru_buyer.util.formatPrice
 import com.example.deuktemsiru_buyer.util.startTimerInto
+import com.example.deuktemsiru_buyer.util.updateCartBadge
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -78,10 +78,9 @@ class StoreDetailFragment : Fragment() {
                     findNavController().popBackStack()
                     return@launch
                 }
-                val currentIsWishlisted = isWishlisted
-                val store = response.toStore(currentIsWishlisted)
+                val store = response.toStore()
                 currentStore = store
-                isWishlisted = currentIsWishlisted
+                isWishlisted = store.isWishlisted
                 bindStore(store)
             } catch (e: Exception) {
                 Snackbar.make(binding.root, "가게 정보를 불러오지 못했어요.", Snackbar.LENGTH_SHORT).show()
@@ -195,9 +194,7 @@ class StoreDetailFragment : Fragment() {
 
     private fun updateCartBadge() {
         if (_binding == null) return
-        val count = CartManager.totalCount
-        binding.tvCartBadge.isVisible = count > 0
-        if (count > 0) binding.tvCartBadge.text = if (count > 9) "9+" else count.toString()
+        binding.tvCartBadge.updateCartBadge()
     }
 
     private fun toggleWishlist(store: Store) {

@@ -4,15 +4,21 @@ import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.deuktemsiru_buyer.data.MenuItem
 import com.example.deuktemsiru_buyer.databinding.ItemMenuBinding
 import com.example.deuktemsiru_buyer.util.formatPrice
 
 class MenuAdapter(
-    private val menus: List<MenuItem>,
+    menus: List<MenuItem>,
     private val onMenuClick: (MenuItem) -> Unit
-) : RecyclerView.Adapter<MenuAdapter.MenuViewHolder>() {
+) : ListAdapter<MenuItem, MenuAdapter.MenuViewHolder>(MenuDiffCallback) {
+
+    init {
+        submitList(menus)
+    }
 
     inner class MenuViewHolder(private val binding: ItemMenuBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -48,8 +54,11 @@ class MenuAdapter(
     }
 
     override fun onBindViewHolder(holder: MenuViewHolder, position: Int) {
-        holder.bind(menus[position])
+        holder.bind(getItem(position))
     }
 
-    override fun getItemCount() = menus.size
+    companion object MenuDiffCallback : DiffUtil.ItemCallback<MenuItem>() {
+        override fun areItemsTheSame(oldItem: MenuItem, newItem: MenuItem) = oldItem.id == newItem.id
+        override fun areContentsTheSame(oldItem: MenuItem, newItem: MenuItem) = oldItem == newItem
+    }
 }
