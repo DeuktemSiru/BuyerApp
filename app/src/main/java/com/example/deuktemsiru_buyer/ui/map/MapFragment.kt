@@ -2,16 +2,10 @@ package com.example.deuktemsiru_buyer.ui.map
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.graphics.Color
 import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
-import android.os.Build
 import android.os.Bundle
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,9 +16,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.example.deuktemsiru_buyer.R
+import com.example.deuktemsiru_buyer.data.StoreRepository
 import com.example.deuktemsiru_buyer.data.Store
-import com.example.deuktemsiru_buyer.data.toStore
+import com.example.deuktemsiru_buyer.data.storeCategoryFilters
 import com.example.deuktemsiru_buyer.databinding.FragmentMapBinding
 import com.example.deuktemsiru_buyer.databinding.ItemMapStoreCardBinding
 import com.example.deuktemsiru_buyer.network.RetrofitClient
@@ -40,6 +39,8 @@ import com.example.deuktemsiru_buyer.util.bindSearch
 import com.example.deuktemsiru_buyer.util.filterStores
 import com.example.deuktemsiru_buyer.util.formatPrice
 import com.example.deuktemsiru_buyer.util.MapViewLifecycleDelegate
+import com.example.deuktemsiru_buyer.util.Result
+import com.example.deuktemsiru_buyer.util.getCurrentLocation
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -56,6 +57,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private var googleMap: GoogleMap? = null
     private var loadedStores: List<Store> = emptyList()
     private var currentCategory = "전체"
+    private lateinit var mapStoreAdapter: MapStoreAdapter
+    private val repository by lazy { StoreRepository(RetrofitClient.api) }
 
     private val hasLocationPermission get() = ContextCompat.checkSelfPermission(
         requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
@@ -70,7 +73,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             enableMyLocation()
             moveToCurrentLocation()
         } else {
-            val ctx = context ?: return@registerForActivityResult
             Snackbar.make(binding.root, "위치 권한이 필요합니다.", Snackbar.LENGTH_SHORT).show()
         }
     }
@@ -97,6 +99,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
         mapView.getMapAsync(this)
         requestLocationPermissions()
+        setupBottomSheetCards()
         setupSearch()
         setupCategoryChips()
         loadStores()
@@ -141,27 +144,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     @SuppressLint("MissingPermission")
     private fun moveToCurrentLocation() {
-        if (!hasLocationPermission) return
-        val ctx = context ?: return
-        val lm = ctx.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            lm.getCurrentLocation(LocationManager.GPS_PROVIDER, null, ctx.mainExecutor) { location ->
-                location?.let { animateTo(it) }
-            }
-        } else {
-            @Suppress("DEPRECATION")
-            lm.requestSingleUpdate(LocationManager.GPS_PROVIDER, object : LocationListener {
-                override fun onLocationChanged(location: Location) {
-                    animateTo(location)
-                    lm.removeUpdates(this)
-                }
-                @Deprecated("Deprecated in Java")
-                override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) = Unit
-                override fun onProviderEnabled(provider: String) = Unit
-                override fun onProviderDisabled(provider: String) = Unit
-            }, Looper.getMainLooper())
-        }
+        getCurrentLocation(onLocation = ::animateTo)
     }
 
     private fun animateTo(location: Location) {
@@ -175,15 +158,18 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 try {
-                    val stores = RetrofitClient.api.getStores().data?.stores
-                        ?.map { item -> item.toStore() }
-                        ?: emptyList()
-                    loadedStores = stores
-                    if (_binding != null) updateMapStores()
-                } catch (_: Exception) {
-                    if (_binding != null) {
-                        Snackbar.make(binding.root, "지도 매장 정보를 불러오지 못했어요.", Snackbar.LENGTH_SHORT).show()
+                    when (val result = repository.getStores()) {
+                        is Result.Success -> {
+                            loadedStores = result.data
+                            if (_binding != null) updateMapStores()
+                        }
+                        is Result.Error -> if (_binding != null) {
+                            Snackbar.make(binding.root, "지도 매장 정보를 불러오지 못했어요.", Snackbar.LENGTH_SHORT).show()
+                        }
+                        is Result.Loading -> Unit
                     }
+                } catch (_: Exception) {
+                    if (_binding != null) Snackbar.make(binding.root, "지도 매장 정보를 불러오지 못했어요.", Snackbar.LENGTH_SHORT).show()
                 }
             }
         }
@@ -217,36 +203,17 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    private fun populateBottomSheetCards(stores: List<Store>) {
-        if (_binding == null) return
-        val ctx = context ?: return
-        binding.llMapStores.removeAllViews()
-        stores.forEach { store ->
-            val cardBinding = ItemMapStoreCardBinding.inflate(
-                LayoutInflater.from(ctx), binding.llMapStores, false
+    private fun setupBottomSheetCards() {
+        mapStoreAdapter = MapStoreAdapter { store ->
+            if (_binding == null) return@MapStoreAdapter
+            findNavController().navigate(
+                R.id.action_map_to_storeDetail,
+                Bundle().apply { putLong("storeId", store.id) }
             )
-            cardBinding.tvEmoji.text = store.emoji
-            cardBinding.tvBadge.text = getString(R.string.label_discount_rate, store.discountRate)
-            cardBinding.tvName.text = store.name
-            cardBinding.tvTime.text = getString(R.string.label_minutes_left, store.minutesUntilClose)
-            cardBinding.tvPrice.text = store.discountedPrice.formatPrice()
-
-            val (clockIcon, clockColor) = if (store.minutesUntilClose <= 30) {
-                R.drawable.ic_clock to ContextCompat.getColor(ctx, R.color.danger)
-            } else {
-                R.drawable.ic_clock_warning to ContextCompat.getColor(ctx, R.color.warning)
-            }
-            cardBinding.tvTime.setTextColor(clockColor)
-            cardBinding.tvTime.setCompoundDrawablesWithIntrinsicBounds(clockIcon, 0, 0, 0)
-
-            cardBinding.cardRoot.setOnClickListener {
-                if (_binding == null) return@setOnClickListener
-                findNavController().navigate(
-                    R.id.action_map_to_storeDetail,
-                    Bundle().apply { putLong("storeId", store.id) }
-                )
-            }
-            binding.llMapStores.addView(cardBinding.root)
+        }
+        binding.rvMapStores.apply {
+            layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+            adapter = mapStoreAdapter
         }
     }
 
@@ -255,14 +222,14 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun setupCategoryChips() {
-        val chips = mapOf(
-            binding.chipAll to "전체",
-            binding.chipKorean to "한식",
-            binding.chipWestern to "양식",
-            binding.chipCafeDessert to "카페·디저트",
-            binding.chipBakery to "베이커리",
-            binding.chipCafe to "카페"
-        )
+        val chips = listOf(
+            binding.chipAll,
+            binding.chipKorean,
+            binding.chipWestern,
+            binding.chipCafeDessert,
+            binding.chipBakery,
+            binding.chipCafe,
+        ).zip(storeCategoryFilters).toMap()
         chips.bindCategorySelection(
             fragment = this,
             selected = { currentCategory },
@@ -276,7 +243,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private fun updateMapStores() {
         if (_binding == null) return
         val stores = filteredStores()
-        populateBottomSheetCards(stores)
+        mapStoreAdapter.submitList(stores)
         renderStoreMarkers(stores)
     }
 
@@ -314,4 +281,40 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun Store.hasValidLocation() = latitude != 0.0 && longitude != 0.0
+}
+
+private class MapStoreAdapter(
+    private val onClick: (Store) -> Unit,
+) : ListAdapter<Store, MapStoreAdapter.VH>(DiffCallback) {
+
+    inner class VH(private val binding: ItemMapStoreCardBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(store: Store) {
+            val ctx = binding.root.context
+            binding.tvEmoji.text = store.emoji
+            binding.tvBadge.text = ctx.getString(R.string.label_discount_rate, store.discountRate)
+            binding.tvName.text = store.name
+            binding.tvTime.text = ctx.getString(R.string.label_minutes_left, store.minutesUntilClose)
+            binding.tvPrice.text = store.discountedPrice.formatPrice()
+
+            val (clockIcon, clockColor) = if (store.minutesUntilClose <= 30) {
+                R.drawable.ic_clock to ContextCompat.getColor(ctx, R.color.danger)
+            } else {
+                R.drawable.ic_clock_warning to ContextCompat.getColor(ctx, R.color.warning)
+            }
+            binding.tvTime.setTextColor(clockColor)
+            binding.tvTime.setCompoundDrawablesWithIntrinsicBounds(clockIcon, 0, 0, 0)
+            binding.cardRoot.setOnClickListener { onClick(store) }
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = VH(
+        ItemMapStoreCardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+    )
+
+    override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(getItem(position))
+
+    companion object DiffCallback : DiffUtil.ItemCallback<Store>() {
+        override fun areItemsTheSame(oldItem: Store, newItem: Store) = oldItem.id == newItem.id
+        override fun areContentsTheSame(oldItem: Store, newItem: Store) = oldItem == newItem
+    }
 }

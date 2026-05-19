@@ -13,6 +13,7 @@ import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.data.Store
 import com.example.deuktemsiru_buyer.data.StoreRepository
+import com.example.deuktemsiru_buyer.data.storeCategoryFilters
 import com.example.deuktemsiru_buyer.databinding.FragmentWishlistBinding
 import com.example.deuktemsiru_buyer.network.RetrofitClient
 import com.example.deuktemsiru_buyer.ui.home.StoreAdapter
@@ -84,13 +85,16 @@ class WishlistFragment : Fragment() {
             },
             onWishlistClick = { store ->
                 viewLifecycleOwner.lifecycleScope.launch {
-                    runCatching {
-                        RetrofitClient.api.toggleWishlist(store.id.toLong())
+                    when (repository.toggleWishlist(store.id)) {
+                        is Result.Success -> {
                         allStores.removeAll { it.id == store.id }
                         updateList(filterStores())
                         Toast.makeText(requireContext(), "찜 목록에서 제거했어요", Toast.LENGTH_SHORT).show()
-                    }.onFailure {
+                        }
+                        is Result.Error -> {
                         Toast.makeText(requireContext(), "찜 처리 중 오류가 발생했어요.", Toast.LENGTH_SHORT).show()
+                        }
+                        is Result.Loading -> Unit
                     }
                 }
             }
@@ -102,14 +106,14 @@ class WishlistFragment : Fragment() {
     }
 
     private fun setupCategoryChips() {
-        val chips = mapOf(
-            binding.chipAll to "전체",
-            binding.chipKorean to "한식",
-            binding.chipWestern to "양식",
-            binding.chipCafeDessert to "카페·디저트",
-            binding.chipBakery to "베이커리",
-            binding.chipCafe to "카페"
-        )
+        val chips = listOf(
+            binding.chipAll,
+            binding.chipKorean,
+            binding.chipWestern,
+            binding.chipCafeDessert,
+            binding.chipBakery,
+            binding.chipCafe,
+        ).zip(storeCategoryFilters).toMap()
 
         chips.bindCategorySelection(
             fragment = this,

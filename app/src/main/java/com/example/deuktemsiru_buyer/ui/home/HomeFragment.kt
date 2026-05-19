@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.data.StoreRepository
+import com.example.deuktemsiru_buyer.data.storeCategoryFilters
 import com.example.deuktemsiru_buyer.databinding.FragmentHomeBinding
 import com.example.deuktemsiru_buyer.network.RetrofitClient
 import com.example.deuktemsiru_buyer.util.bindCategorySelection
@@ -37,14 +38,14 @@ class HomeFragment : Fragment() {
     private lateinit var storeAdapter: StoreAdapter
     private lateinit var session: SessionManager
     private val categoryChips by lazy {
-        mapOf(
-            binding.chipAll to "전체",
-            binding.chipKorean to "한식",
-            binding.chipWestern to "양식",
-            binding.chipCafeDessert to "카페·디저트",
-            binding.chipBakery to "베이커리",
-            binding.chipCafe to "카페",
-        )
+        listOf(
+            binding.chipAll,
+            binding.chipKorean,
+            binding.chipWestern,
+            binding.chipCafeDessert,
+            binding.chipBakery,
+            binding.chipCafe,
+        ).zip(storeCategoryFilters).toMap()
     }
 
     override fun onCreateView(

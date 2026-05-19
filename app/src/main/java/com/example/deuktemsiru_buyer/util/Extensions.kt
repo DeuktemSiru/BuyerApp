@@ -136,39 +136,18 @@ fun Map<TextView, String>.bindCategorySelection(
 }
 
 // S21 – Shared store filtering by category and query
-fun <T> List<T>.filterByCategory(
-    category: String,
-    query: String,
-    getCategoryApi: (T) -> String?,
-    getName: (T) -> String,
-    getCategory: (T) -> String,
-    getAddress: (T) -> String,
-    getMenuNames: (T) -> List<String>,
-): List<T> {
-    val apiCategory = if (category == "전체") null else {
-        com.example.deuktemsiru_buyer.data.categoryToApi(category)
-    }
+fun List<Store>.filterStores(category: String, query: String): List<Store> {
+    val apiCategory = if (category == "전체") null else categoryToApi(category)
     return filter { store ->
-        val matchesCategory = apiCategory == null || getCategoryApi(store) == apiCategory
+        val matchesCategory = apiCategory == null || categoryToApi(store.category) == apiCategory
         val matchesQuery = query.isBlank() ||
-            getName(store).contains(query, ignoreCase = true) ||
-            getCategory(store).contains(query, ignoreCase = true) ||
-            getAddress(store).contains(query, ignoreCase = true) ||
-            getMenuNames(store).any { it.contains(query, ignoreCase = true) }
+            store.name.contains(query, ignoreCase = true) ||
+            store.category.contains(query, ignoreCase = true) ||
+            store.address.contains(query, ignoreCase = true) ||
+            store.menus.any { it.name.contains(query, ignoreCase = true) }
         matchesCategory && matchesQuery
     }
 }
-
-fun List<Store>.filterStores(category: String, query: String): List<Store> =
-    filterByCategory(
-        category = category,
-        query = query,
-        getCategoryApi = { categoryToApi(it.category) },
-        getName = { it.name },
-        getCategory = { it.category },
-        getAddress = { it.address },
-        getMenuNames = { store -> store.menus.map { it.name } },
-    )
 
 fun TextView.updateCartBadge() {
     val count = CartManager.totalCount

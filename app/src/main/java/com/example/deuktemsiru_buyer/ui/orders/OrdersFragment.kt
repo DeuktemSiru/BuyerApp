@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.deuktemsiru_buyer.data.OrderRepository
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.FragmentOrdersBinding
 import com.example.deuktemsiru_buyer.databinding.ItemOrderHistoryBinding
@@ -22,6 +23,7 @@ class OrdersFragment : Fragment() {
 
     private var _binding: FragmentOrdersBinding? = null
     private val binding get() = _binding!!
+    private val orderRepository by lazy { OrderRepository(RetrofitClient.api) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,7 +45,7 @@ class OrdersFragment : Fragment() {
     private fun loadOrders() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val orders = RetrofitClient.api.getOrders().data ?: emptyList()
+                val orders = orderRepository.getOrders()
                 if (orders.isEmpty()) {
                     binding.rvOrders.visibility = View.GONE
                     binding.llEmpty.visibility = View.VISIBLE
