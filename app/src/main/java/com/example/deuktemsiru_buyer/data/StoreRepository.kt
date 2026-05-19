@@ -19,7 +19,7 @@ class StoreRepository(private val api: ApiService) {
     }
 
     suspend fun getStore(storeId: Long): Result<Store> = safeCall {
-        storeCache[storeId] ?: run {
+        storeCache[storeId]?.takeIf { it.menus.isNotEmpty() && it.address.isNotBlank() } ?: run {
             val response = api.getStore(storeId).data
                 ?: error("Store $storeId not found")
             response.toStore().also { storeCache[storeId] = it }

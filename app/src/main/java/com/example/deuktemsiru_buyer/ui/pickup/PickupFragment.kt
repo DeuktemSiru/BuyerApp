@@ -14,11 +14,14 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.deuktemsiru_buyer.R
+import com.example.deuktemsiru_buyer.data.OrderRepository
 import com.example.deuktemsiru_buyer.data.SessionManager
+import com.example.deuktemsiru_buyer.data.StoreRepository
 import com.example.deuktemsiru_buyer.databinding.FragmentPickupBinding
 import com.example.deuktemsiru_buyer.network.OrderDetailResponse
 import com.example.deuktemsiru_buyer.data.minutesUntilClose
 import com.example.deuktemsiru_buyer.network.RetrofitClient
+import com.example.deuktemsiru_buyer.util.Result
 import com.example.deuktemsiru_buyer.util.formatPrice
 import com.example.deuktemsiru_buyer.util.generateQrBitmap
 import com.example.deuktemsiru_buyer.util.startTimerInto
@@ -38,6 +41,8 @@ class PickupFragment : Fragment() {
     private var storeLat = 0.0
     private var storeLng = 0.0
     private var storeName = ""
+    private val orderRepository by lazy { OrderRepository(RetrofitClient.api) }
+    private val storeRepository by lazy { StoreRepository(RetrofitClient.api) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -97,17 +102,8 @@ class PickupFragment : Fragment() {
 
     private fun loadOrder(orderId: Long, storeId: Long) {
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val order = RetrofitClient.api.getOrder(orderId).data ?: run {
-                    showPendingUi()
-                    startStatusPolling(orderId, storeId)
-                    return@launch
-                }
-                applyOrderUi(order, storeId)
-            } catch (e: Exception) {
-                showPendingUi()
-                startStatusPolling(orderId, storeId)
-            }
+            val order = runCatching { orderRepository.getOrder(orderId) }.getOrNull()
+            if (order != null) applyOrderUi(order, storeId) else waitForConfirmedOrder(orderId, storeId)
         }
     }
 
@@ -115,8 +111,7 @@ class PickupFragment : Fragment() {
         if (order.status == "CONFIRMED") {
             showConfirmedUi(order)
         } else {
-            showPendingUi()
-            startStatusPolling(order.orderId, storeId)
+            waitForConfirmedOrder(order.orderId, storeId)
         }
         binding.tvStoreName.text = order.storeName
         binding.tvOrderMenu.text = order.items.joinToString(", ") { "${it.productName} x${it.quantity}" }
@@ -146,18 +141,17 @@ class PickupFragment : Fragment() {
         startCountdown(remainingSecondsUntil(pickupEndTime))
     }
 
-    private fun startStatusPolling(orderId: Long, storeId: Long) {
+    private fun waitForConfirmedOrder(orderId: Long, storeId: Long) {
+        showPendingUi()
         pollJob?.cancel()
         pollJob = viewLifecycleOwner.lifecycleScope.launch {
             while (_binding != null) {
                 delay(5_000)
-                try {
-                    val order = RetrofitClient.api.getOrder(orderId).data ?: continue
-                    if (order.status == "CONFIRMED") {
-                        applyOrderUi(order, storeId)
-                        break
-                    }
-                } catch (_: Exception) {}
+                val order = runCatching { orderRepository.getOrder(orderId) }.getOrNull() ?: continue
+                if (order.status == "CONFIRMED") {
+                    applyOrderUi(order, storeId)
+                    break
+                }
             }
         }
     }
@@ -165,8 +159,9 @@ class PickupFragment : Fragment() {
     private fun loadStoreFallback(storeId: Long) {
         if (storeId <= 0L) return
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val store = RetrofitClient.api.getStore(storeId).data ?: return@launch
+            when (val result = storeRepository.getStore(storeId)) {
+                is Result.Success -> {
+                    val store = result.data
                 storeLat = store.latitude
                 storeLng = store.longitude
                 if (storeName.isBlank()) {
@@ -175,8 +170,9 @@ class PickupFragment : Fragment() {
                 }
                 binding.tvStoreAddress.text = store.address
                 binding.tvStoreAddress.tag = store.phone
-            } catch (_: Exception) {
-                binding.tvStoreAddress.tag = ""
+                }
+                is Result.Error -> binding.tvStoreAddress.tag = ""
+                is Result.Loading -> Unit
             }
         }
     }

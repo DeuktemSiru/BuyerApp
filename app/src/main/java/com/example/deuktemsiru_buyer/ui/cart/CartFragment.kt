@@ -1,7 +1,6 @@
 package com.example.deuktemsiru_buyer.ui.cart
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
@@ -15,15 +14,13 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.CartManager
-import com.example.deuktemsiru_buyer.data.CartItem
+import com.example.deuktemsiru_buyer.data.CartRepository
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.FragmentCartBinding
 import com.example.deuktemsiru_buyer.network.RetrofitClient
-import com.example.deuktemsiru_buyer.network.CartUpdateRequest
 import com.example.deuktemsiru_buyer.util.formatDistanceMeters
 import com.example.deuktemsiru_buyer.util.formatPrice
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
+import com.example.deuktemsiru_buyer.util.getCurrentLocation
 import kotlinx.coroutines.launch
 
 class CartFragment : Fragment() {
@@ -32,6 +29,7 @@ class CartFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var adapter: CartAdapter
     private lateinit var session: SessionManager
+    private lateinit var cartRepository: CartRepository
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentCartBinding.inflate(inflater, container, false)
@@ -41,26 +39,27 @@ class CartFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         session = SessionManager(requireContext())
+        cartRepository = CartRepository(RetrofitClient.api, session)
 
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
 
         adapter = CartAdapter(
             items = CartManager.items,
             onDelete = { item ->
-                syncCart({ removeServerItem(item.menuId) }) {
+                syncCart({ cartRepository.removeProduct(item.menuId) }) {
                     CartManager.remove(item.menuId)
                 }
             },
             onIncrease = { item ->
-                syncCart({ syncServerQuantity(item.menuId, item.quantity + 1) }) {
+                syncCart({ cartRepository.setQuantity(item.menuId, item.quantity + 1) }) {
                     CartManager.increaseQuantity(item.menuId)
                 }
             },
             onDecrease = { item ->
                 val nextQuantity = item.quantity - 1
                 syncCart({
-                    if (nextQuantity <= 0) removeServerItem(item.menuId)
-                    else syncServerQuantity(item.menuId, nextQuantity)
+                    if (nextQuantity <= 0) cartRepository.removeProduct(item.menuId)
+                    else cartRepository.setQuantity(item.menuId, nextQuantity)
                 }) {
                     CartManager.decreaseQuantity(item.menuId)
                 }
@@ -81,7 +80,7 @@ class CartFragment : Fragment() {
         binding.btnDeleteSelected.setOnClickListener {
             viewLifecycleOwner.lifecycleScope.launch {
                 adapter.selectedIds.toList().forEach {
-                    if (removeServerItem(it)) CartManager.remove(it)
+                    if (cartRepository.removeProduct(it)) CartManager.remove(it)
                 }
                 refresh()
             }
@@ -122,62 +121,11 @@ class CartFragment : Fragment() {
     }
 
     private fun loadServerCart() {
-        if (!session.isLoggedIn()) return
         viewLifecycleOwner.lifecycleScope.launch {
-            runCatching { RetrofitClient.api.getCart().data }
-                .onSuccess { cart ->
-                    val items = cart?.items.orEmpty()
-                    if (items.isNotEmpty()) {
-                        val first = items.first()
-                        CartManager.replaceFromServer(
-                            storeId = first.storeId,
-                            storeName = first.storeName,
-                            storeLat = first.storeLatitude,
-                            storeLng = first.storeLongitude,
-                            items = items.map {
-                                CartItem(
-                                    menuId = it.productId,
-                                    menuName = it.productName,
-                                    emoji = "🛍️",
-                                    originalPrice = it.originalPrice,
-                                    discountedPrice = it.discountPrice,
-                                    pickupStart = it.pickupStart,
-                                    pickupEnd = it.pickupEnd,
-                                    quantity = it.quantity,
-                                )
-                            },
-                            serverIds = items.associate { it.productId to it.cartItemId },
-                        )
-                    } else {
-                        CartManager.clear()
-                    }
-                    refresh()
-                    fetchDistanceAndCarbon()
-                }
-                .onFailure {
-                    fetchDistanceAndCarbon()
-                }
+            cartRepository.loadServerCart()
+            refresh()
+            fetchDistanceAndCarbon()
         }
-    }
-
-    private suspend fun removeServerItem(productId: Long): Boolean {
-        return withServerCartItem(productId) { cartItemId ->
-            RetrofitClient.api.removeCartItem(cartItemId)
-        }
-    }
-
-    private suspend fun syncServerQuantity(productId: Long, quantity: Int): Boolean {
-        return withServerCartItem(productId) { cartItemId ->
-            RetrofitClient.api.updateCartItem(cartItemId, CartUpdateRequest(quantity))
-        }
-    }
-
-    private suspend fun withServerCartItem(productId: Long, action: suspend (Long) -> Unit): Boolean {
-        val cartItemId = CartManager.serverCartItemIds[productId] ?: return true
-        if (!session.isLoggedIn()) return true
-        return runCatching { action(cartItemId) }
-            .onFailure { loadServerCart() }
-            .isSuccess
     }
 
     private fun refresh() {
@@ -214,7 +162,6 @@ class CartFragment : Fragment() {
                                 else "약 ${grams}g CO₂"
     }
 
-    @SuppressLint("MissingPermission")
     private fun fetchDistanceAndCarbon() {
         val storeLat = CartManager.storeLat
         val storeLng = CartManager.storeLng
@@ -234,28 +181,12 @@ class CartFragment : Fragment() {
             return
         }
 
-        val fusedClient = LocationServices.getFusedLocationProviderClient(requireContext())
-        fusedClient.lastLocation
-            .addOnSuccessListener { location: Location? ->
-                if (_binding == null) return@addOnSuccessListener
-                if (location != null) {
-                    showDistance(location, storeLat, storeLng)
-                } else {
-                    // lastLocation null (에뮬레이터 등) → 신선한 위치 요청
-                    fusedClient.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, null)
-                        .addOnSuccessListener { fresh: Location? ->
-                            if (_binding == null) return@addOnSuccessListener
-                            if (fresh != null) showDistance(fresh, storeLat, storeLng)
-                            else binding.tvDistance.text = "위치 확인 불가"
-                        }
-                        .addOnFailureListener {
-                            if (_binding != null) binding.tvDistance.text = "위치 확인 불가"
-                        }
-                }
-            }
-            .addOnFailureListener {
+        getCurrentLocation(
+            onUnavailable = {
                 if (_binding != null) binding.tvDistance.text = "위치 확인 불가"
-            }
+            },
+            onLocation = { location -> if (_binding != null) showDistance(location, storeLat, storeLng) },
+        )
     }
 
     private fun showDistance(userLocation: Location, storeLat: Double, storeLng: Double) {

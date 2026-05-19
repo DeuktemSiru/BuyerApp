@@ -12,13 +12,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.CartItem
 import com.example.deuktemsiru_buyer.data.CartManager
+import com.example.deuktemsiru_buyer.data.CartRepository
 import com.example.deuktemsiru_buyer.data.MenuItem
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.data.Store
-import com.example.deuktemsiru_buyer.data.toStore
+import com.example.deuktemsiru_buyer.data.StoreRepository
 import com.example.deuktemsiru_buyer.databinding.FragmentStoreDetailBinding
-import com.example.deuktemsiru_buyer.network.CartAddRequest
 import com.example.deuktemsiru_buyer.network.RetrofitClient
+import com.example.deuktemsiru_buyer.util.Result
 import com.example.deuktemsiru_buyer.util.formatPrice
 import com.example.deuktemsiru_buyer.util.startTimerInto
 import com.example.deuktemsiru_buyer.util.updateCartBadge
@@ -39,6 +40,8 @@ class StoreDetailFragment : Fragment() {
     private var selectedMenuId: Long = 0
     private var isWishlisted = false
     private lateinit var session: SessionManager
+    private lateinit var cartRepository: CartRepository
+    private val storeRepository by lazy { StoreRepository(RetrofitClient.api) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,6 +55,7 @@ class StoreDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         session = SessionManager(requireContext())
+        cartRepository = CartRepository(RetrofitClient.api, session)
         val storeId = arguments?.getLong("storeId") ?: 0L
         if (storeId <= 0L) {
             Snackbar.make(binding.root, "가게 정보를 확인할 수 없어요.", Snackbar.LENGTH_SHORT).show()
@@ -73,18 +77,18 @@ class StoreDetailFragment : Fragment() {
 
     private fun loadStore(storeId: Long) {
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val response = RetrofitClient.api.getStore(storeId).data ?: run {
-                    findNavController().popBackStack()
-                    return@launch
+            when (val result = storeRepository.getStore(storeId)) {
+                is Result.Success -> {
+                    val store = result.data
+                    currentStore = store
+                    isWishlisted = store.isWishlisted
+                    bindStore(store)
                 }
-                val store = response.toStore()
-                currentStore = store
-                isWishlisted = store.isWishlisted
-                bindStore(store)
-            } catch (e: Exception) {
-                Snackbar.make(binding.root, "가게 정보를 불러오지 못했어요.", Snackbar.LENGTH_SHORT).show()
-                findNavController().popBackStack()
+                is Result.Error -> {
+                    Snackbar.make(binding.root, "가게 정보를 불러오지 못했어요.", Snackbar.LENGTH_SHORT).show()
+                    findNavController().popBackStack()
+                }
+                is Result.Loading -> Unit
             }
         }
     }
@@ -157,7 +161,7 @@ class StoreDetailFragment : Fragment() {
                 .setMessage("장바구니에 ${CartManager.storeName}의 메뉴가 담겨있어요.\n비우고 ${store.name} 메뉴를 담을까요?")
                 .setPositiveButton("비우고 담기") { _, _ ->
                     viewLifecycleOwner.lifecycleScope.launch {
-                        if (session.isLoggedIn()) runCatching { RetrofitClient.api.clearCart() }
+                        cartRepository.clearServerCart()
                         CartManager.clear()
                         addSyncedToCart(store, item)
                     }
@@ -179,17 +183,11 @@ class StoreDetailFragment : Fragment() {
     }
 
     private suspend fun syncCartAdd(productId: Long): Boolean {
-        if (!session.isLoggedIn()) return true
-        return runCatching {
-            val item = RetrofitClient.api.addToCart(CartAddRequest(productId = productId, quantity = 1)).data
-            if (item != null) {
-                CartManager.addServerCartItemId(item.productId, item.cartItemId)
-            }
-            item != null
-        }.getOrElse {
+        val synced = cartRepository.addProduct(productId)
+        if (!synced) {
             Snackbar.make(binding.root, "서버 장바구니 동기화에 실패했어요.", Snackbar.LENGTH_SHORT).show()
-            false
         }
+        return synced
     }
 
     private fun updateCartBadge() {
@@ -200,17 +198,17 @@ class StoreDetailFragment : Fragment() {
     private fun toggleWishlist(store: Store) {
         if (!session.isLoggedIn()) return
         viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                isWishlisted = RetrofitClient.api
-                    .toggleWishlist(store.id)
-                    .data
-                    ?.isWishlisted
-                    ?: !isWishlisted
-                updateWishlistButtons()
-                val msg = if (isWishlisted) "찜 목록에 추가했어요 💝" else "찜 목록에서 제거했어요"
-                Snackbar.make(binding.root, msg, Snackbar.LENGTH_SHORT).show()
-            } catch (e: Exception) {
-                Snackbar.make(binding.root, "찜 처리 중 오류가 발생했어요.", Snackbar.LENGTH_SHORT).show()
+            when (val result = storeRepository.toggleWishlist(store.id)) {
+                is Result.Success -> {
+                    isWishlisted = result.data
+                    updateWishlistButtons()
+                    val msg = if (isWishlisted) "찜 목록에 추가했어요 💝" else "찜 목록에서 제거했어요"
+                    Snackbar.make(binding.root, msg, Snackbar.LENGTH_SHORT).show()
+                }
+                is Result.Error -> {
+                    Snackbar.make(binding.root, "찜 처리 중 오류가 발생했어요.", Snackbar.LENGTH_SHORT).show()
+                }
+                is Result.Loading -> Unit
             }
         }
     }

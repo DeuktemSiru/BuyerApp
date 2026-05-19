@@ -299,20 +299,14 @@
             android:fontFamily="sans-serif-medium"
             android:textColor="@color/color_text" />
 
-        <HorizontalScrollView
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_map_stores"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars="none"
             android:paddingHorizontal="@dimen/spacing_lg"
             android:paddingBottom="16dp"
-            android:clipToPadding="false">
-
-            <LinearLayout
-                android:id="@+id/ll_map_stores"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" />
-        </HorizontalScrollView>
+            android:clipToPadding="false"
+            android:orientation="horizontal" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

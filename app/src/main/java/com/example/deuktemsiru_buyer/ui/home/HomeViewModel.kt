@@ -30,14 +30,13 @@ class HomeViewModel(private val repository: StoreRepository) : ViewModel() {
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     init {
-        loadStores(null)
+        loadStores()
     }
 
-    fun loadStores(category: String?) {
-        val cat = if (category == "전체") null else category
+    fun loadStores() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
-            when (val result = repository.getStores(cat)) {
+            when (val result = repository.getStores()) {
                 is Result.Success -> {
                     val stores = result.data
                     _uiState.update { state ->
@@ -64,8 +63,12 @@ class HomeViewModel(private val repository: StoreRepository) : ViewModel() {
     }
 
     fun selectCategory(category: String) {
-        _uiState.update { it.copy(selectedCategory = category) }
-        loadStores(if (category == "전체") null else category)
+        _uiState.update { state ->
+            state.copy(
+                selectedCategory = category,
+                filteredStores = state.stores.filterStores(category, state.searchQuery),
+            )
+        }
     }
 
     fun updateSearch(query: String) {
@@ -83,7 +86,7 @@ class HomeViewModel(private val repository: StoreRepository) : ViewModel() {
             updateWishlistState(store.id, optimisticValue)
             when (val result = repository.toggleWishlist(store.id.toLong())) {
                 is Result.Success -> {
-                    updateWishlistState(store.id, result.data)
+                    updateWishlistState(store.id, optimisticValue)
                 }
                 is Result.Error -> {
                     updateWishlistState(store.id, store.isWishlisted)

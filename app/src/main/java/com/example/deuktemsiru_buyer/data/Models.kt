@@ -4,6 +4,7 @@ import com.example.deuktemsiru_buyer.network.StoreDetailApiResponse
 import com.example.deuktemsiru_buyer.network.StoreListItemResponse
 import com.example.deuktemsiru_buyer.network.StoreProductItem
 import com.example.deuktemsiru_buyer.network.WishlistItemResponse
+import com.example.deuktemsiru_buyer.network.CartApiItem
 import java.util.Calendar
 
 data class Store(
@@ -44,6 +45,8 @@ private object StoreDefaults {
     const val CLOSE_MINUTES = 60
 }
 
+val storeCategoryFilters = listOf("전체", "한식", "양식", "카페·디저트", "베이커리", "카페")
+
 fun StoreDetailApiResponse.toStore(isWishlisted: Boolean = this.isWishlisted): Store {
     val menus = products.map { it.toMenuItem() }
     val rep = menus.firstOrNull { !it.isSoldOut } ?: menus.firstOrNull()
@@ -68,13 +71,53 @@ fun StoreDetailApiResponse.toStore(isWishlisted: Boolean = this.isWishlisted): S
     )
 }
 
-fun StoreListItemResponse.toStore() = Store(
+fun StoreListItemResponse.toStore() = toStoreSummary(
+    storeId = storeId,
+    name = name,
+    category = category,
+    ratingAvg = ratingAvg,
+    walkingMinutes = (distanceM / 80).coerceAtLeast(1),
+    representativeDiscountRate = representativeDiscountRate,
+    representativeOriginalPrice = representativeOriginalPrice,
+    representativeDiscountPrice = representativeDiscountPrice,
+    availableProductCount = availableProductCount,
+    representativePickupEnd = representativePickupEnd,
+    isWishlisted = isWishlisted,
+)
+
+fun WishlistItemResponse.toStore() = toStoreSummary(
+    storeId = storeId,
+    name = name,
+    category = category,
+    ratingAvg = ratingAvg,
+    walkingMinutes = StoreDefaults.WALKING_MINUTES,
+    representativeDiscountRate = representativeDiscountRate,
+    representativeOriginalPrice = representativeOriginalPrice,
+    representativeDiscountPrice = representativeDiscountPrice,
+    availableProductCount = availableProductCount,
+    representativePickupEnd = representativePickupEnd,
+    isWishlisted = true,
+)
+
+private fun toStoreSummary(
+    storeId: Long,
+    name: String,
+    category: String,
+    ratingAvg: Double,
+    walkingMinutes: Int,
+    representativeDiscountRate: Int,
+    representativeOriginalPrice: Int,
+    representativeDiscountPrice: Int,
+    availableProductCount: Int,
+    representativePickupEnd: String?,
+    isWishlisted: Boolean,
+) = Store(
     id = storeId,
     name = name,
     category = categoryToDisplay(category),
     emoji = categoryEmoji(category),
     rating = ratingAvg.toFloat(),
-    walkingMinutes = (distanceM / 80).coerceAtLeast(1),
+    walkingMinutes = walkingMinutes,
     discountRate = representativeDiscountRate,
     originalPrice = representativeOriginalPrice,
     discountedPrice = representativeDiscountPrice,
@@ -83,23 +126,6 @@ fun StoreListItemResponse.toStore() = Store(
     address = "",
     phone = "",
     isWishlisted = isWishlisted,
-)
-
-fun WishlistItemResponse.toStore() = Store(
-    id = storeId,
-    name = name,
-    category = categoryToDisplay(category),
-    emoji = categoryEmoji(category),
-    rating = ratingAvg.toFloat(),
-    walkingMinutes = StoreDefaults.WALKING_MINUTES,
-    discountRate = representativeDiscountRate,
-    originalPrice = representativeOriginalPrice,
-    discountedPrice = representativeDiscountPrice,
-    remainingItems = availableProductCount,
-    minutesUntilClose = representativePickupEnd?.let { minutesUntilClose(it) } ?: StoreDefaults.CLOSE_MINUTES,
-    address = "",
-    phone = "",
-    isWishlisted = true,
 )
 
 fun StoreProductItem.toMenuItem(): MenuItem {
@@ -123,6 +149,17 @@ fun StoreProductItem.toMenuItem(): MenuItem {
 }
 
 fun StoreProductItem.pickupMinutesUntilClose() = minutesUntilClose(pickupEnd)
+
+fun CartApiItem.toCartItem() = CartItem(
+    menuId = productId,
+    menuName = productName,
+    emoji = "🛍️",
+    originalPrice = originalPrice,
+    discountedPrice = discountPrice,
+    pickupStart = pickupStart,
+    pickupEnd = pickupEnd,
+    quantity = quantity,
+)
 
 private fun categoryEmoji(category: String?) = when (category) {
     "BAKERY" -> "🥐"
