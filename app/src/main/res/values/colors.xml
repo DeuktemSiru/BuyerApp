@@ -11,16 +11,16 @@
     <!-- ============================================================ -->
 
     <!-- Primary -->
-    <color name="md_theme_light_primary">#C94B28</color>
+    <color name="md_theme_light_primary">#FFC94B28</color>
     <color name="md_theme_light_onPrimary">#FFFFFF</color>
-    <color name="md_theme_light_primaryContainer">#FFE7DE</color>
+    <color name="md_theme_light_primaryContainer">#FFFFE7DE</color>
     <color name="md_theme_light_onPrimaryContainer">#3F0D05</color>
     <color name="md_theme_light_inversePrimary">#FFBDAA</color>
 
     <!-- Secondary (시루 그린) -->
-    <color name="md_theme_light_secondary">#1D7F52</color>
+    <color name="md_theme_light_secondary">#FF1D7F52</color>
     <color name="md_theme_light_onSecondary">#FFFFFF</color>
-    <color name="md_theme_light_secondaryContainer">#B0F1D2</color>
+    <color name="md_theme_light_secondaryContainer">#FFB0F1D2</color>
     <color name="md_theme_light_onSecondaryContainer">#002116</color>
 
     <!-- Tertiary (골드) -->
@@ -36,19 +36,19 @@
     <color name="md_theme_light_onErrorContainer">#410002</color>
 
     <!-- Surface & Background (따뜻한 오프화이트) -->
-    <color name="md_theme_light_background">#FFFBF8</color>
+    <color name="md_theme_light_background">#FFF5EFEC</color>
     <color name="md_theme_light_onBackground">#1A1110</color>
-    <color name="md_theme_light_surface">#FFFBF8</color>
+    <color name="md_theme_light_surface">#FFFFFBF8</color>
     <color name="md_theme_light_onSurface">#1A1110</color>
-    <color name="md_theme_light_surfaceVariant">#F5EFEC</color>
+    <color name="md_theme_light_surfaceVariant">#FFF5EFEC</color>
     <color name="md_theme_light_onSurfaceVariant">#534341</color>
-    <color name="md_theme_light_surfaceTint">#C94B28</color>
+    <color name="md_theme_light_surfaceTint">#FFC94B28</color>
     <color name="md_theme_light_inverseSurface">#362F2E</color>
     <color name="md_theme_light_inverseOnSurface">#FFEDEA</color>
 
     <!-- Outline -->
     <color name="md_theme_light_outline">#857370</color>
-    <color name="md_theme_light_outlineVariant">#E2C8C0</color>
+    <color name="md_theme_light_outlineVariant">#FFE2C8C0</color>
 
     <!-- Scrim -->
     <color name="md_theme_light_scrim">#000000</color>
@@ -95,20 +95,33 @@
     <!-- ============================================================ -->
     <!-- Semantic aliases — 기존 레이아웃 호환 유지 (Light 기준 직접 값) -->
     <!-- ============================================================ -->
-    <color name="primary">#C94B28</color>
-    <color name="primary_light">#FFE7DE</color>
-    <color name="primary_dark">#8A2F19</color>
-    <color name="danger">#E53935</color>
-    <color name="warning">#E07800</color>
-    <color name="success">#1D7F52</color>
-    <color name="siru_green">#1D7F52</color>
-    <color name="siru_light">#B0F1D2</color>
-    <color name="color_text">#1A1110</color>
-    <color name="color_text_sub">#534341</color>
-    <color name="color_text_muted">#998C8A</color>
-    <color name="color_border">#E2C8C0</color>
-    <color name="color_surface">#F5EFEC</color>
-    <color name="color_button_dark_text">#FFEDEA</color>
-    <color name="color_border_light">#EDE8E5</color>
+    <color name="primary">#FFC94B28</color>
+    <color name="primary_light">#FFFFE7DE</color>
+    <color name="primary_dark">#FF8A2F19</color>
+    <color name="danger">#FFE53935</color>
+    <color name="warning">#FFE07800</color>
+    <color name="success">#FF1D7F52</color>
+    <color name="success_light">#FFB0F1D2</color>
+    <color name="online">#FF1D7F52</color>
+    <color name="siru_green">#FF1D7F52</color>
+    <color name="siru_light">#FFB0F1D2</color>
+    <color name="surface">#FFF5EFEC</color>
+    <color name="surface_alt">#FFFFFBF8</color>
+    <color name="text">#FF1A1110</color>
+    <color name="text_sub">#FF534341</color>
+    <color name="text_muted">#FF998C8A</color>
+    <color name="border">#FFE2C8C0</color>
+    <color name="border_light">#FFEDE8E5</color>
+    <color name="color_text">#FF1A1110</color>
+    <color name="color_text_sub">#FF534341</color>
+    <color name="color_text_muted">#FF998C8A</color>
+    <color name="color_border">#FFE2C8C0</color>
+    <color name="color_surface">#FFF5EFEC</color>
+    <color name="color_button_dark_text">#FFFFEDEA</color>
+    <color name="color_border_light">#FFEDE8E5</color>
+    <color name="neu_highlight">#FFFFFFFF</color>
+    <color name="neu_shadow">#24C7B3AD</color>
+    <color name="neu_shadow_strong">#33B69C94</color>
     <color name="color_overlay">#80000000</color>
+    <color name="transparent">#00000000</color>
 </resources>

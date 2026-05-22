@@ -22,6 +22,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="@drawable/bg_surface_card"
+    android:elevation="2dp"
             android:src="@drawable/ic_back"
             android:contentDescription="뒤로가기"
             android:padding="8dp" />
@@ -57,7 +58,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:orientation="vertical"
-        android:background="@color/white"
+        android:background="@color/md_theme_light_surface"
         android:paddingTop="16dp"
         android:paddingBottom="24dp"
         android:paddingHorizontal="20dp"
@@ -130,6 +131,7 @@
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:background="@drawable/bg_surface_card"
+    android:elevation="2dp"
             android:padding="12dp">
 
             <View

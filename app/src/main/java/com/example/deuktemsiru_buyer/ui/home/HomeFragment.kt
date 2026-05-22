@@ -143,6 +143,7 @@ class HomeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        viewModel.loadStores(showLoading = false)
         updateCartBadge()
     }
 

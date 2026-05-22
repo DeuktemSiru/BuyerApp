@@ -33,9 +33,9 @@ class HomeViewModel(private val repository: StoreRepository) : ViewModel() {
         loadStores()
     }
 
-    fun loadStores() {
+    fun loadStores(showLoading: Boolean = true) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            _uiState.update { it.copy(isLoading = showLoading, error = null) }
             when (val result = repository.getStores()) {
                 is Result.Success -> {
                     val stores = result.data
@@ -86,7 +86,7 @@ class HomeViewModel(private val repository: StoreRepository) : ViewModel() {
             updateWishlistState(store.id, optimisticValue)
             when (val result = repository.toggleWishlist(store.id.toLong())) {
                 is Result.Success -> {
-                    updateWishlistState(store.id, optimisticValue)
+                    updateWishlistState(store.id, result.data)
                 }
                 is Result.Error -> {
                     updateWishlistState(store.id, store.isWishlisted)

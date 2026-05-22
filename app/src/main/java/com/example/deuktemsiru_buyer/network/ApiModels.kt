@@ -54,6 +54,7 @@ data class StoreListItemResponse(
     val representativeDiscountPrice: Int = 0,
     val representativeDiscountRate: Int = 0,
     val representativePickupEnd: String? = null,
+    @SerializedName(value = "isWishlisted", alternate = ["wishlisted"])
     val isWishlisted: Boolean = false,
 )
 
@@ -71,6 +72,7 @@ data class StoreDetailApiResponse(
     val ratingAvg: Double,
     val reviewCount: Int,
     val products: List<StoreProductItem>,
+    @SerializedName(value = "isWishlisted", alternate = ["wishlisted"])
     val isWishlisted: Boolean = false,
 )
 
@@ -88,6 +90,7 @@ data class StoreProductItem(
 // ── 찜 ─────────────────────────────────────────────────────
 data class WishlistToggleResponse(
     val storeId: Long,
+    @SerializedName(value = "isWishlisted", alternate = ["wishlisted"])
     val isWishlisted: Boolean,
 )
 

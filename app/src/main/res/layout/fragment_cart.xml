@@ -12,8 +12,8 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@color/white"
-        android:elevation="4dp"
+        android:background="@color/md_theme_light_surface"
+        android:elevation="0dp"
         android:paddingTop="12dp"
         android:paddingBottom="12dp"
         android:paddingStart="4dp"
@@ -24,7 +24,8 @@
             android:layout_width="@dimen/touch_target_min"
             android:layout_height="@dimen/touch_target_min"
             android:src="@drawable/ic_back"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:background="@drawable/bg_icon_button"
+            android:padding="10dp"
             android:contentDescription="뒤로가기" />
 
         <TextView
@@ -60,9 +61,11 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:background="@color/white"
+                android:background="@drawable/bg_card_flat"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="14dp"
+                android:layout_marginHorizontal="@dimen/spacing_lg"
+                android:layout_marginTop="@dimen/spacing_lg"
                 android:layout_marginBottom="8dp">
 
                 <!-- Store emoji -->
@@ -92,6 +95,7 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:background="@drawable/bg_surface_card"
+    android:elevation="2dp"
                     android:paddingHorizontal="10dp"
                     android:paddingVertical="5dp">
 
@@ -120,9 +124,10 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:background="@color/white"
+                android:background="@drawable/bg_card_flat"
                 android:paddingHorizontal="16dp"
-                android:paddingVertical="10dp">
+                android:paddingVertical="10dp"
+                android:layout_marginHorizontal="@dimen/spacing_lg">
 
                 <CheckBox
                     android:id="@+id/cb_select_all"
@@ -163,7 +168,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
-                android:background="@color/white" />
+                android:background="@color/color_surface"
+                android:paddingHorizontal="@dimen/spacing_lg"
+                android:clipToPadding="false" />
 
             <!-- + 더 담으러 가기 -->
             <LinearLayout
@@ -172,7 +179,7 @@
                 android:layout_height="48dp"
                 android:orientation="horizontal"
                 android:gravity="center"
-                android:background="@color/white"
+                android:background="@color/md_theme_light_surface"
                 android:layout_marginTop="1dp">
 
                 <TextView
@@ -196,10 +203,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@color/white"
+                android:background="@drawable/bg_card_flat"
                 android:paddingHorizontal="20dp"
                 android:paddingTop="16dp"
-                android:paddingBottom="20dp">
+                android:paddingBottom="20dp"
+                android:layout_marginHorizontal="@dimen/spacing_lg">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_value_strip"
+                    android:gravity="center"
+                    android:paddingVertical="10dp"
+                    android:text="마감 할인으로 오늘 결제 금액을 줄였어요"
+                    android:textColor="@color/siru_green"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginBottom="14dp" />
 
                 <!-- 총 주문금액 -->
                 <LinearLayout
@@ -336,7 +356,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@color/white"
+        android:background="@color/md_theme_light_surface"
         android:padding="@dimen/spacing_lg"
         android:elevation="8dp">
 

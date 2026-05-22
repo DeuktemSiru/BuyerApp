@@ -34,7 +34,7 @@
     <dimen name="emoji_lg">24sp</dimen>
 
     <!-- Card -->
-    <dimen name="card_elevation">0dp</dimen>
+    <dimen name="card_elevation">6dp</dimen>
     <dimen name="card_stroke_width">1dp</dimen>
 
     <!-- Typography -->

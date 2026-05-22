@@ -5,10 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.OrderRepository
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.FragmentOrdersBinding
@@ -93,6 +95,14 @@ private class OrderHistoryAdapter(
         b.tvStoreName.text = order.storeName
         b.tvOrderNumber.text = "#${order.orderId}"
         b.tvStatus.text = orderStatusLabel(order.status)
+        val (statusBackground, statusTextColor) = when (order.status) {
+            "CONFIRMED", "PREPARING", "READY" -> R.drawable.bg_order_status_primary to R.color.primary
+            "PICKED_UP", "COMPLETED" -> R.drawable.bg_order_status_success to R.color.success
+            "CANCELLED" -> R.drawable.bg_order_status_muted to R.color.color_text_muted
+            else -> R.drawable.bg_order_status_muted to R.color.color_text_sub
+        }
+        b.tvStatus.setBackgroundResource(statusBackground)
+        b.tvStatus.setTextColor(ContextCompat.getColor(b.root.context, statusTextColor))
         b.tvMenuSummary.text = "주문 상품 ${order.itemCount}개"
         b.tvTotalAmount.text = order.totalPrice.formatPrice()
         b.tvPickupTime.text = "주문: ${order.createdAt.substringBefore('T')}"

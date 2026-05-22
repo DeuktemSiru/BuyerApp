@@ -12,11 +12,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@color/white"
+        android:background="@color/md_theme_light_surface"
         android:paddingHorizontal="@dimen/spacing_lg"
         android:paddingTop="16dp"
         android:paddingBottom="12dp"
-        android:elevation="4dp">
+        android:elevation="0dp">
 
         <!-- Top row: location + icons -->
         <LinearLayout
@@ -67,7 +67,8 @@
                 android:layout_width="@dimen/touch_target_min"
                 android:layout_height="@dimen/touch_target_min"
                 android:src="@drawable/ic_bell"
-                android:background="?attr/selectableItemBackgroundBorderless"
+                android:background="@drawable/bg_icon_button"
+                android:padding="10dp"
                 android:contentDescription="알림" />
 
             <FrameLayout
@@ -79,7 +80,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:src="@drawable/ic_cart"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="@drawable/bg_icon_button"
+                    android:padding="10dp"
                     android:contentDescription="장바구니" />
 
                 <TextView
@@ -248,8 +250,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@color/white"
                 android:paddingBottom="4dp"
+                android:layout_marginHorizontal="@dimen/spacing_lg"
+                android:layout_marginTop="14dp"
                 android:layout_marginBottom="8dp">
 
                 <LinearLayout
@@ -257,7 +260,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:paddingHorizontal="@dimen/spacing_lg"
+                    android:paddingHorizontal="@dimen/spacing_md"
                     android:paddingTop="16dp"
                     android:paddingBottom="12dp">
 
@@ -284,7 +287,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:scrollbars="none"
-                    android:paddingHorizontal="@dimen/spacing_lg"
+                    android:paddingHorizontal="@dimen/spacing_md"
                     android:paddingBottom="16dp"
                     android:clipToPadding="false">
 
@@ -301,14 +304,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@color/white">
+                android:layout_marginHorizontal="@dimen/spacing_lg"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:paddingHorizontal="@dimen/spacing_lg"
+                    android:paddingHorizontal="@dimen/spacing_md"
                     android:paddingTop="16dp"
                     android:paddingBottom="12dp">
 
@@ -326,7 +331,6 @@
                     android:id="@+id/rv_stores"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingHorizontal="@dimen/spacing_lg"
                     android:paddingBottom="8dp"
                     android:clipToPadding="false"
                     android:nestedScrollingEnabled="false" />

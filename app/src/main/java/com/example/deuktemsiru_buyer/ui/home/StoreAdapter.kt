@@ -36,8 +36,8 @@ class StoreAdapter(
             binding.tvStock.text = "${store.remainingItems}개 남음"
 
             val mins = store.minutesUntilClose
-            binding.tvTimeLeft.text = "${mins}분 후 마감"
-            val timeColor = if (mins <= 30) R.color.danger else R.color.warning
+            binding.tvTimeLeft.text = "${mins}분 후"
+            val timeColor = if (mins <= 30) R.color.warning else R.color.color_text_sub
             binding.tvTimeLeft.setTextColor(ContextCompat.getColor(ctx, timeColor))
             val clockRes = if (mins <= 30) R.drawable.ic_clock else R.drawable.ic_clock_warning
             binding.ivClock.setImageResource(clockRes)
