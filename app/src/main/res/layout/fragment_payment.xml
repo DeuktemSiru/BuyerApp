@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@color/white"
+        android:background="@color/md_theme_light_surface"
         android:paddingHorizontal="@dimen/spacing_sm"
         android:paddingVertical="@dimen/spacing_xs">
 
@@ -54,7 +54,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@color/white"
+                android:background="@color/md_theme_light_surface"
                 android:padding="@dimen/spacing_lg"
                 android:layout_marginBottom="8dp">
 
@@ -147,11 +147,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@color/white"
+                android:background="@color/md_theme_light_surface"
                 android:paddingHorizontal="@dimen/spacing_lg"
                 android:paddingTop="@dimen/spacing_lg"
                 android:paddingBottom="@dimen/spacing_lg"
                 android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_value_strip"
+                    android:gravity="center"
+                    android:paddingVertical="10dp"
+                    android:text="시루 결제와 마감 할인 혜택을 함께 적용해요"
+                    android:textColor="@color/siru_green"
+                    android:textSize="@dimen/text_caption"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginBottom="@dimen/spacing_md" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -267,7 +279,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@color/white"
+                android:background="@color/md_theme_light_surface"
                 android:padding="@dimen/spacing_lg"
                 android:layout_marginBottom="8dp">
 
@@ -338,7 +350,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@color/white"
+        android:background="@color/md_theme_light_surface"
         android:padding="@dimen/spacing_lg"
         android:elevation="8dp">
 

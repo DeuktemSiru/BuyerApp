@@ -24,14 +24,45 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@color/primary_light" />
+                    android:background="@drawable/bg_photo_placeholder" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="🥐"
-                    android:textSize="64sp" />
+                    android:textSize="54sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_gravity="bottom"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp"
+                    android:background="#DDFFFFFF">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="28dp"
+                        android:gravity="center"
+                        android:paddingHorizontal="10dp"
+                        android:text="마감 특가"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:background="@drawable/bg_discount_badge" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="10dp"
+                        android:text="사진과 픽업 시간을 확인하고 바로 예약하세요"
+                        android:textColor="@color/color_text"
+                        android:textSize="@dimen/text_caption"
+                        android:fontFamily="sans-serif-medium" />
+                </LinearLayout>
 
                 <!-- Back button -->
                 <ImageButton
@@ -41,8 +72,9 @@
                     android:layout_gravity="top|start"
                     android:layout_margin="8dp"
                     android:src="@drawable/ic_back"
-                    android:background="@color/white"
-                    android:elevation="4dp"
+                    android:background="@drawable/bg_icon_button"
+                    android:padding="10dp"
+                    android:elevation="0dp"
                     android:contentDescription="뒤로가기" />
 
                 <!-- Share + Wishlist -->
@@ -58,8 +90,9 @@
                         android:layout_width="@dimen/touch_target_min"
                         android:layout_height="@dimen/touch_target_min"
                         android:src="@drawable/ic_share"
-                        android:background="@color/white"
-                        android:elevation="4dp"
+                        android:background="@drawable/bg_icon_button"
+                        android:padding="10dp"
+                        android:elevation="0dp"
                         android:layout_marginEnd="8dp"
                         android:contentDescription="공유" />
 
@@ -68,8 +101,9 @@
                         android:layout_width="@dimen/touch_target_min"
                         android:layout_height="@dimen/touch_target_min"
                         android:src="@drawable/ic_heart"
-                        android:background="@color/white"
-                        android:elevation="4dp"
+                        android:background="@drawable/bg_icon_button"
+                        android:padding="10dp"
+                        android:elevation="0dp"
                         android:contentDescription="찜" />
                 </LinearLayout>
             </FrameLayout>
@@ -79,7 +113,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@color/white"
+                android:background="@color/md_theme_light_surface"
                 android:paddingHorizontal="@dimen/spacing_lg"
                 android:paddingTop="@dimen/spacing_lg"
                 android:paddingBottom="@dimen/spacing_md">
@@ -252,7 +286,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:background="@drawable/bg_timer_card"
+                android:background="@drawable/bg_card_flat"
                 android:padding="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginStart="16dp"
@@ -338,7 +372,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@color/white"
+                android:background="@color/md_theme_light_surface"
                 android:padding="@dimen/spacing_lg">
 
                 <!-- Section header with count -->
@@ -375,7 +409,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:orientation="horizontal"
-        android:background="@color/white"
+        android:background="@color/md_theme_light_surface"
         android:padding="@dimen/spacing_lg"
         android:gravity="center_vertical"
         android:elevation="8dp">
@@ -386,6 +420,7 @@
             android:layout_height="52dp"
             android:src="@drawable/ic_heart"
             android:background="@drawable/bg_store_card"
+    android:elevation="2dp"
             android:contentDescription="찜" />
 
         <FrameLayout
@@ -399,6 +434,7 @@
                 android:layout_height="52dp"
                 android:src="@drawable/ic_cart"
                 android:background="@drawable/bg_store_card"
+    android:elevation="2dp"
                 android:contentDescription="장바구니" />
 
             <TextView

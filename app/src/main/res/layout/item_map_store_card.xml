@@ -6,6 +6,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="@drawable/bg_store_card"
+    android:elevation="0dp"
     android:padding="@dimen/spacing_md"
     android:layout_marginEnd="10dp"
     android:foreground="?attr/selectableItemBackground">
