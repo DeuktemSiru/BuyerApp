@@ -59,14 +59,14 @@ class OnboardingFragment : Fragment() {
         setLoading(true)
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val loginData = RetrofitClient.api.debugLogin(DebugLoginRequest()).data
-                if (loginData == null) {
-                    Toast.makeText(requireContext(), "디버그 로그인에 실패했어요", Toast.LENGTH_SHORT).show()
+                val response = RetrofitClient.api.debugLogin(DebugLoginRequest())
+                if (response.data == null) {
+                    Toast.makeText(requireContext(), response.message.ifBlank { "디버그 로그인에 실패했어요" }, Toast.LENGTH_SHORT).show()
                     setLoading(false)
                     return@launch
                 }
 
-                session.saveLogin(loginData)
+                session.saveLogin(response.data)
                 navigateHome()
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "디버그 로그인 서버 연결에 실패했어요.", Toast.LENGTH_LONG).show()
