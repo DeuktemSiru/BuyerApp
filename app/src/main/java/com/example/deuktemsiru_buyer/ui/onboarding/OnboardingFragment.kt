@@ -47,7 +47,7 @@ class OnboardingFragment : Fragment() {
         }
 
         if (BuildConfig.DEBUG) {
-            binding.btnKakaoLogin.text = "디버그 로그인으로 시작하기"
+            binding.btnKakaoLogin.text = getString(R.string.login_debug_start)
         }
 
         binding.btnKakaoLogin.setOnClickListener {
@@ -59,9 +59,11 @@ class OnboardingFragment : Fragment() {
         setLoading(true)
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val loginData = RetrofitClient.api.debugLogin(DebugLoginRequest()).data
+                val response = RetrofitClient.api.debugLogin(DebugLoginRequest())
+                val loginData = response.data
                 if (loginData == null) {
-                    Toast.makeText(requireContext(), "디버그 로그인에 실패했어요", Toast.LENGTH_SHORT).show()
+                    val errorMsg = response.message.ifBlank { getString(R.string.login_debug_failed) }
+                    Toast.makeText(requireContext(), errorMsg, Toast.LENGTH_SHORT).show()
                     setLoading(false)
                     return@launch
                 }
@@ -69,7 +71,8 @@ class OnboardingFragment : Fragment() {
                 session.saveLogin(loginData)
                 navigateHome()
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "디버그 로그인 서버 연결에 실패했어요.", Toast.LENGTH_LONG).show()
+                val detailedError = getString(R.string.login_debug_server_error, e.localizedMessage ?: e.message ?: "Unknown Error")
+                Toast.makeText(requireContext(), detailedError, Toast.LENGTH_LONG).show()
                 setLoading(false)
             }
         }
@@ -102,7 +105,7 @@ class OnboardingFragment : Fragment() {
 
     private fun handleKakaoError(error: Throwable) {
         if (!error.isUserCancelled()) {
-            Toast.makeText(requireContext(), "카카오 로그인에 실패했어요", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), R.string.login_kakao_failed, Toast.LENGTH_SHORT).show()
         }
         setLoading(false)
     }
@@ -115,7 +118,7 @@ class OnboardingFragment : Fragment() {
                 ).data
 
                 if (loginData == null) {
-                    Toast.makeText(requireContext(), "로그인에 실패했어요", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), R.string.login_failed, Toast.LENGTH_SHORT).show()
                     setLoading(false)
                     return@launch
                 }
@@ -123,7 +126,7 @@ class OnboardingFragment : Fragment() {
                 session.saveLogin(loginData)
                 navigateHome()
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "서버 로그인에 실패했어요. 잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), R.string.login_server_error, Toast.LENGTH_LONG).show()
                 setLoading(false)
             }
         }
@@ -139,9 +142,9 @@ class OnboardingFragment : Fragment() {
     private fun setLoading(loading: Boolean) {
         binding.btnKakaoLogin.isEnabled = !loading
         binding.btnKakaoLogin.text = when {
-            loading -> "로그인 중..."
-            BuildConfig.DEBUG -> "디버그 로그인으로 시작하기"
-            else -> "카카오로 시작하기"
+            loading -> getString(R.string.login_processing)
+            BuildConfig.DEBUG -> getString(R.string.login_debug_start)
+            else -> getString(R.string.login_kakao_start)
         }
     }
 

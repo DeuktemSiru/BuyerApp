@@ -1,15 +1,28 @@
 <resources>
     <string name="app_name">득템시루</string>
 
-    <!-- Onboarding -->
+    <!-- Onboarding & Login -->
     <string name="onboarding_headline_1">반가워요!</string>
     <string name="onboarding_headline_2">아래 약관에 동의하면</string>
     <string name="onboarding_headline_3">아까운 음식 구하기 시작!</string>
+    <string name="onboarding_logo_description">시흥시 캐릭터</string>
+    <string name="onboarding_title">득템시루</string>
+    <string name="onboarding_login_header">로그인하고</string>
+    <string name="onboarding_login_subheader">오늘의 남은 맛을 구해요</string>
+    <string name="onboarding_login_guide">카카오로 간편하게 시작해보세요.</string>
     <string name="agree_all">전체 동의</string>
     <string name="agree_terms">이용약관 동의 (필수)</string>
     <string name="agree_privacy">개인정보 수집·이용 동의 (선택)</string>
     <string name="btn_start">시작하기</string>
     <string name="btn_explore">둘러보기</string>
+    <string name="login_kakao_start">카카오로 시작하기</string>
+    <string name="login_debug_start">디버그 로그인으로 시작하기</string>
+    <string name="login_processing">로그인 중...</string>
+    <string name="login_failed">로그인에 실패했어요</string>
+    <string name="login_kakao_failed">카카오 로그인에 실패했어요</string>
+    <string name="login_debug_failed">디버그 로그인에 실패했어요</string>
+    <string name="login_server_error">서버 로그인에 실패했어요. 잠시 후 다시 시도해주세요.</string>
+    <string name="login_debug_server_error">디버그 로그인 서버 연결에 실패했어요: %s</string>
 
     <!-- Home -->
     <string name="home_search_hint">오늘은 어떤 음식을 구해볼까요?</string>

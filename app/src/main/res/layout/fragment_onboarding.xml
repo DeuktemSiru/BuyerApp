@@ -21,7 +21,7 @@
             android:layout_width="92dp"
             android:layout_height="92dp"
             android:layout_gravity="end"
-            android:contentDescription="시흥시 캐릭터"
+            android:contentDescription="@string/onboarding_logo_description"
             android:scaleType="fitCenter"
             android:src="@drawable/img_siheung_character" />
 
@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
-            android:text="득템시루"
+            android:text="@string/onboarding_title"
             android:textColor="@color/primary"
             android:textSize="@dimen/text_display" />
 
@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_sm"
             android:fontFamily="sans-serif-medium"
-            android:text="로그인하고"
+            android:text="@string/onboarding_login_header"
             android:textColor="@color/color_text"
             android:textSize="@dimen/text_headline" />
 
@@ -46,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
-            android:text="오늘의 남은 맛을 구해요"
+            android:text="@string/onboarding_login_subheader"
             android:textColor="@color/color_text"
             android:textSize="@dimen/text_headline" />
 
@@ -54,7 +54,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_md"
-            android:text="카카오로 간편하게 시작해보세요."
+            android:text="@string/onboarding_login_guide"
             android:textColor="@color/color_text_sub"
             android:textSize="@dimen/text_body" />
     </LinearLayout>
@@ -67,7 +67,7 @@
         android:background="#FEE500"
         android:fontFamily="sans-serif-medium"
         android:stateListAnimator="@null"
-        android:text="카카오로 시작하기"
+        android:text="@string/login_kakao_start"
         android:textColor="#191919"
         android:textSize="@dimen/text_button"
         app:layout_constraintBottom_toBottomOf="parent"
