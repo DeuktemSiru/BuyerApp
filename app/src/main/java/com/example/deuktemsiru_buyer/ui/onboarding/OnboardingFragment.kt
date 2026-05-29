@@ -26,6 +26,11 @@ class OnboardingFragment : Fragment() {
     private var _binding: FragmentOnboardingBinding? = null
     private val binding get() = _binding!!
 
+    private enum class LoginType {
+        KAKAO,
+        DEBUG,
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -46,17 +51,20 @@ class OnboardingFragment : Fragment() {
             return
         }
 
-        if (BuildConfig.DEBUG) {
-            binding.btnKakaoLogin.text = "디버그 로그인으로 시작하기"
+        binding.btnKakaoLogin.setOnClickListener {
+            startKakaoLogin(session)
         }
 
-        binding.btnKakaoLogin.setOnClickListener {
-            if (BuildConfig.DEBUG) debugLogin(session) else startKakaoLogin(session)
+        if (BuildConfig.DEBUG) {
+            binding.btnDebugLogin.visibility = View.VISIBLE
+            binding.btnDebugLogin.setOnClickListener {
+                debugLogin(session)
+            }
         }
     }
 
     private fun debugLogin(session: SessionManager) {
-        setLoading(true)
+        setLoading(true, LoginType.DEBUG)
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val response = RetrofitClient.api.debugLogin(DebugLoginRequest())
@@ -76,7 +84,7 @@ class OnboardingFragment : Fragment() {
     }
 
     private fun startKakaoLogin(session: SessionManager) {
-        setLoading(true)
+        setLoading(true, LoginType.KAKAO)
 
         val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
             when {
@@ -136,13 +144,13 @@ class OnboardingFragment : Fragment() {
         findNavController().navigate(R.id.action_onboarding_to_home)
     }
 
-    private fun setLoading(loading: Boolean) {
+    private fun setLoading(loading: Boolean, type: LoginType? = null) {
         binding.btnKakaoLogin.isEnabled = !loading
-        binding.btnKakaoLogin.text = when {
-            loading -> "로그인 중..."
-            BuildConfig.DEBUG -> "디버그 로그인으로 시작하기"
-            else -> "카카오로 시작하기"
-        }
+        binding.btnDebugLogin.isEnabled = !loading
+        binding.btnKakaoLogin.text =
+            if (loading && type == LoginType.KAKAO) "카카오 로그인 중..." else "카카오로 시작하기"
+        binding.btnDebugLogin.text =
+            if (loading && type == LoginType.DEBUG) "디버그 로그인 중..." else "디버그 로그인으로 시작하기"
     }
 
     override fun onDestroyView() {

@@ -18,8 +18,8 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:layout_width="92dp"
-            android:layout_height="92dp"
+            android:layout_width="108dp"
+            android:layout_height="108dp"
             android:layout_gravity="end"
             android:contentDescription="시흥시 캐릭터"
             android:scaleType="fitCenter"
@@ -59,19 +59,39 @@
             android:textSize="@dimen/text_body" />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/btn_kakao_login"
+    <LinearLayout
+        android:id="@+id/login_button_container"
         android:layout_width="0dp"
-        android:layout_height="@dimen/cta_button_height"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:background="#FEE500"
-        android:fontFamily="sans-serif-medium"
-        android:stateListAnimator="@null"
-        android:text="카카오로 시작하기"
-        android:textColor="#191919"
-        android:textSize="@dimen/text_button"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_kakao_login"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/cta_button_height"
+            android:fontFamily="sans-serif-medium"
+            android:text="카카오로 시작하기"
+            android:textColor="#191919"
+            android:textSize="@dimen/text_button"
+            app:backgroundTint="#FEE500"
+            app:cornerRadius="@dimen/radius_md" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_debug_login"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/cta_button_height"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:fontFamily="sans-serif-medium"
+            android:text="디버그 로그인으로 시작하기"
+            android:textColor="@color/color_button_dark_text"
+            android:textSize="@dimen/text_button"
+            android:visibility="gone"
+            app:backgroundTint="@color/color_text"
+            app:cornerRadius="@dimen/radius_md" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
