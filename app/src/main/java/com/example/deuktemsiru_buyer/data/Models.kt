@@ -144,7 +144,7 @@ fun StoreProductItem.toMenuItem(): MenuItem {
         remainingItems = quantityRemaining,
         pickupStart = pickupStart.orEmpty(),
         pickupEnd = pickupEnd,
-        isSoldOut = status == "SOLD_OUT" || quantityRemaining <= 0,
+        isSoldOut = status != "AVAILABLE" || quantityRemaining <= 0,
     )
 }
 

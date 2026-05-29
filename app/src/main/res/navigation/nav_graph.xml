@@ -101,6 +101,9 @@
         <action
             android:id="@+id/action_storeDetail_to_payment"
             app:destination="@id/paymentFragment" />
+        <action
+            android:id="@+id/action_storeDetail_to_cart"
+            app:destination="@id/cartFragment" />
     </fragment>
 
     <fragment

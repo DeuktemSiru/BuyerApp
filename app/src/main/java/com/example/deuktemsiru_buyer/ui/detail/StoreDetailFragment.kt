@@ -37,6 +37,7 @@ class StoreDetailFragment : Fragment() {
 
     private var timerJob: Job? = null
     private var currentStore: Store? = null
+    private var menuAdapter: MenuAdapter? = null
     private var selectedMenuId: Long = 0
     private var isWishlisted = false
     private lateinit var session: SessionManager
@@ -103,9 +104,9 @@ class StoreDetailFragment : Fragment() {
         binding.tvPickupRange.text = "17:00 - 18:30"
         binding.tvMenuSectionTitle.text = getString(R.string.menu_section_title, store.menus.size)
 
-        val totalPrice = store.menus.filter { !it.isSoldOut }
-            .minByOrNull { it.discountedPrice }?.discountedPrice ?: store.discountedPrice
-        binding.btnReserve.text = "${totalPrice.formatPrice()} 예약하기"
+        binding.btnReserve.text = selectedAvailableMenu(store)?.let { menu ->
+            "${menu.discountedPrice.formatPrice()} 예약하기"
+        } ?: "${store.discountedPrice.formatPrice()} 예약하기"
 
         setupMenuList(store)
         startTimer(store.minutesUntilClose)
@@ -117,9 +118,10 @@ class StoreDetailFragment : Fragment() {
         binding.btnWishlistBottom.setOnClickListener(wishlistToggle)
 
         binding.btnCart.setOnClickListener {
-            val menu = store.menus.firstOrNull { it.id == selectedMenuId && !it.isSoldOut }
-                ?: store.menus.firstOrNull { !it.isSoldOut }
-                ?: return@setOnClickListener
+            val menu = selectedAvailableMenu(store) ?: run {
+                Snackbar.make(binding.root, "담을 수 있는 메뉴가 없어요.", Snackbar.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             addToCart(store, menu)
         }
 
@@ -131,12 +133,13 @@ class StoreDetailFragment : Fragment() {
 
         binding.btnReserve.setOnClickListener {
             if (!allSoldOut) {
+                val menu = selectedAvailableMenu(store) ?: return@setOnClickListener
                 findNavController().navigate(
                     R.id.action_storeDetail_to_payment,
                     Bundle().apply {
                         putLong("storeId", store.id)
-                        putInt("totalPrice", totalPrice)
-                        putLong("menuId", selectedMenuId)
+                        putInt("totalPrice", menu.discountedPrice)
+                        putLong("menuId", menu.id)
                     }
                 )
             } else {
@@ -176,10 +179,17 @@ class StoreDetailFragment : Fragment() {
     }
 
     private suspend fun addSyncedToCart(store: Store, item: CartItem) {
-        if (session.isLoggedIn() && !syncCartAdd(item.menuId)) return
-        CartManager.add(store.id, store.name, store.emoji, store.latitude, store.longitude, item)
-        updateCartBadge()
-        Snackbar.make(binding.root, "${item.menuName}을(를) 장바구니에 담았어요", Snackbar.LENGTH_SHORT).show()
+        setCartButtonLoading(true)
+        try {
+            if (session.isLoggedIn() && !syncCartAdd(item.menuId)) return
+            CartManager.add(store.id, store.name, store.emoji, store.latitude, store.longitude, item)
+            updateCartBadge()
+            Snackbar.make(binding.root, "${item.menuName}을(를) 장바구니에 담았어요", Snackbar.LENGTH_SHORT)
+                .setAction("보기") { findNavController().navigate(R.id.action_storeDetail_to_cart) }
+                .show()
+        } finally {
+            setCartButtonLoading(false)
+        }
     }
 
     private suspend fun syncCartAdd(productId: Long): Boolean {
@@ -193,6 +203,13 @@ class StoreDetailFragment : Fragment() {
     private fun updateCartBadge() {
         if (_binding == null) return
         binding.tvCartBadge.updateCartBadge()
+    }
+
+    private fun setCartButtonLoading(loading: Boolean) {
+        if (_binding == null) return
+        binding.btnCart.isEnabled = !loading
+        binding.btnCart.alpha = if (loading) 0.5f else 1.0f
+        binding.btnCart.contentDescription = if (loading) "장바구니에 담는 중" else "장바구니 담기"
     }
 
     private fun toggleWishlist(store: Store) {
@@ -222,21 +239,28 @@ class StoreDetailFragment : Fragment() {
     private fun setupMenuList(store: Store) {
         val adapter = MenuAdapter(
             menus = store.menus,
+            selectedMenuId = selectedMenuId,
             onMenuClick = { menu ->
                 if (menu.isSoldOut) {
                     Snackbar.make(binding.root, "품절된 메뉴예요.", Snackbar.LENGTH_SHORT).show()
                 } else {
                     selectedMenuId = menu.id
+                    menuAdapter?.selectMenu(menu.id)
                     binding.btnReserve.text = "${menu.discountedPrice.formatPrice()} 예약하기"
                     Snackbar.make(binding.root, "${menu.name} 선택", Snackbar.LENGTH_SHORT).show()
                 }
             }
         )
+        menuAdapter = adapter
         binding.rvMenus.apply {
             layoutManager = LinearLayoutManager(requireContext())
             this.adapter = adapter
         }
     }
+
+    private fun selectedAvailableMenu(store: Store): MenuItem? =
+        store.menus.firstOrNull { it.id == selectedMenuId && !it.isSoldOut }
+            ?: store.menus.firstOrNull { !it.isSoldOut }
 
     private fun startTimer(minutes: Int) {
         timerJob = startTimerInto(minutes * 60L, timerJob) { remaining ->

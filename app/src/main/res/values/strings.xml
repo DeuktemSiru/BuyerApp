@@ -57,6 +57,17 @@
     <string name="payment_method_siru_balance_amount">25,000 원</string>
     <string name="payment_method_siru_charge">충전</string>
     <string name="payment_method_siru_notice">시흥시 관내 가맹점에서 사용할 수 있는 지역화폐로 결제돼요.</string>
+    <string name="payment_siru_wallet_title">시흥화폐 시루</string>
+    <string name="payment_siru_wallet_subtitle">지역화폐 결제</string>
+    <string name="payment_siru_linked">본인 인증 완료</string>
+    <string name="payment_siru_unlinked">연동 필요</string>
+    <string name="payment_siru_balance_after">결제 후 잔액</string>
+    <string name="payment_siru_trade_id">거래번호</string>
+    <string name="payment_siru_merchant_verified">시루 가맹점 확인 완료</string>
+    <string name="payment_siru_policy">결제 시 시흥화폐 시루 이용약관과 개인정보 제3자 제공에 동의합니다.</string>
+    <string name="payment_siru_cashback_label">인센티브 적립 예정</string>
+    <string name="payment_siru_payment_type">결제 방식</string>
+    <string name="payment_siru_payment_type_value">잔액 즉시 차감</string>
     <string name="payment_method_card">신용/체크카드</string>
     <string name="payment_method_easy">간편결제 (카카오페이, 토스 등)</string>
     <string name="label_coupon">쿠폰</string>

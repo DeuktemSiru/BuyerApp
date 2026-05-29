@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="16dp"
+    android:padding="10dp"
     android:foreground="?attr/selectableItemBackground">
 
     <!-- Thumbnail -->
@@ -60,16 +61,38 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/tv_menu_name"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="아침 세트 A"
-            android:textSize="@dimen/text_body"
-            android:fontFamily="sans-serif-medium"
-            android:textColor="@color/color_text"
-            android:maxLines="1"
-            android:ellipsize="end" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_menu_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="아침 세트 A"
+                android:textSize="@dimen/text_body"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/color_text"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/tv_selected_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_menu_selected_badge"
+                android:fontFamily="sans-serif-medium"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:text="선택됨"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                android:visibility="gone" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"

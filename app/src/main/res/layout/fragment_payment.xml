@@ -183,21 +183,6 @@
                     android:background="@drawable/bg_siru_payment"
                     android:padding="@dimen/spacing_lg">
 
-                    <!-- Incentive badge -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/payment_method_siru_incentive"
-                        android:textSize="11sp"
-                        android:fontFamily="sans-serif-medium"
-                        android:textColor="@color/white"
-                        android:background="@drawable/bg_incentive_badge"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="3dp"
-                        android:layout_gravity="end"
-                        android:layout_marginBottom="8dp" />
-
-                    <!-- Label + recommended badge -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/touch_target_min"
@@ -223,56 +208,277 @@
                             android:paddingHorizontal="8dp"
                             android:paddingVertical="2dp"
                             android:layout_marginStart="8dp" />
+
+                        <TextView
+                            android:id="@+id/tv_siru_account_status"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:background="@drawable/bg_siru_verified_chip"
+                            android:fontFamily="sans-serif-medium"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="2dp"
+                            android:text="@string/payment_siru_linked"
+                            android:textColor="@color/siru_green"
+                            android:textSize="11sp" />
                     </LinearLayout>
 
-                    <!-- Balance row + charge button -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
+                        android:layout_marginTop="@dimen/spacing_sm"
+                        android:background="@drawable/bg_siru_wallet_card"
+                        android:orientation="vertical"
+                        android:padding="@dimen/spacing_lg">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:text="@string/payment_siru_wallet_title"
+                                    android:textColor="@color/white"
+                                    android:textSize="@dimen/text_body_lg" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="@string/payment_siru_wallet_subtitle"
+                                    android:textColor="#D9FFFFFF"
+                                    android:textSize="@dimen/text_caption" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_siru_wallet_inner"
+                                android:fontFamily="sans-serif-medium"
+                                android:paddingHorizontal="10dp"
+                                android:paddingVertical="5dp"
+                                android:text="SIRU PAY"
+                                android:textColor="@color/white"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_lg"
+                            android:gravity="bottom"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/payment_method_siru_balance_label"
+                                    android:textColor="#D9FFFFFF"
+                                    android:textSize="@dimen/text_caption" />
+
+                                <TextView
+                                    android:id="@+id/tv_siru_balance"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="3dp"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:text="@string/payment_method_siru_balance_amount"
+                                    android:textColor="@color/white"
+                                    android:textSize="24sp" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/btn_charge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_siru_wallet_inner"
+                                android:fontFamily="sans-serif-medium"
+                                android:foreground="?attr/selectableItemBackground"
+                                android:paddingHorizontal="12dp"
+                                android:paddingVertical="7dp"
+                                android:text="@string/payment_method_siru_charge"
+                                android:textColor="@color/white"
+                                android:textSize="@dimen/text_caption" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_md"
+                            android:background="@drawable/bg_siru_wallet_inner"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="@dimen/spacing_sm">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/payment_siru_balance_after"
+                                android:textColor="#E6FFFFFF"
+                                android:textSize="@dimen/text_caption" />
+
+                            <TextView
+                                android:id="@+id/tv_siru_balance_after"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif-medium"
+                                android:text="16,000원"
+                                android:textColor="@color/white"
+                                android:textSize="@dimen/text_caption" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:layout_marginTop="4dp">
+                        android:layout_marginTop="@dimen/spacing_md"
+                        android:orientation="horizontal">
 
                         <ImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
-                            android:src="@drawable/ic_receipt"
-                            android:contentDescription="잔액"
+                            android:contentDescription="@string/payment_siru_merchant_verified"
+                            android:src="@drawable/ic_check"
                             android:layout_marginEnd="4dp" />
 
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="@string/payment_method_siru_balance_label"
+                            android:text="@string/payment_siru_merchant_verified"
                             android:textSize="@dimen/text_caption"
-                            android:textColor="@color/color_text_sub" />
-
-                        <TextView
-                            android:id="@+id/tv_siru_balance"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/payment_method_siru_balance_amount"
-                            android:textSize="@dimen/text_caption"
-                            android:fontFamily="sans-serif-medium"
-                            android:textColor="@color/color_text"
-                            android:layout_marginEnd="8dp" />
-
-                        <TextView
-                            android:id="@+id/btn_charge"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/payment_method_siru_charge"
-                            android:textSize="11sp"
-                            android:fontFamily="sans-serif-medium"
                             android:textColor="@color/siru_green"
-                            android:background="@drawable/bg_siru_payment"
-                            android:paddingHorizontal="10dp"
-                            android:paddingVertical="4dp"
-                            android:foreground="?attr/selectableItemBackground" />
+                            android:fontFamily="sans-serif-medium" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/payment_method_siru_incentive"
+                            android:textSize="@dimen/text_caption"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/primary" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_sm"
+                        android:background="@drawable/bg_payment_info_box"
+                        android:orientation="vertical"
+                        android:padding="@dimen/spacing_md">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/payment_siru_payment_type"
+                                android:textColor="@color/color_text_sub"
+                                android:textSize="@dimen/text_caption" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif-medium"
+                                android:text="@string/payment_siru_payment_type_value"
+                                android:textColor="@color/color_text"
+                                android:textSize="@dimen/text_caption" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/payment_divider_height"
+                            android:layout_marginVertical="@dimen/spacing_sm"
+                            android:background="@color/color_border_light" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/payment_siru_cashback_label"
+                                android:textColor="@color/color_text_sub"
+                                android:textSize="@dimen/text_caption" />
+
+                            <TextView
+                                android:id="@+id/tv_siru_cashback"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif-medium"
+                                android:text="450원"
+                                android:textColor="@color/siru_green"
+                                android:textSize="@dimen/text_caption" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/payment_divider_height"
+                            android:layout_marginVertical="@dimen/spacing_sm"
+                            android:background="@color/color_border_light" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/payment_siru_trade_id"
+                                android:textColor="@color/color_text_sub"
+                                android:textSize="@dimen/text_caption" />
+
+                            <TextView
+                                android:id="@+id/tv_payment_trade_id"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif-medium"
+                                android:text="SIRU-000000"
+                                android:textColor="@color/color_text"
+                                android:textSize="@dimen/text_caption" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_sm"
+                        android:text="@string/payment_siru_policy"
+                        android:textColor="@color/color_text_sub"
+                        android:textSize="@dimen/text_micro"
+                        android:lineSpacingExtra="2dp" />
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
 
             <!-- Price breakdown -->
             <LinearLayout

@@ -32,6 +32,7 @@ class PaymentFragment : Fragment() {
     private val orderRepository by lazy { OrderRepository(RetrofitClient.api) }
     private val storeRepository by lazy { StoreRepository(RetrofitClient.api) }
     private var autoPayAfterLink = false
+    private var selectedPaymentTotal = 0
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,7 +56,7 @@ class PaymentFragment : Fragment() {
         }
 
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
-        binding.tvSiruBalance.text = session.siruBalance.formatPrice()
+        updateSiruWalletState()
         autoPayAfterLink = arguments?.getBoolean("autoPayAfterLink") ?: false
 
         refreshSiruState()
@@ -68,7 +69,7 @@ class PaymentFragment : Fragment() {
 
     private suspend fun syncSiruState(): Boolean {
         val synced = session.syncMe(RetrofitClient.api)
-        if (synced && _binding != null) binding.tvSiruBalance.text = session.siruBalance.formatPrice()
+        if (synced && _binding != null) updateSiruWalletState()
         return synced
     }
 
@@ -186,6 +187,7 @@ class PaymentFragment : Fragment() {
     }
 
     private fun setupPriceDisplay(originalTotal: Int, discountedTotal: Int, itemCount: Int) {
+        selectedPaymentTotal = discountedTotal
         val discountAmount = (originalTotal - discountedTotal).coerceAtLeast(0)
         binding.tvItemPrice.text = discountedTotal.formatPrice()
         binding.tvOrderPrice.text = originalTotal.formatPrice()
@@ -193,6 +195,23 @@ class PaymentFragment : Fragment() {
         binding.tvFinalPrice.text = discountedTotal.formatPrice()
         binding.tvSavingsMessage.text = "${discountAmount.formatPrice()}을 절약하고 음식 ${itemCount}개를 구해요"
         binding.btnPay.text = getString(R.string.btn_pay_siru, discountedTotal.formatPrice())
+        updateSiruWalletState(discountedTotal)
+        binding.tvSiruCashback.text = (discountedTotal * 5 / 100).formatPrice()
+    }
+
+    private fun updateSiruWalletState(paymentTotal: Int = selectedPaymentTotal) {
+        binding.tvSiruBalance.text = session.siruBalance.formatPrice()
+        binding.tvSiruBalanceAfter.text = (session.siruBalance - paymentTotal).coerceAtLeast(0).formatPrice()
+        binding.tvSiruAccountStatus.text = getString(
+            if (session.isSiruLinked) R.string.payment_siru_linked else R.string.payment_siru_unlinked
+        )
+        binding.tvPaymentTradeId.text = buildSiruTradeId()
+    }
+
+    private fun buildSiruTradeId(): String {
+        val memberCode = session.memberId.takeIf { it > 0L } ?: 0L
+        val orderCode = session.lastOrderId.takeIf { it > 0L } ?: memberCode
+        return "SIRU-%06d-%04d".format(memberCode % 1_000_000, orderCode % 10_000)
     }
 
     private fun navigateToSiruLink(draft: PaymentDraft) {

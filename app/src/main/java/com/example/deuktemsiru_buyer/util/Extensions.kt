@@ -152,7 +152,10 @@ fun List<Store>.filterStores(category: String, query: String): List<Store> {
 fun TextView.updateCartBadge() {
     val count = CartManager.totalCount
     visibility = if (count > 0) View.VISIBLE else View.GONE
-    if (count > 0) text = if (count > 9) "9+" else count.toString()
+    if (count > 0) {
+        text = if (count > 9) "9+" else count.toString()
+        bringToFront()
+    }
 }
 
 fun orderStatusLabel(status: String) = when (status) {

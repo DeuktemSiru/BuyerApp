@@ -444,10 +444,12 @@
                 android:layout_gravity="top|end"
                 android:layout_margin="2dp"
                 android:background="@drawable/bg_cart_badge"
+                android:elevation="6dp"
                 android:gravity="center"
                 android:textColor="@color/white"
                 android:textSize="10sp"
                 android:fontFamily="sans-serif-medium"
+                android:translationZ="6dp"
                 android:visibility="gone" />
 
         </FrameLayout>
