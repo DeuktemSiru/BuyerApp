@@ -2,7 +2,6 @@ package com.example.deuktemsiru_buyer.ui.map
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.location.Location
 import android.os.Bundle
@@ -41,6 +40,7 @@ import com.example.deuktemsiru_buyer.util.formatPrice
 import com.example.deuktemsiru_buyer.util.MapViewLifecycleDelegate
 import com.example.deuktemsiru_buyer.util.Result
 import com.example.deuktemsiru_buyer.util.getCurrentLocation
+import com.example.deuktemsiru_buyer.util.hasLocationPermission
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -59,10 +59,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private var currentCategory = "전체"
     private lateinit var mapStoreAdapter: MapStoreAdapter
     private val repository by lazy { StoreRepository(RetrofitClient.api) }
-
-    private val hasLocationPermission get() = ContextCompat.checkSelfPermission(
-        requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
-    ) == PackageManager.PERMISSION_GRANTED
 
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -117,10 +113,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(SIHEUNG, 12f))
         map.setOnInfoWindowClickListener { marker ->
             if (_binding == null) return@setOnInfoWindowClickListener
-            (marker.tag as? Int)?.let { storeId ->
+            (marker.tag as? Long)?.let { storeId ->
                 findNavController().navigate(
                     R.id.action_map_to_storeDetail,
-                    Bundle().apply { putLong("storeId", storeId.toLong()) }
+                    Bundle().apply { putLong("storeId", storeId) }
                 )
             }
         }
@@ -157,19 +153,14 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         // viewLifecycleOwner.lifecycleScope: View가 파괴되면 코루틴도 자동 취소 → _binding null 안전
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                try {
-                    when (val result = repository.getStores()) {
-                        is Result.Success -> {
-                            loadedStores = result.data
-                            if (_binding != null) updateMapStores()
-                        }
-                        is Result.Error -> if (_binding != null) {
-                            Snackbar.make(binding.root, "지도 매장 정보를 불러오지 못했어요.", Snackbar.LENGTH_SHORT).show()
-                        }
-                        is Result.Loading -> Unit
+                when (val result = repository.getStores()) {
+                    is Result.Success -> {
+                        loadedStores = result.data
+                        if (_binding != null) updateMapStores()
                     }
-                } catch (_: Exception) {
-                    if (_binding != null) Snackbar.make(binding.root, "지도 매장 정보를 불러오지 못했어요.", Snackbar.LENGTH_SHORT).show()
+                    is Result.Error -> if (_binding != null) {
+                        Snackbar.make(binding.root, "지도 매장 정보를 불러오지 못했어요.", Snackbar.LENGTH_SHORT).show()
+                    }
                 }
             }
         }

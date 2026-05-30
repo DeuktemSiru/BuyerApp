@@ -148,8 +148,6 @@ fun StoreProductItem.toMenuItem(): MenuItem {
     )
 }
 
-fun StoreProductItem.pickupMinutesUntilClose() = minutesUntilClose(pickupEnd)
-
 fun CartApiItem.toCartItem() = CartItem(
     menuId = productId,
     menuName = productName,

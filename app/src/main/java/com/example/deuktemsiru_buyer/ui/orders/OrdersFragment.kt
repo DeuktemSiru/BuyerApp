@@ -4,14 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.deuktemsiru_buyer.R
-import com.example.deuktemsiru_buyer.data.OrderRepository
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.FragmentOrdersBinding
 import com.example.deuktemsiru_buyer.databinding.ItemOrderHistoryBinding
@@ -19,13 +17,13 @@ import com.example.deuktemsiru_buyer.network.OrderListItemResponse
 import com.example.deuktemsiru_buyer.network.RetrofitClient
 import com.example.deuktemsiru_buyer.util.formatPrice
 import com.example.deuktemsiru_buyer.util.orderStatusLabel
+import com.example.deuktemsiru_buyer.util.toast
 import kotlinx.coroutines.launch
 
 class OrdersFragment : Fragment() {
 
     private var _binding: FragmentOrdersBinding? = null
     private val binding get() = _binding!!
-    private val orderRepository by lazy { OrderRepository(RetrofitClient.api) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,7 +45,7 @@ class OrdersFragment : Fragment() {
     private fun loadOrders() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val orders = orderRepository.getOrders()
+                val orders = RetrofitClient.api.getOrders().data.orEmpty()
                 if (orders.isEmpty()) {
                     binding.rvOrders.visibility = View.GONE
                     binding.llEmpty.visibility = View.VISIBLE
@@ -60,7 +58,7 @@ class OrdersFragment : Fragment() {
                     }
                 }
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "주문 내역을 불러오지 못했어요.", Toast.LENGTH_SHORT).show()
+                toast("주문 내역을 불러오지 못했어요.")
             }
         }
     }
@@ -98,8 +96,8 @@ private class OrderHistoryAdapter(
         val (statusBackground, statusTextColor) = when (order.status) {
             "CONFIRMED", "PREPARING", "READY" -> R.drawable.bg_order_status_primary to R.color.primary
             "PICKED_UP", "COMPLETED" -> R.drawable.bg_order_status_success to R.color.success
-            "CANCELLED" -> R.drawable.bg_order_status_muted to R.color.color_text_muted
-            else -> R.drawable.bg_order_status_muted to R.color.color_text_sub
+            "CANCELLED" -> R.drawable.bg_order_status_muted to R.color.text_muted
+            else -> R.drawable.bg_order_status_muted to R.color.text_sub
         }
         b.tvStatus.setBackgroundResource(statusBackground)
         b.tvStatus.setTextColor(ContextCompat.getColor(b.root.context, statusTextColor))

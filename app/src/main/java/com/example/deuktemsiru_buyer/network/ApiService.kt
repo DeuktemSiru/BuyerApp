@@ -11,17 +11,14 @@ interface ApiService {
     @POST("api/v1/auth/debug/login")
     suspend fun debugLogin(@Body req: DebugLoginRequest): ApiResponse<LoginData>
 
-    @POST("api/v1/auth/refresh")
-    suspend fun refresh(@Body req: TokenRefreshRequest): ApiResponse<TokenData>
-
     @POST("api/v1/auth/logout")
     suspend fun logout(): ApiResponse<Unit>
 
+    @POST("api/v1/fcm/token")
+    suspend fun registerFcmToken(@Body req: FcmTokenRequest): ApiResponse<Unit>
+
     @POST("api/v1/auth/siru/link")
     suspend fun linkSiru(@Body req: SiruLinkRequest): ApiResponse<MemberApiResponse>
-
-    @DELETE("api/v1/auth/siru/link")
-    suspend fun unlinkSiru(): ApiResponse<MemberApiResponse>
 
     // ── 가게 ────────────────────────────────────────────────
     @GET("api/v1/stores")
@@ -94,14 +91,6 @@ interface ApiService {
     suspend fun updateNotificationSettings(
         @Body req: UpdateNotificationSettingsRequest,
     ): ApiResponse<NotificationSettingsResponse>
-
-    // ── 알림 ────────────────────────────────────────────────
-    @GET("api/v1/notifications")
-    suspend fun getNotifications(): ApiResponse<NotificationListResponse>
-
-    @PATCH("api/v1/notifications/{notificationId}/read")
-    suspend fun markNotificationRead(@Path("notificationId") notificationId: Long): ApiResponse<Unit>
-
-    @DELETE("api/v1/notifications/{notificationId}")
-    suspend fun deleteNotification(@Path("notificationId") notificationId: Long): ApiResponse<Unit>
 }
+
+data class FcmTokenRequest(val token: String, val deviceInfo: String = "ANDROID")

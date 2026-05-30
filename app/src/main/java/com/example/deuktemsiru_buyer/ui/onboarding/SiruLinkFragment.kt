@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
@@ -14,6 +13,7 @@ import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.FragmentSiruLinkBinding
 import com.example.deuktemsiru_buyer.network.RetrofitClient
 import com.example.deuktemsiru_buyer.network.SiruLinkRequest
+import com.example.deuktemsiru_buyer.util.toast
 import kotlinx.coroutines.launch
 
 class SiruLinkFragment : Fragment() {
@@ -41,10 +41,10 @@ class SiruLinkFragment : Fragment() {
                 }.onSuccess { member ->
                     session.isSiruLinked = member?.isSiruLinked ?: true
                     session.siruBalance = member?.siruBalance ?: 0
-                    Toast.makeText(requireContext(), "시루 계정이 연동됐어요.", Toast.LENGTH_SHORT).show()
+                    toast("시루 계정이 연동됐어요.")
                     navigateAfterLink()
                 }.onFailure {
-                    Toast.makeText(requireContext(), "시루 연동에 실패했어요.", Toast.LENGTH_SHORT).show()
+                    toast("시루 연동에 실패했어요.")
                 }
             }
         }
@@ -67,6 +67,7 @@ class SiruLinkFragment : Fragment() {
                     putLong("menuId", arguments?.getLong("menuId") ?: 0L)
                     putInt("totalPrice", arguments?.getInt("totalPrice") ?: 0)
                     putBoolean("fromCart", arguments?.getBoolean("fromCart") ?: false)
+                    putString("pickupTime", arguments?.getString("pickupTime"))
                     putBoolean("autoPayAfterLink", true)
                 },
                 NavOptions.Builder()

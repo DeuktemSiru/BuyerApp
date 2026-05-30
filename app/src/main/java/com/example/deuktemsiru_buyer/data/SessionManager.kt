@@ -90,18 +90,18 @@ private fun <T> SharedPreferences.pref(
 
 private fun securePrefs(context: Context, name: String): SharedPreferences {
     val appContext = context.applicationContext
-    return runCatching {
-        val masterKey = MasterKey.Builder(appContext)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .build()
-        EncryptedSharedPreferences.create(
-            appContext,
-            name,
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
-        )
-    }.getOrElse {
-        appContext.getSharedPreferences(name, Context.MODE_PRIVATE)
+    val legacy = appContext.getSharedPreferences(name, Context.MODE_PRIVATE)
+    if (legacy.contains("accessToken") || legacy.contains("refreshToken")) {
+        check(appContext.deleteSharedPreferences(name)) { "암호화되지 않은 기존 세션을 삭제하지 못했습니다." }
     }
+    val masterKey = MasterKey.Builder(appContext)
+        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+        .build()
+    return EncryptedSharedPreferences.create(
+        appContext,
+        name,
+        masterKey,
+        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+    )
 }

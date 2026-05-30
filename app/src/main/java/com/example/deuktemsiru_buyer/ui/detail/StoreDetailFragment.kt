@@ -21,7 +21,8 @@ import com.example.deuktemsiru_buyer.databinding.FragmentStoreDetailBinding
 import com.example.deuktemsiru_buyer.network.RetrofitClient
 import com.example.deuktemsiru_buyer.util.Result
 import com.example.deuktemsiru_buyer.util.formatPrice
-import com.example.deuktemsiru_buyer.util.startTimerInto
+import com.example.deuktemsiru_buyer.util.startCountdown
+import com.example.deuktemsiru_buyer.util.toHourMinute
 import com.example.deuktemsiru_buyer.util.updateCartBadge
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -89,7 +90,6 @@ class StoreDetailFragment : Fragment() {
                     Snackbar.make(binding.root, "가게 정보를 불러오지 못했어요.", Snackbar.LENGTH_SHORT).show()
                     findNavController().popBackStack()
                 }
-                is Result.Loading -> Unit
             }
         }
     }
@@ -101,7 +101,7 @@ class StoreDetailFragment : Fragment() {
         binding.tvWalk.text = "도보 ${store.walkingMinutes}분"
         binding.tvAddress.text = store.address
         binding.tvPhone.text = store.phone
-        binding.tvPickupRange.text = "17:00 - 18:30"
+        binding.tvPickupRange.text = pickupRangeLabel(store.menus)
         binding.tvMenuSectionTitle.text = getString(R.string.menu_section_title, store.menus.size)
 
         binding.btnReserve.text = selectedAvailableMenu(store)?.let { menu ->
@@ -225,7 +225,6 @@ class StoreDetailFragment : Fragment() {
                 is Result.Error -> {
                     Snackbar.make(binding.root, "찜 처리 중 오류가 발생했어요.", Snackbar.LENGTH_SHORT).show()
                 }
-                is Result.Loading -> Unit
             }
         }
     }
@@ -262,13 +261,16 @@ class StoreDetailFragment : Fragment() {
         store.menus.firstOrNull { it.id == selectedMenuId && !it.isSoldOut }
             ?: store.menus.firstOrNull { !it.isSoldOut }
 
+    /** 가게 전체가 픽업 가능한 구간(가장 이른 시작 ~ 가장 늦은 마감). 결제 화면 슬롯은 선택한 메뉴 기준이라 이보다 좁을 수 있다. */
+    private fun pickupRangeLabel(menus: List<MenuItem>): String {
+        val start = menus.mapNotNull { it.pickupStart.takeIf(String::isNotBlank) }.minOrNull()
+        val end = menus.mapNotNull { it.pickupEnd.takeIf(String::isNotBlank) }.maxOrNull()
+        return if (start != null && end != null) "${start.toHourMinute()} - ${end.toHourMinute()}"
+        else "시간 확인 중"
+    }
+
     private fun startTimer(minutes: Int) {
-        timerJob = startTimerInto(minutes * 60L, timerJob) { remaining ->
-            if (_binding == null) return@startTimerInto
-            val mins = remaining / 60
-            val secs = remaining % 60
-            binding.tvTimer.text = "%02d:%02d".format(mins, secs)
-        }
+        timerJob = startCountdown(minutes * 60L, timerJob) { _binding?.tvTimer?.text = it }
     }
 
     override fun onDestroyView() {

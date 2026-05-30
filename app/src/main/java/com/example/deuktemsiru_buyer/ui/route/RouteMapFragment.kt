@@ -1,13 +1,10 @@
 package com.example.deuktemsiru_buyer.ui.route
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -17,8 +14,10 @@ import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.databinding.FragmentRouteMapBinding
 import com.example.deuktemsiru_buyer.network.TmapClient
 import com.example.deuktemsiru_buyer.network.TmapRouteRequest
-import com.example.deuktemsiru_buyer.util.formatDistanceMeters
 import com.example.deuktemsiru_buyer.util.MapViewLifecycleDelegate
+import com.example.deuktemsiru_buyer.util.formatDistanceMeters
+import com.example.deuktemsiru_buyer.util.hasLocationPermission
+import com.example.deuktemsiru_buyer.util.toast
 import android.os.Looper
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -74,12 +73,8 @@ class RouteMapFragment : Fragment(), OnMapReadyCallback {
         )
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(dest, 15f))
 
-        val hasPermission = ContextCompat.checkSelfPermission(
-            requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-
-        if (!hasPermission) {
-            Toast.makeText(requireContext(), "위치 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
+        if (!hasLocationPermission) {
+            toast("위치 권한이 필요합니다.")
             return
         }
 
@@ -97,7 +92,7 @@ class RouteMapFragment : Fragment(), OnMapReadyCallback {
                 val location = result.lastLocation
                 if (location == null) {
                     if (_binding != null) binding.progress.visibility = View.GONE
-                    Toast.makeText(requireContext(), "현재 위치를 확인하지 못했어요", Toast.LENGTH_SHORT).show()
+                    toast("현재 위치를 확인하지 못했어요")
                     locationCallback = null
                     return
                 }
@@ -165,7 +160,7 @@ class RouteMapFragment : Fragment(), OnMapReadyCallback {
                 showRouteInfo(destName, totalDistance, totalTime)
 
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "경로를 불러오지 못했어요", Toast.LENGTH_SHORT).show()
+                toast("경로를 불러오지 못했어요")
             } finally {
                 if (_binding != null) binding.progress.visibility = View.GONE
             }

@@ -37,14 +37,14 @@ class StoreAdapter(
 
             val mins = store.minutesUntilClose
             binding.tvTimeLeft.text = "${mins}분 후"
-            val timeColor = if (mins <= 30) R.color.warning else R.color.color_text_sub
+            val timeColor = if (mins <= 30) R.color.warning else R.color.text_sub
             binding.tvTimeLeft.setTextColor(ContextCompat.getColor(ctx, timeColor))
             val clockRes = if (mins <= 30) R.drawable.ic_clock else R.drawable.ic_clock_warning
             binding.ivClock.setImageResource(clockRes)
 
             binding.btnWishlist.setImageResource(if (store.isWishlisted) R.drawable.ic_heart_filled else R.drawable.ic_heart)
             binding.btnWishlist.imageTintList = ColorStateList.valueOf(
-                ContextCompat.getColor(ctx, if (store.isWishlisted) R.color.primary else R.color.color_text_muted)
+                ContextCompat.getColor(ctx, if (store.isWishlisted) R.color.primary else R.color.text_muted)
             )
 
             binding.cardRoot.setOnClickListener { onStoreClick(store) }

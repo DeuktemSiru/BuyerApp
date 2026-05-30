@@ -1,10 +1,10 @@
 package com.example.deuktemsiru_buyer.ui.home
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.deuktemsiru_buyer.data.Store
 import com.example.deuktemsiru_buyer.data.StoreRepository
+import com.example.deuktemsiru_buyer.network.RetrofitClient
 import com.example.deuktemsiru_buyer.util.AppError
 import com.example.deuktemsiru_buyer.util.Result
 import com.example.deuktemsiru_buyer.util.filterStores
@@ -24,7 +24,9 @@ data class HomeUiState(
     val searchQuery: String = "",
 )
 
-class HomeViewModel(private val repository: StoreRepository) : ViewModel() {
+class HomeViewModel(
+    private val repository: StoreRepository = StoreRepository(RetrofitClient.api),
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
@@ -37,16 +39,7 @@ class HomeViewModel(private val repository: StoreRepository) : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = showLoading, error = null) }
             when (val result = repository.getStores()) {
-                is Result.Success -> {
-                    val stores = result.data
-                    _uiState.update { state ->
-                        state.copy(
-                            stores = stores,
-                            filteredStores = stores.filterStores(state.selectedCategory, state.searchQuery),
-                            isLoading = false,
-                        )
-                    }
-                }
+                is Result.Success -> updateAndRefilter { it.copy(stores = result.data, isLoading = false) }
                 is Result.Error -> {
                     val isAuth = result.error == AppError.AUTH_ERROR
                     _uiState.update {
@@ -57,28 +50,13 @@ class HomeViewModel(private val repository: StoreRepository) : ViewModel() {
                         )
                     }
                 }
-                is Result.Loading -> Unit
             }
         }
     }
 
-    fun selectCategory(category: String) {
-        _uiState.update { state ->
-            state.copy(
-                selectedCategory = category,
-                filteredStores = state.stores.filterStores(category, state.searchQuery),
-            )
-        }
-    }
+    fun selectCategory(category: String) = updateAndRefilter { it.copy(selectedCategory = category) }
 
-    fun updateSearch(query: String) {
-        _uiState.update { state ->
-            state.copy(
-                searchQuery = query,
-                filteredStores = state.stores.filterStores(state.selectedCategory, query),
-            )
-        }
-    }
+    fun updateSearch(query: String) = updateAndRefilter { it.copy(searchQuery = query) }
 
     fun toggleWishlist(store: Store) {
         viewModelScope.launch {
@@ -92,21 +70,21 @@ class HomeViewModel(private val repository: StoreRepository) : ViewModel() {
                     updateWishlistState(store.id, store.isWishlisted)
                     _uiState.update { it.copy(error = "찜 처리 중 오류가 발생했어요.") }
                 }
-                is Result.Loading -> Unit
             }
         }
     }
 
-    private fun updateWishlistState(storeId: Long, isWishlisted: Boolean) {
-        _uiState.update { state ->
-            val updated = state.stores.map {
+    private fun updateWishlistState(storeId: Long, isWishlisted: Boolean) = updateAndRefilter { state ->
+        state.copy(
+            stores = state.stores.map {
                 if (it.id == storeId) it.copy(isWishlisted = isWishlisted) else it
-            }
-            state.copy(
-                stores = updated,
-                filteredStores = updated.filterStores(state.selectedCategory, state.searchQuery),
-            )
-        }
+            },
+        )
+    }
+
+    /** Applies [change], then keeps filteredStores consistent with the resulting state. */
+    private fun updateAndRefilter(change: (HomeUiState) -> HomeUiState) = _uiState.update { state ->
+        change(state).let { it.copy(filteredStores = it.stores.filterStores(it.selectedCategory, it.searchQuery)) }
     }
 
     fun errorShown() {
@@ -117,17 +95,11 @@ class HomeViewModel(private val repository: StoreRepository) : ViewModel() {
         _uiState.update { it.copy(authError = false) }
     }
 
+    // AUTH_ERROR never reaches here — callers surface it through the authError flag instead.
     private fun errorMessage(error: AppError, httpCode: Int): String = when (error) {
         AppError.NOT_FOUND -> "데이터를 찾을 수 없어요."
         AppError.SERVER_ERROR -> "서버에 일시적인 문제가 있어요. 잠시 후 다시 시도해주세요."
         AppError.NETWORK_ERROR -> "네트워크에 연결할 수 없어요."
-        AppError.UNKNOWN -> "네트워크 오류가 발생했어요. ($httpCode)"
-        AppError.AUTH_ERROR -> null // handled as authError flag, never shown as message
-    } ?: "알 수 없는 오류가 발생했어요."
-
-    class Factory(private val repository: StoreRepository) : ViewModelProvider.Factory {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            HomeViewModel(repository) as T
+        AppError.UNKNOWN, AppError.AUTH_ERROR -> "네트워크 오류가 발생했어요. ($httpCode)"
     }
 }

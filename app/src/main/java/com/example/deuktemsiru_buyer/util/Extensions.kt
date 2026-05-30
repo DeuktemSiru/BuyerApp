@@ -9,6 +9,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -18,12 +19,17 @@ import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.CartManager
 import com.example.deuktemsiru_buyer.data.Store
 import com.example.deuktemsiru_buyer.data.categoryToApi
-import com.google.android.material.color.MaterialColors
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.MultiFormatWriter
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+
+fun Fragment.toast(message: String, duration: Int = Toast.LENGTH_SHORT) {
+    Toast.makeText(requireContext(), message, duration).show()
+}
 
 // S14 – Price formatting
 fun Int.formatPrice(): String = "%,d원".format(this)
@@ -47,16 +53,27 @@ fun String.toHourMinute(): String = runCatching {
 }.getOrDefault(this)
 
 // S16 – Shared countdown timer starter for Fragments
-fun Fragment.startTimerInto(
+private fun countdownFlow(startSeconds: Long) = flow {
+    var remaining = startSeconds
+    while (remaining >= 0) {
+        emit(remaining)
+        if (remaining == 0L) break
+        delay(1_000)
+        remaining--
+    }
+}
+
+/** Ticks down from [totalSeconds], handing the caller a pre-formatted "mm:ss" label. */
+fun Fragment.startCountdown(
     totalSeconds: Long,
     currentJob: Job?,
-    onTick: (Long) -> Unit,
+    onTick: (String) -> Unit,
 ): Job {
     currentJob?.cancel()
     return viewLifecycleOwner.lifecycleScope.launch {
         repeatOnLifecycle(Lifecycle.State.STARTED) {
             countdownFlow(totalSeconds).collect { remaining ->
-                onTick(remaining)
+                onTick("%02d:%02d".format(remaining / 60, remaining % 60))
             }
         }
     }
@@ -74,22 +91,16 @@ fun generateQrBitmap(content: String, size: Int = 512): Bitmap? = runCatching {
 }.getOrNull()
 
 // S20 – Shared chip selection styling
-fun Map<TextView, String>.updateChipSelection(
-    selected: String,
-    context: Context,
-    selectedTextAttr: Int = com.google.android.material.R.attr.colorOnPrimary,
-    unselectedTextColorRes: Int = R.color.color_text,
-) {
+fun Map<TextView, String>.updateChipSelection(selected: String, context: Context) {
     forEach { (chip, category) ->
         val isSelected = category == selected
         chip.setBackgroundResource(
             if (isSelected) R.drawable.bg_chip_selected else R.drawable.bg_chip_unselected
         )
         chip.setTextColor(
-            if (isSelected)
-                MaterialColors.getColor(chip, selectedTextAttr)
-            else
-                context.getColor(unselectedTextColorRes)
+            // 선택 칩 배경(bg_chip_selected)은 다크에서도 반전되지 않는 primary_fixed 라
+            // colorOnPrimary(다크=#5C1A0D) 가 아니라 흰색으로 고정한다.
+            context.getColor(if (isSelected) R.color.white else R.color.text)
         )
     }
 }
@@ -115,7 +126,7 @@ fun Fragment.bindSearch(
     }
 }
 
-fun Fragment.hideKeyboard(editText: EditText) {
+private fun Fragment.hideKeyboard(editText: EditText) {
     val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     imm.hideSoftInputFromWindow(editText.windowToken, 0)
     editText.clearFocus()

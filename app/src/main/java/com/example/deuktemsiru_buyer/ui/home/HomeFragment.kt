@@ -15,10 +15,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.SessionManager
-import com.example.deuktemsiru_buyer.data.StoreRepository
 import com.example.deuktemsiru_buyer.data.storeCategoryFilters
 import com.example.deuktemsiru_buyer.databinding.FragmentHomeBinding
-import com.example.deuktemsiru_buyer.network.RetrofitClient
 import com.example.deuktemsiru_buyer.util.bindCategorySelection
 import com.example.deuktemsiru_buyer.util.bindSearch
 import com.example.deuktemsiru_buyer.util.updateCartBadge
@@ -31,9 +29,7 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: HomeViewModel by viewModels {
-        HomeViewModel.Factory(StoreRepository(RetrofitClient.api))
-    }
+    private val viewModel: HomeViewModel by viewModels()
 
     private lateinit var storeAdapter: StoreAdapter
     private lateinit var session: SessionManager
@@ -98,7 +94,7 @@ class HomeFragment : Fragment() {
                     }
 
                     // Category chip visual sync
-                    syncCategoryChips(state.selectedCategory)
+                    categoryChips.updateChipSelection(state.selectedCategory, requireContext())
                 }
             }
         }
@@ -131,10 +127,6 @@ class HomeFragment : Fragment() {
         )
     }
 
-    private fun syncCategoryChips(selected: String) {
-        categoryChips.updateChipSelection(selected, requireContext())
-    }
-
     private fun setupSearch() {
         bindSearch(binding.etSearch, binding.btnSearch) {
             viewModel.updateSearch(binding.etSearch.text?.toString().orEmpty())
@@ -144,12 +136,7 @@ class HomeFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         viewModel.loadStores(showLoading = false)
-        updateCartBadge()
-    }
-
-    private fun updateCartBadge() {
-        if (_binding == null) return
-        binding.tvCartBadge.updateCartBadge()
+        _binding?.tvCartBadge?.updateCartBadge()
     }
 
     override fun onDestroyView() {

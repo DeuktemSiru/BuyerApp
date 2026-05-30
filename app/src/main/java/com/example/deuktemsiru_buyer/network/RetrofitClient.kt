@@ -3,6 +3,7 @@ package com.example.deuktemsiru_buyer.network
 import android.util.Log
 import com.example.deuktemsiru_buyer.BuildConfig
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import okhttp3.Authenticator
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -20,11 +21,10 @@ object RetrofitClient {
     @Volatile var accessToken: String? = null
     @Volatile var refreshToken: String? = null
     var onTokenRefreshed: ((String) -> Unit)? = null
+    var onSessionExpired: (() -> Unit)? = null
 
     init {
-        if (!BuildConfig.DEBUG && BASE_URL.contains("10.0.2.2")) {
-            error("릴리스 빌드에서 에뮬레이터 URL을 사용할 수 없습니다. local.properties에 BACKEND_BASE_URL을 설정하세요.")
-        }
+        requireSecureBaseUrl(BASE_URL, BuildConfig.DEBUG)
     }
 
     private val client: OkHttpClient by lazy {
@@ -72,44 +72,43 @@ object RetrofitClient {
                 .build()
         }
 
-        private fun refreshTokenSync(refreshToken: String): String? {
-            return try {
-                val url = URI(BASE_URL).resolve("api/v1/auth/refresh").toURL()
-                val conn = (url.openConnection() as HttpURLConnection).apply {
-                    requestMethod = "POST"
-                    setRequestProperty("Content-Type", "application/json")
-                    doOutput = true
-                    connectTimeout = 10_000
-                    readTimeout = 10_000
-                }
-                val body = Gson().toJson(mapOf("refreshToken" to refreshToken))
-                conn.outputStream.use { it.write(body.toByteArray()) }
-                if (conn.responseCode != HttpURLConnection.HTTP_OK) return null
-                val json = conn.inputStream.bufferedReader().readText()
-                try {
-                    val type = com.google.gson.reflect.TypeToken.getParameterized(
-                        ApiResponse::class.java, TokenData::class.java
-                    ).type
-                    val response: ApiResponse<TokenData>? = Gson().fromJson(json, type)
-                    response?.data?.accessToken
-                } catch (e: Exception) {
-                    Log.e("TokenRefresh", "Failed to parse token refresh response", e)
-                    null
-                }
-            } catch (e: Exception) {
-                Log.e("TokenRefresh", "Token refresh request failed", e)
-                null
+        private fun refreshTokenSync(refreshToken: String): String? = try {
+            val url = URI(BASE_URL).resolve("api/v1/auth/refresh").toURL()
+            val conn = (url.openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                setRequestProperty("Content-Type", "application/json")
+                doOutput = true
+                connectTimeout = 10_000
+                readTimeout = 10_000
             }
+            conn.outputStream.use { it.write(Gson().toJson(mapOf("refreshToken" to refreshToken)).toByteArray()) }
+            if (conn.responseCode != HttpURLConnection.HTTP_OK) {
+                if (isDefinitiveRefreshFailure(conn.responseCode)) {
+                    accessToken = null
+                    RetrofitClient.refreshToken = null
+                    onSessionExpired?.invoke()
+                }
+                null
+            } else {
+                val type = TypeToken.getParameterized(ApiResponse::class.java, TokenData::class.java).type
+                Gson().fromJson<ApiResponse<TokenData>?>(conn.inputStream.bufferedReader().readText(), type)
+                    ?.data?.accessToken
+            }
+        } catch (e: Exception) {
+            Log.e("TokenRefresh", "Token refresh failed", e)
+            null
         }
 
-        private fun responseCount(response: Response): Int {
-            var count = 1
-            var prior = response.priorResponse
-            while (prior != null) {
-                count++
-                prior = prior.priorResponse
-            }
-            return count
-        }
+        private fun responseCount(response: Response) =
+            generateSequence(response) { it.priorResponse }.count()
     }
 }
+
+internal fun requireSecureBaseUrl(baseUrl: String, isDebug: Boolean) {
+    require(isDebug || URI(baseUrl).scheme.equals("https", ignoreCase = true)) {
+        "릴리스 빌드는 HTTPS 백엔드만 사용할 수 있습니다. local.properties의 BACKEND_BASE_URL을 확인하세요."
+    }
+}
+
+internal fun isDefinitiveRefreshFailure(statusCode: Int): Boolean =
+    statusCode == HttpURLConnection.HTTP_BAD_REQUEST || statusCode == HttpURLConnection.HTTP_UNAUTHORIZED

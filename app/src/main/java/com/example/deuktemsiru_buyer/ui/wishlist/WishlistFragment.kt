@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -21,6 +20,7 @@ import com.example.deuktemsiru_buyer.util.Result
 import com.example.deuktemsiru_buyer.util.bindCategorySelection
 import com.example.deuktemsiru_buyer.util.bindSearch
 import com.example.deuktemsiru_buyer.util.filterStores
+import com.example.deuktemsiru_buyer.util.toast
 import kotlinx.coroutines.launch
 
 class WishlistFragment : Fragment() {
@@ -63,14 +63,13 @@ class WishlistFragment : Fragment() {
                     allStores.clear()
                     allStores.addAll(stores)
                     binding.progress.visibility = View.GONE
-                    updateList(filterStores())
+                    refresh()
                 }
                 is Result.Error -> {
                     binding.progress.visibility = View.GONE
                     binding.layoutEmpty.visibility = View.VISIBLE
-                    Toast.makeText(requireContext(), "찜 목록을 불러오지 못했어요.", Toast.LENGTH_SHORT).show()
+                    toast("찜 목록을 불러오지 못했어요.")
                 }
-                is Result.Loading -> Unit
             }
         }
     }
@@ -87,14 +86,12 @@ class WishlistFragment : Fragment() {
                 viewLifecycleOwner.lifecycleScope.launch {
                     when (repository.toggleWishlist(store.id)) {
                         is Result.Success -> {
-                        allStores.removeAll { it.id == store.id }
-                        updateList(filterStores())
-                        Toast.makeText(requireContext(), "찜 목록에서 제거했어요", Toast.LENGTH_SHORT).show()
+                            allStores.removeAll { it.id == store.id }
+                            refresh()
+                            toast("찜 목록에서 제거했어요")
                         }
-                        is Result.Error -> {
-                        Toast.makeText(requireContext(), "찜 처리 중 오류가 발생했어요.", Toast.LENGTH_SHORT).show()
-                        }
-                        is Result.Loading -> Unit
+                        is Result.Error ->
+                            toast("찜 처리 중 오류가 발생했어요.")
                     }
                 }
             }
@@ -120,21 +117,18 @@ class WishlistFragment : Fragment() {
             selected = { currentCategory },
             onSelected = {
                 currentCategory = it
-                updateList(filterStores())
+                refresh()
             },
         )
     }
 
     private fun setupSearch() {
-        bindSearch(binding.etWishlistSearch, binding.btnWishlistSearch) { updateList(filterStores()) }
+        bindSearch(binding.etWishlistSearch, binding.btnWishlistSearch) { refresh() }
     }
 
-    private fun filterStores(): List<Store> {
+    private fun refresh() {
         val query = binding.etWishlistSearch.text?.toString()?.trim().orEmpty()
-        return allStores.filterStores(currentCategory, query)
-    }
-
-    private fun updateList(stores: List<Store>) {
+        val stores = allStores.filterStores(currentCategory, query)
         adapter.submitList(stores)
         binding.rvWishlist.visibility = if (stores.isEmpty()) View.GONE else View.VISIBLE
         binding.layoutEmpty.visibility = if (stores.isEmpty()) View.VISIBLE else View.GONE

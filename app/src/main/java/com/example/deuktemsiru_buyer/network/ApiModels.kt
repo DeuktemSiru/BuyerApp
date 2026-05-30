@@ -19,8 +19,6 @@ data class DebugLoginRequest(
     val role: String = "CONSUMER",
 )
 
-data class TokenRefreshRequest(val refreshToken: String)
-
 data class MemberSummary(
     val memberId: Long,
     val nickname: String,
@@ -121,6 +119,7 @@ data class OrderItemRequest(
 data class CreateOrderRequest(
     val items: List<OrderItemRequest>,
     val paymentMethod: String = "SIRU",
+    val pickupTime: String? = null,
 )
 
 data class PaymentInfo(
@@ -131,6 +130,7 @@ data class PaymentInfo(
 data class CreateOrderResponse(
     val orderId: Long,
     val pickupCode: String?,
+    val pickupTime: String? = null,
     val status: String,
     val totalPrice: Int,
     val payment: PaymentInfo,
@@ -192,6 +192,9 @@ data class MemberStatsResponse(
     val totalSavedAmount: Int,
     val totalCarbonSavedKg: Double,
     val totalOrders: Int,
+    val grade: String? = null,
+    val points: Int = 0,
+    val couponCount: Int = 0,
 )
 
 data class NotificationSettingsResponse(
@@ -209,24 +212,6 @@ data class UpdateNotificationSettingsRequest(
     val pickupReminder: Boolean? = null,
     val orderConfirmed: Boolean? = null,
     val event: Boolean? = null,
-)
-
-// ── 알림 ────────────────────────────────────────────────────
-data class NotificationListResponse(
-    val notifications: List<NotificationApiResponse>,
-    val unreadCount: Int,
-)
-
-data class NotificationApiResponse(
-    val notificationId: Long,
-    val type: String,
-    val title: String,
-    val body: String,
-    val isRead: Boolean,
-    val relatedStoreId: Long?,
-    val relatedOrderId: Long?,
-    val relatedProductId: Long?,
-    val createdAt: String,
 )
 
 // ── 장바구니 ────────────────────────────────────────────────

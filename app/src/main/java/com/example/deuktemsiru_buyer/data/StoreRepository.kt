@@ -26,10 +26,6 @@ class StoreRepository(private val api: ApiService) {
         }
     }
 
-    fun invalidateCache(storeId: Long? = null) {
-        if (storeId == null) storeCache.clear() else storeCache.remove(storeId)
-    }
-
     suspend fun toggleWishlist(storeId: Long): Result<Boolean> = safeCall {
         api.toggleWishlist(storeId).data?.isWishlisted ?: false
     }
@@ -48,7 +44,7 @@ private inline fun <T> safeCall(block: () -> T): Result<T> = try {
         in 500..599 -> AppError.SERVER_ERROR
         else -> AppError.UNKNOWN
     }
-    Result.Error(appError, httpCode = e.code(), cause = e)
+    Result.Error(appError, httpCode = e.code())
 } catch (e: Exception) {
-    Result.Error(AppError.NETWORK_ERROR, cause = e)
+    Result.Error(AppError.NETWORK_ERROR)
 }

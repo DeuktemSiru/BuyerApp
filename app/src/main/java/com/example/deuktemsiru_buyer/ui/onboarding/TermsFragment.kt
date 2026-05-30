@@ -28,27 +28,12 @@ class TermsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         updateContinueButton()
-
-        binding.cbAll.setOnCheckedChangeListener { _, isChecked ->
-            binding.cbTerms.isChecked = isChecked
-            binding.cbPrivacy.isChecked = isChecked
-            binding.cbMarketing.isChecked = isChecked
-            updateContinueButton()
-        }
-
-        binding.cbTerms.setOnCheckedChangeListener { _, _ ->
-            updateAllCheckbox()
-            updateContinueButton()
-        }
-
-        binding.cbPrivacy.setOnCheckedChangeListener { _, _ ->
-            updateAllCheckbox()
-            updateContinueButton()
-        }
-
-        binding.cbMarketing.setOnCheckedChangeListener { _, _ ->
-            updateAllCheckbox()
-            updateContinueButton()
+        bindAllCheckbox()
+        agreementBoxes.forEach { box ->
+            box.setOnCheckedChangeListener { _, _ ->
+                syncAllCheckbox()
+                updateContinueButton()
+            }
         }
 
         binding.tvTermsDetail.setOnClickListener {
@@ -77,18 +62,20 @@ class TermsFragment : Fragment() {
         }
     }
 
-    private fun updateAllCheckbox() {
-        val allChecked = binding.cbTerms.isChecked &&
-            binding.cbPrivacy.isChecked &&
-            binding.cbMarketing.isChecked
-        binding.cbAll.setOnCheckedChangeListener(null)
-        binding.cbAll.isChecked = allChecked
+    private val agreementBoxes get() = listOf(binding.cbTerms, binding.cbPrivacy, binding.cbMarketing)
+
+    private fun bindAllCheckbox() {
         binding.cbAll.setOnCheckedChangeListener { _, isChecked ->
-            binding.cbTerms.isChecked = isChecked
-            binding.cbPrivacy.isChecked = isChecked
-            binding.cbMarketing.isChecked = isChecked
+            agreementBoxes.forEach { it.isChecked = isChecked }
             updateContinueButton()
         }
+    }
+
+    /** Mirrors the child state onto "select all" without re-triggering its listener. */
+    private fun syncAllCheckbox() {
+        binding.cbAll.setOnCheckedChangeListener(null)
+        binding.cbAll.isChecked = agreementBoxes.all { it.isChecked }
+        bindAllCheckbox()
     }
 
     private fun updateContinueButton() {

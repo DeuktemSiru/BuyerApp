@@ -9,6 +9,11 @@ import androidx.fragment.app.Fragment
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 
+val Fragment.hasLocationPermission: Boolean
+    get() = context?.let {
+        ContextCompat.checkSelfPermission(it, Manifest.permission.ACCESS_FINE_LOCATION)
+    } == PackageManager.PERMISSION_GRANTED
+
 @SuppressLint("MissingPermission")
 fun Fragment.getCurrentLocation(
     onMissingPermission: () -> Unit = {},
@@ -16,10 +21,7 @@ fun Fragment.getCurrentLocation(
     onLocation: (Location) -> Unit,
 ) {
     val ctx = context ?: return
-    val hasPermission = ContextCompat.checkSelfPermission(
-        ctx, Manifest.permission.ACCESS_FINE_LOCATION
-    ) == PackageManager.PERMISSION_GRANTED
-    if (!hasPermission) {
+    if (!hasLocationPermission) {
         onMissingPermission()
         return
     }

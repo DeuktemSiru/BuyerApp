@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -19,6 +18,7 @@ import com.example.deuktemsiru_buyer.util.formatPrice
 import com.example.deuktemsiru_buyer.util.generateQrBitmap
 import com.example.deuktemsiru_buyer.util.orderStatusLabel
 import com.example.deuktemsiru_buyer.util.toHourMinute
+import com.example.deuktemsiru_buyer.util.toast
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.launch
 
@@ -63,7 +63,7 @@ class OrderDetailBottomSheet : BottomSheetDialogFragment() {
                 val detail = RetrofitClient.api.getOrder(orderId).data ?: return@launch
                 bindDetail(detail)
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "상세 정보를 불러오지 못했어요.", Toast.LENGTH_SHORT).show()
+                toast("상세 정보를 불러오지 못했어요.")
                 dismiss()
             }
         }
@@ -77,8 +77,8 @@ class OrderDetailBottomSheet : BottomSheetDialogFragment() {
         binding.tvStatusBadge.text = statusText
 
         binding.itemsContainer.removeAllViews()
-        val textColor = ContextCompat.getColor(requireContext(), R.color.color_text)
-        val textSubColor = ContextCompat.getColor(requireContext(), R.color.color_text_sub)
+        val textColor = ContextCompat.getColor(requireContext(), R.color.text)
+        val textSubColor = ContextCompat.getColor(requireContext(), R.color.text_sub)
         detail.items.forEach { item ->
             val row = LinearLayout(requireContext()).apply {
                 orientation = LinearLayout.HORIZONTAL
@@ -100,9 +100,7 @@ class OrderDetailBottomSheet : BottomSheetDialogFragment() {
             binding.itemsContainer.addView(row)
         }
 
-        binding.tvPickupTime.text = detail.pickupTime
-            ?.toHourMinute()
-            ?: "미정"
+        binding.tvPickupTime.text = detail.pickupTime?.toHourMinute() ?: "미정"
 
         binding.tvTotalAmount.text = detail.totalPrice.formatPrice()
 
@@ -127,11 +125,11 @@ class OrderDetailBottomSheet : BottomSheetDialogFragment() {
                 viewLifecycleOwner.lifecycleScope.launch {
                     try {
                         RetrofitClient.api.cancelOrder(detail.orderId)
-                        Toast.makeText(requireContext(), "주문이 취소됐어요.", Toast.LENGTH_SHORT).show()
+                        toast("주문이 취소됐어요.")
                         onOrderCancelled?.invoke()
                         dismiss()
                     } catch (e: Exception) {
-                        Toast.makeText(requireContext(), "취소에 실패했어요.", Toast.LENGTH_SHORT).show()
+                        toast("취소에 실패했어요.")
                     }
                 }
             }

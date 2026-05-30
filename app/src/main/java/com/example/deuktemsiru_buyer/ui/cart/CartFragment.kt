@@ -1,13 +1,10 @@
 package com.example.deuktemsiru_buyer.ui.cart
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -172,19 +169,9 @@ class CartFragment : Fragment() {
             return
         }
 
-        val hasPermission = ContextCompat.checkSelfPermission(
-            requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-
-        if (!hasPermission) {
-            binding.tvDistance.text = "위치 권한 없음"
-            return
-        }
-
         getCurrentLocation(
-            onUnavailable = {
-                if (_binding != null) binding.tvDistance.text = "위치 확인 불가"
-            },
+            onMissingPermission = { _binding?.tvDistance?.text = "위치 권한 없음" },
+            onUnavailable = { _binding?.tvDistance?.text = "위치 확인 불가" },
             onLocation = { location -> if (_binding != null) showDistance(location, storeLat, storeLng) },
         )
     }

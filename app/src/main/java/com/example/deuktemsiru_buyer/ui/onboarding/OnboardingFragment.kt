@@ -9,12 +9,14 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.deuktemsiru_buyer.BuildConfig
+import com.example.deuktemsiru_buyer.MainActivity
 import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.FragmentOnboardingBinding
 import com.example.deuktemsiru_buyer.network.DebugLoginRequest
 import com.example.deuktemsiru_buyer.network.KakaoLoginRequest
 import com.example.deuktemsiru_buyer.network.RetrofitClient
+import com.example.deuktemsiru_buyer.util.toast
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
@@ -69,15 +71,16 @@ class OnboardingFragment : Fragment() {
             try {
                 val response = RetrofitClient.api.debugLogin(DebugLoginRequest())
                 if (response.data == null) {
-                    Toast.makeText(requireContext(), response.message.ifBlank { "디버그 로그인에 실패했어요" }, Toast.LENGTH_SHORT).show()
+                    toast(response.message.ifBlank { "디버그 로그인에 실패했어요" })
                     setLoading(false)
                     return@launch
                 }
 
                 session.saveLogin(response.data)
+                (activity as? MainActivity)?.enablePush()
                 navigateHome()
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "디버그 로그인 서버 연결에 실패했어요.", Toast.LENGTH_LONG).show()
+                toast("디버그 로그인 서버 연결에 실패했어요.", Toast.LENGTH_LONG)
                 setLoading(false)
             }
         }
@@ -110,7 +113,7 @@ class OnboardingFragment : Fragment() {
 
     private fun handleKakaoError(error: Throwable) {
         if (!error.isUserCancelled()) {
-            Toast.makeText(requireContext(), "카카오 로그인에 실패했어요", Toast.LENGTH_SHORT).show()
+            toast("카카오 로그인에 실패했어요")
         }
         setLoading(false)
     }
@@ -123,15 +126,16 @@ class OnboardingFragment : Fragment() {
                 ).data
 
                 if (loginData == null) {
-                    Toast.makeText(requireContext(), "로그인에 실패했어요", Toast.LENGTH_SHORT).show()
+                    toast("로그인에 실패했어요")
                     setLoading(false)
                     return@launch
                 }
 
                 session.saveLogin(loginData)
+                (activity as? MainActivity)?.enablePush()
                 navigateHome()
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "서버 로그인에 실패했어요. 잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show()
+                toast("서버 로그인에 실패했어요. 잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG)
                 setLoading(false)
             }
         }
@@ -150,7 +154,7 @@ class OnboardingFragment : Fragment() {
         binding.btnKakaoLogin.text =
             if (loading && type == LoginType.KAKAO) "카카오 로그인 중..." else "카카오로 시작하기"
         binding.btnDebugLogin.text =
-            if (loading && type == LoginType.DEBUG) "디버그 로그인 중..." else "디버그 로그인으로 시작하기"
+            if (loading && type == LoginType.DEBUG) "디버그 로그인 중..." else "디버그 로그인"
     }
 
     override fun onDestroyView() {

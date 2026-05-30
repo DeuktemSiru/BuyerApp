@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -14,6 +13,7 @@ import com.example.deuktemsiru_buyer.R
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.databinding.FragmentMypageBinding
 import com.example.deuktemsiru_buyer.network.RetrofitClient
+import com.example.deuktemsiru_buyer.util.toast
 import kotlinx.coroutines.launch
 
 class MyPageFragment : Fragment() {
@@ -35,6 +35,7 @@ class MyPageFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         session = SessionManager(requireContext())
+        binding.tvNickname.text = session.nickname
         if (session.isLoggedIn()) {
             loadUser()
         }
@@ -72,16 +73,25 @@ class MyPageFragment : Fragment() {
             try {
                 val user = RetrofitClient.api.getMe().data ?: return@launch
                 val stats = RetrofitClient.api.getMyStats().data
+                val totalOrders = stats?.totalOrders ?: 0
+                val wishlistCount = runCatching {
+                    RetrofitClient.api.getWishlist().data?.wishlists?.size
+                }.getOrNull() ?: 0
 
                 binding.tvNickname.text = user.nickname
                 binding.tvCarbonTotal.text = "%.1f".format(stats?.totalCarbonSavedKg ?: 0.0)
-                binding.tvCarbonSavedCount.text = "총 ${stats?.totalOrders ?: 0}개의 음식을 구출하셨어요!"
-                binding.tvEcoLevel.text = "에코 레벨: ${gradeLabel(stats?.totalOrders ?: 0)}"
-                binding.tvEcoNext.text = nextGradeHint(stats?.totalOrders ?: 0)
-                binding.tvPoints.text = "%,dP".format((stats?.totalSavedAmount ?: 0) / 10)
-                session.syncMe(RetrofitClient.api)
+                binding.tvCarbonSavedCount.text = "총 ${totalOrders}개의 음식을 구출하셨어요!"
+                binding.tvTotalSavings.text = "%,d원".format(stats?.totalSavedAmount ?: 0)
+                binding.tvEcoLevel.text = "에코 레벨: ${gradeLabel(stats?.grade, totalOrders)}"
+                binding.tvEcoNext.text = nextGradeHint(stats?.grade, totalOrders)
+                binding.tvCouponCount.text = (stats?.couponCount ?: 0).toString()
+                binding.tvPoints.text = "%,dP".format(stats?.points ?: 0)
+                binding.tvWishlistCount.text = wishlistCount.toString()
+                session.nickname = user.nickname
+                session.isSiruLinked = user.isSiruLinked
+                session.siruBalance = user.siruBalance
 
-                val progressRatio = ((stats?.totalOrders ?: 0) / 10f).coerceIn(0.2f, 1.0f)
+                val progressRatio = gradeProgress(stats?.grade, totalOrders)
                 binding.progressEco.post {
                     val parentWidth = (binding.progressEco.parent as View).width
                     binding.progressEco.layoutParams.width = (parentWidth * progressRatio).toInt()
@@ -134,24 +144,38 @@ class MyPageFragment : Fragment() {
                                     event = checked[3],
                                 )
                             )
-                            Toast.makeText(requireContext(), "알림 설정을 저장했어요.", Toast.LENGTH_SHORT).show()
+                            toast("알림 설정을 저장했어요.")
                         }
                     }
                     .setNegativeButton("취소", null)
                     .show()
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "설정을 불러오지 못했어요.", Toast.LENGTH_SHORT).show()
+                toast("설정을 불러오지 못했어요.")
             }
         }
     }
 
-    private fun gradeLabel(totalOrders: Int) =
-        ecoGrades.last { totalOrders >= it.minOrders }.label
+    private fun gradeLabel(grade: String?, totalOrders: Int) =
+        apiGradeLabels[grade] ?: ecoGrades.last { totalOrders >= it.minOrders }.label
 
-    private fun nextGradeHint(totalOrders: Int) =
-        ecoGrades.firstOrNull { totalOrders < it.minOrders }
+    private fun nextGradeHint(grade: String?, totalOrders: Int): String {
+        val apiGradeIndex = apiGradeOrder.indexOf(grade)
+        if (apiGradeIndex >= 0) {
+            return apiGradeOrder.getOrNull(apiGradeIndex + 1)
+                ?.let { "더 구하면 ${apiGradeLabels.getValue(it)}로 성장해요" }
+                ?: "최고 등급이에요!"
+        }
+        return ecoGrades.firstOrNull { totalOrders < it.minOrders }
             ?.let { "${it.minOrders}회 주문하면 ${it.label}로 성장해요" }
             ?: "최고 등급이에요!"
+    }
+
+    private fun gradeProgress(grade: String?, totalOrders: Int): Float {
+        val apiGradeIndex = apiGradeOrder.indexOf(grade)
+        if (apiGradeIndex >= 0) return (apiGradeIndex + 1f) / apiGradeOrder.size
+        val nextGrade = ecoGrades.firstOrNull { totalOrders < it.minOrders } ?: return 1f
+        return (totalOrders.toFloat() / nextGrade.minOrders).coerceIn(0.2f, 1f)
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -166,4 +190,13 @@ private val ecoGrades = listOf(
     EcoGrade(5, "새싹+"),
     EcoGrade(15, "나무"),
     EcoGrade(30, "숲"),
+)
+
+private val apiGradeOrder = listOf("SEEDLING", "SPROUT", "TREE", "FOREST")
+
+private val apiGradeLabels = mapOf(
+    "SEEDLING" to "새싹 🌱",
+    "SPROUT" to "새싹+ 🌿",
+    "TREE" to "나무 🌳",
+    "FOREST" to "숲 🌲",
 )

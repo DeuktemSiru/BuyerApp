@@ -9,23 +9,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.deuktemsiru_buyer.R
-import com.example.deuktemsiru_buyer.data.OrderRepository
 import com.example.deuktemsiru_buyer.data.SessionManager
 import com.example.deuktemsiru_buyer.data.StoreRepository
+import com.example.deuktemsiru_buyer.data.minutesUntilClose
 import com.example.deuktemsiru_buyer.databinding.FragmentPickupBinding
 import com.example.deuktemsiru_buyer.network.OrderDetailResponse
-import com.example.deuktemsiru_buyer.data.minutesUntilClose
 import com.example.deuktemsiru_buyer.network.RetrofitClient
 import com.example.deuktemsiru_buyer.util.Result
 import com.example.deuktemsiru_buyer.util.formatPrice
 import com.example.deuktemsiru_buyer.util.generateQrBitmap
-import com.example.deuktemsiru_buyer.util.startTimerInto
+import com.example.deuktemsiru_buyer.util.startCountdown
 import com.example.deuktemsiru_buyer.util.toHourMinute
+import com.example.deuktemsiru_buyer.util.toast
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -41,7 +40,6 @@ class PickupFragment : Fragment() {
     private var storeLat = 0.0
     private var storeLng = 0.0
     private var storeName = ""
-    private val orderRepository by lazy { OrderRepository(RetrofitClient.api) }
     private val storeRepository by lazy { StoreRepository(RetrofitClient.api) }
 
     override fun onCreateView(
@@ -71,13 +69,13 @@ class PickupFragment : Fragment() {
         binding.llCode.setOnLongClickListener {
             val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             clipboard.setPrimaryClip(ClipData.newPlainText("픽업코드", pickupCode))
-            Toast.makeText(requireContext(), "픽업 코드가 복사되었어요", Toast.LENGTH_SHORT).show()
+            toast("픽업 코드가 복사되었어요")
             true
         }
 
         binding.btnDirections.setOnClickListener {
             if (storeLat == 0.0 && storeLng == 0.0) {
-                Toast.makeText(requireContext(), "가게 위치를 불러오는 중이에요", Toast.LENGTH_SHORT).show()
+                toast("가게 위치를 불러오는 중이에요")
                 return@setOnClickListener
             }
             findNavController().navigate(
@@ -93,7 +91,7 @@ class PickupFragment : Fragment() {
         binding.btnCall.setOnClickListener {
             val phone = binding.tvStoreAddress.tag as? String ?: ""
             if (phone.isBlank()) {
-                Toast.makeText(requireContext(), "전화번호를 불러오는 중...", Toast.LENGTH_SHORT).show()
+                toast("전화번호를 불러오는 중...")
             } else {
                 startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phone")))
             }
@@ -102,7 +100,7 @@ class PickupFragment : Fragment() {
 
     private fun loadOrder(orderId: Long, storeId: Long) {
         viewLifecycleOwner.lifecycleScope.launch {
-            val order = runCatching { orderRepository.getOrder(orderId) }.getOrNull()
+            val order = runCatching { RetrofitClient.api.getOrder(orderId).data }.getOrNull()
             if (order != null) applyOrderUi(order, storeId) else waitForConfirmedOrder(orderId, storeId)
         }
     }
@@ -138,7 +136,7 @@ class PickupFragment : Fragment() {
         binding.tvPickupTime.text = if (pickupEndTime != null) "${pickupEndTime.toHourMinute()}까지" else "픽업 시간 확인 중"
         binding.tvPickupCode.text = pickupCode.ifBlank { "----" }.chunked(1).joinToString(" ")
         showQrCode(pickupCode)
-        startCountdown(remainingSecondsUntil(pickupEndTime))
+        startPickupCountdown(remainingSecondsUntil(pickupEndTime))
     }
 
     private fun waitForConfirmedOrder(orderId: Long, storeId: Long) {
@@ -147,7 +145,7 @@ class PickupFragment : Fragment() {
         pollJob = viewLifecycleOwner.lifecycleScope.launch {
             while (_binding != null) {
                 delay(5_000)
-                val order = runCatching { orderRepository.getOrder(orderId) }.getOrNull() ?: continue
+                val order = runCatching { RetrofitClient.api.getOrder(orderId).data }.getOrNull() ?: continue
                 if (order.status == "CONFIRMED") {
                     applyOrderUi(order, storeId)
                     break
@@ -162,17 +160,16 @@ class PickupFragment : Fragment() {
             when (val result = storeRepository.getStore(storeId)) {
                 is Result.Success -> {
                     val store = result.data
-                storeLat = store.latitude
-                storeLng = store.longitude
-                if (storeName.isBlank()) {
-                    storeName = store.name
-                    binding.tvStoreName.text = store.name
-                }
-                binding.tvStoreAddress.text = store.address
-                binding.tvStoreAddress.tag = store.phone
+                    storeLat = store.latitude
+                    storeLng = store.longitude
+                    if (storeName.isBlank()) {
+                        storeName = store.name
+                        binding.tvStoreName.text = store.name
+                    }
+                    binding.tvStoreAddress.text = store.address
+                    binding.tvStoreAddress.tag = store.phone
                 }
                 is Result.Error -> binding.tvStoreAddress.tag = ""
-                is Result.Loading -> Unit
             }
         }
     }
@@ -193,13 +190,8 @@ class PickupFragment : Fragment() {
         return minutesUntilClose(pickupEnd) * 60L
     }
 
-    private fun startCountdown(totalSeconds: Long) {
-        timerJob = startTimerInto(totalSeconds, timerJob) { remaining ->
-            if (_binding == null) return@startTimerInto
-            val mins = remaining / 60
-            val secs = remaining % 60
-            binding.tvCountdown.text = "%02d:%02d".format(mins, secs)
-        }
+    private fun startPickupCountdown(totalSeconds: Long) {
+        timerJob = startCountdown(totalSeconds, timerJob) { _binding?.tvCountdown?.text = it }
     }
 
     override fun onDestroyView() {
