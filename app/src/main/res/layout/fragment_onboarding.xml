@@ -1,69 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  득템시루 공통 첫 화면 골격 (구매자 앱).
+  판매자 앱 activity_login.xml 과 구조·id·토큰이 동일하며,
+  다르게 두는 것은 워드마크/태그라인 문구와 DEBUG 블록의 내용뿐입니다.
+-->
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/md_theme_light_surface"
-    android:paddingHorizontal="@dimen/spacing_lg">
+    android:background="@color/surface_alt">
 
+    <!-- ── 브랜드 블록 (화면 중앙) ─────────────────────────────────── -->
     <LinearLayout
-        android:id="@+id/ll_title"
+        android:id="@+id/brand_block"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/spacing_xl"
+        android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:paddingTop="56dp"
+        app:layout_constraintBottom_toTopOf="@id/cta_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed">
 
-        <ImageView
-            android:layout_width="108dp"
-            android:layout_height="108dp"
-            android:layout_gravity="end"
-            android:contentDescription="시흥시 캐릭터"
-            android:scaleType="fitCenter"
-            android:src="@drawable/img_siheung_character" />
-
-        <TextView
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="@dimen/brand_mark_size"
+                android:layout_height="@dimen/brand_mark_size"
+                android:contentDescription="시흥시 캐릭터"
+                android:scaleType="fitCenter"
+                android:src="@drawable/img_siheung_character" />
+
+            <ImageView
+                android:layout_width="@dimen/brand_mark_size"
+                android:layout_height="@dimen/brand_mark_size"
+                android:layout_marginStart="@dimen/spacing_md"
+                android:contentDescription="득템시루 앱 아이콘"
+                android:src="@mipmap/ic_launcher" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_brand_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_xl"
             android:fontFamily="sans-serif-medium"
             android:text="득템시루"
             android:textColor="@color/primary"
             android:textSize="@dimen/text_display" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tv_brand_tagline"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_sm"
-            android:fontFamily="sans-serif-medium"
-            android:text="로그인하고"
-            android:textColor="@color/color_text"
-            android:textSize="@dimen/text_headline" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
             android:text="오늘의 남은 맛을 구해요"
-            android:textColor="@color/color_text"
-            android:textSize="@dimen/text_headline" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_md"
-            android:text="카카오로 간편하게 시작해보세요."
-            android:textColor="@color/color_text_sub"
+            android:textColor="@color/text_sub"
             android:textSize="@dimen/text_body" />
     </LinearLayout>
 
+    <!-- ── 하단 고정 CTA ──────────────────────────────────────────── -->
     <LinearLayout
-        android:id="@+id/login_button_container"
+        android:id="@+id/cta_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginHorizontal="@dimen/spacing_xl"
+        android:layout_marginBottom="@dimen/spacing_xl"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -75,22 +85,23 @@
             android:layout_height="@dimen/cta_button_height"
             android:fontFamily="sans-serif-medium"
             android:text="카카오로 시작하기"
-            android:textColor="#191919"
+            android:textColor="@color/black"
             android:textSize="@dimen/text_button"
             app:backgroundTint="#FEE500"
             app:cornerRadius="@dimen/radius_md" />
 
+        <!-- DEBUG 전용 (코드에서 visibility 제어) -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_debug_login"
             android:layout_width="match_parent"
             android:layout_height="@dimen/cta_button_height"
             android:layout_marginTop="@dimen/spacing_sm"
             android:fontFamily="sans-serif-medium"
-            android:text="디버그 로그인으로 시작하기"
-            android:textColor="@color/color_button_dark_text"
+            android:text="디버그 로그인"
+            android:textColor="@color/button_dark_text"
             android:textSize="@dimen/text_button"
             android:visibility="gone"
-            app:backgroundTint="@color/color_text"
+            app:backgroundTint="@color/text"
             app:cornerRadius="@dimen/radius_md" />
     </LinearLayout>
 

@@ -75,7 +75,7 @@
                 android:text="아침 세트 A"
                 android:textSize="@dimen/text_body"
                 android:fontFamily="sans-serif-medium"
-                android:textColor="@color/color_text"
+                android:textColor="@color/text"
                 android:maxLines="1"
                 android:ellipsize="end" />
 
@@ -107,7 +107,7 @@
                 android:layout_height="wrap_content"
                 android:text="15,000원"
                 android:textSize="11sp"
-                android:textColor="@color/color_text_muted" />
+                android:textColor="@color/text_muted" />
 
             <TextView
                 android:id="@+id/tv_discount_rate"
@@ -127,7 +127,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="5,900원"
-                android:textSize="15sp"
+                android:textSize="17sp"
                 android:fontFamily="sans-serif-medium"
                 android:textColor="@color/primary" />
         </LinearLayout>
@@ -139,7 +139,7 @@
             android:layout_marginTop="4dp"
             android:text="3개 남음"
             android:textSize="11sp"
-            android:textColor="@color/color_text_muted" />
+            android:textColor="@color/text_muted" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

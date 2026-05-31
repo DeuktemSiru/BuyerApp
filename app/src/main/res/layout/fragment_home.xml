@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_surface">
+    android:background="@color/surface">
 
     <!-- Header -->
     <LinearLayout
@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@color/md_theme_light_surface"
+        android:background="@color/surface_alt"
         android:paddingHorizontal="@dimen/spacing_lg"
         android:paddingTop="16dp"
         android:paddingBottom="12dp"
@@ -36,9 +36,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="시흥시 정왕동"
-                android:textSize="16sp"
+                android:textSize="17sp"
                 android:fontFamily="sans-serif-medium"
-                android:textColor="@color/color_text"
+                android:textColor="@color/text"
                 android:layout_marginStart="4dp" />
 
             <ImageView
@@ -125,8 +125,8 @@
                 android:layout_weight="1"
                 android:hint="@string/home_search_hint"
                 android:textSize="@dimen/text_body"
-                android:textColor="@color/color_text"
-                android:textColorHint="@color/color_text_muted"
+                android:textColor="@color/text"
+                android:textColorHint="@color/text_muted"
                 android:background="@android:color/transparent"
                 android:inputType="text"
                 android:imeOptions="actionSearch"
@@ -177,7 +177,7 @@
                     android:paddingHorizontal="16dp"
                     android:text="@string/cat_korean"
                     android:textSize="13sp"
-                    android:textColor="@color/color_text"
+                    android:textColor="@color/text"
                     android:background="@drawable/bg_chip_unselected"
                     android:layout_marginEnd="8dp" />
 
@@ -189,7 +189,7 @@
                     android:paddingHorizontal="16dp"
                     android:text="@string/cat_western"
                     android:textSize="13sp"
-                    android:textColor="@color/color_text"
+                    android:textColor="@color/text"
                     android:background="@drawable/bg_chip_unselected"
                     android:layout_marginEnd="8dp" />
 
@@ -201,7 +201,7 @@
                     android:paddingHorizontal="16dp"
                     android:text="@string/cat_cafe_dessert"
                     android:textSize="13sp"
-                    android:textColor="@color/color_text"
+                    android:textColor="@color/text"
                     android:background="@drawable/bg_chip_unselected"
                     android:layout_marginEnd="8dp" />
 
@@ -213,7 +213,7 @@
                     android:paddingHorizontal="16dp"
                     android:text="@string/cat_bakery"
                     android:textSize="13sp"
-                    android:textColor="@color/color_text"
+                    android:textColor="@color/text"
                     android:background="@drawable/bg_chip_unselected"
                     android:layout_marginEnd="8dp" />
 
@@ -225,7 +225,7 @@
                     android:paddingHorizontal="16dp"
                     android:text="@string/cat_cafe"
                     android:textSize="13sp"
-                    android:textColor="@color/color_text"
+                    android:textColor="@color/text"
                     android:background="@drawable/bg_chip_unselected" />
             </LinearLayout>
         </HorizontalScrollView>
@@ -271,7 +271,7 @@
                         android:text="@string/home_section_urgent"
                         android:textSize="@dimen/text_title"
                         android:fontFamily="sans-serif-medium"
-                        android:textColor="@color/color_text" />
+                        android:textColor="@color/text" />
 
                     <TextView
                         android:id="@+id/tv_urgent_more"
@@ -279,7 +279,7 @@
                         android:layout_height="wrap_content"
                         android:text="더보기"
                         android:textSize="@dimen/text_caption"
-                        android:textColor="@color/color_text_sub" />
+                        android:textColor="@color/text_sub" />
                 </LinearLayout>
 
                 <!-- Urgent stores: horizontal scroll -->
@@ -324,7 +324,7 @@
                         android:text="@string/home_section_nearby"
                         android:textSize="@dimen/text_title"
                         android:fontFamily="sans-serif-medium"
-                        android:textColor="@color/color_text" />
+                        android:textColor="@color/text" />
                 </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -343,7 +343,7 @@
                     android:gravity="center"
                     android:text="@string/home_section_more"
                     android:textSize="@dimen/text_body"
-                    android:textColor="@color/color_text_sub"
+                    android:textColor="@color/text_sub"
                     android:drawableEnd="@drawable/ic_arrow_right"
                     android:drawablePadding="4dp"
                     android:layout_marginBottom="8dp"
@@ -374,7 +374,7 @@
                     android:text="@string/home_empty"
                     android:textSize="@dimen/text_title"
                     android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/color_text"
+                    android:textColor="@color/text"
                     android:gravity="center" />
 
                 <TextView
@@ -383,7 +383,7 @@
                     android:layout_marginTop="8dp"
                     android:text="@string/home_empty_sub"
                     android:textSize="@dimen/text_body"
-                    android:textColor="@color/color_text_sub"
+                    android:textColor="@color/text_sub"
                     android:gravity="center"
                     android:lineSpacingExtra="4dp" />
             </LinearLayout>

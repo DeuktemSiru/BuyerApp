@@ -4,14 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/color_surface">
+    android:background="@color/surface">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@color/md_theme_light_surface"
+        android:background="@color/surface_alt"
         android:paddingHorizontal="@dimen/spacing_lg"
         android:paddingVertical="16dp">
 
@@ -21,7 +21,7 @@
             android:text="주문 내역"
             android:textSize="@dimen/text_title"
             android:fontFamily="sans-serif-medium"
-            android:textColor="@color/color_text" />
+            android:textColor="@color/text" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -55,7 +55,7 @@
             android:text="아직 주문 내역이 없어요"
             android:textSize="@dimen/text_title"
             android:fontFamily="sans-serif-medium"
-            android:textColor="@color/color_text"
+            android:textColor="@color/text"
             android:gravity="center" />
 
         <TextView
@@ -64,7 +64,7 @@
             android:layout_marginTop="8dp"
             android:text="첫 번째 음식을 구해보세요!"
             android:textSize="@dimen/text_body"
-            android:textColor="@color/color_text_sub"
+            android:textColor="@color/text_sub"
             android:gravity="center" />
     </LinearLayout>
 </LinearLayout>

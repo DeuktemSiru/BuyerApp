@@ -100,6 +100,7 @@
     <string name="label_carbon">탄소 절감</string>
     <string name="label_carbon_heading">나의 탄소 절감량</string>
     <string name="label_carbon_total_saved">총 %d개의 음식을 구출하셨어요!</string>
+    <string name="label_total_savings">누적 절약 금액</string>
     <string name="label_eco_level">에코 레벨: %s</string>
     <string name="label_eco_level_next">나무 🌳까지 %s</string>
     <string name="label_tree_equiv">소나무 %d그루</string>

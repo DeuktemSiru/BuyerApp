@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_surface">
+    android:background="@color/surface">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -40,7 +40,7 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:paddingHorizontal="16dp"
-                    android:background="#DDFFFFFF">
+                    android:background="@color/surface_translucent">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -59,7 +59,7 @@
                         android:layout_weight="1"
                         android:layout_marginStart="10dp"
                         android:text="사진과 픽업 시간을 확인하고 바로 예약하세요"
-                        android:textColor="@color/color_text"
+                        android:textColor="@color/text"
                         android:textSize="@dimen/text_caption"
                         android:fontFamily="sans-serif-medium" />
                 </LinearLayout>
@@ -113,7 +113,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@color/md_theme_light_surface"
+                android:background="@color/surface_alt"
                 android:paddingHorizontal="@dimen/spacing_lg"
                 android:paddingTop="@dimen/spacing_lg"
                 android:paddingBottom="@dimen/spacing_md">
@@ -133,7 +133,7 @@
                         android:text="정왕동 꿀맛 베이커리"
                         android:textSize="@dimen/text_title"
                         android:fontFamily="sans-serif-medium"
-                        android:textColor="@color/color_text" />
+                        android:textColor="@color/text" />
 
                     <TextView
                         android:id="@+id/tv_grade_badge"
@@ -169,13 +169,13 @@
                         android:layout_marginStart="3dp"
                         android:text="4.8"
                         android:textSize="@dimen/text_caption"
-                        android:textColor="@color/color_text_sub" />
+                        android:textColor="@color/text_sub" />
 
                     <View
                         android:layout_width="3dp"
                         android:layout_height="3dp"
                         android:layout_marginHorizontal="8dp"
-                        android:background="@color/color_text_muted" />
+                        android:background="@color/text_muted" />
 
                     <ImageView
                         android:layout_width="12dp"
@@ -190,7 +190,7 @@
                         android:layout_marginStart="3dp"
                         android:text="300m · 도보 4분"
                         android:textSize="@dimen/text_caption"
-                        android:textColor="@color/color_text_sub" />
+                        android:textColor="@color/text_sub" />
                 </LinearLayout>
 
                 <!-- Store message -->
@@ -207,7 +207,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="🥐"
-                        android:textSize="16sp"
+                        android:textSize="17sp"
                         android:layout_marginEnd="8dp" />
 
                     <TextView
@@ -217,7 +217,7 @@
                         android:layout_weight="1"
                         android:text="아까운 음식을 구매해주셔서 감사해요😊"
                         android:textSize="@dimen/text_caption"
-                        android:textColor="@color/siru_green" />
+                        android:textColor="@color/success" />
                 </LinearLayout>
 
                 <!-- Address -->
@@ -242,7 +242,7 @@
                         android:layout_weight="1"
                         android:text="경기 시흥시 중앙상가로 123 1층"
                         android:textSize="@dimen/text_caption"
-                        android:textColor="@color/color_text_sub" />
+                        android:textColor="@color/text_sub" />
 
                     <TextView
                         android:id="@+id/tv_directions"
@@ -276,7 +276,7 @@
                         android:layout_weight="1"
                         android:text="031-123-4567"
                         android:textSize="@dimen/text_caption"
-                        android:textColor="@color/color_text_sub" />
+                        android:textColor="@color/text_sub" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -365,14 +365,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="8dp"
                 android:layout_marginTop="16dp"
-                android:background="@color/color_surface" />
+                android:background="@color/surface" />
 
             <!-- Menu section -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@color/md_theme_light_surface"
+                android:background="@color/surface_alt"
                 android:padding="@dimen/spacing_lg">
 
                 <!-- Section header with count -->
@@ -391,7 +391,7 @@
                         android:text="오늘의 득템 메뉴 (0)"
                         android:textSize="@dimen/text_title"
                         android:fontFamily="sans-serif-medium"
-                        android:textColor="@color/color_text" />
+                        android:textColor="@color/text" />
                 </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -409,10 +409,10 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:orientation="horizontal"
-        android:background="@color/md_theme_light_surface"
+        android:background="@color/surface_alt"
         android:padding="@dimen/spacing_lg"
         android:gravity="center_vertical"
-        android:elevation="8dp">
+        android:elevation="0dp">
 
         <ImageButton
             android:id="@+id/btn_wishlist_bottom"
@@ -420,7 +420,7 @@
             android:layout_height="52dp"
             android:src="@drawable/ic_heart"
             android:background="@drawable/bg_store_card"
-    android:elevation="2dp"
+    android:elevation="0dp"
             android:contentDescription="찜" />
 
         <FrameLayout
@@ -434,7 +434,7 @@
                 android:layout_height="52dp"
                 android:src="@drawable/ic_cart"
                 android:background="@drawable/bg_store_card"
-    android:elevation="2dp"
+    android:elevation="0dp"
                 android:contentDescription="장바구니" />
 
             <TextView
@@ -444,12 +444,12 @@
                 android:layout_gravity="top|end"
                 android:layout_margin="2dp"
                 android:background="@drawable/bg_cart_badge"
-                android:elevation="6dp"
+                android:elevation="0dp"
                 android:gravity="center"
                 android:textColor="@color/white"
                 android:textSize="10sp"
                 android:fontFamily="sans-serif-medium"
-                android:translationZ="6dp"
+                android:translationZ="0dp"
                 android:visibility="gone" />
 
         </FrameLayout>
@@ -464,7 +464,7 @@
             android:text="@string/btn_reserve_siru"
             android:textSize="@dimen/text_button"
             android:fontFamily="sans-serif-medium"
-            android:textColor="?attr/colorOnSecondary"
+            android:textColor="@color/white"
             android:background="@drawable/bg_siru_button"
             android:backgroundTint="@null"
             android:stateListAnimator="@null" />

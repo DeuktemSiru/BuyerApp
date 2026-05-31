@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/md_theme_light_surface"
+    android:background="@color/surface_alt"
     android:paddingHorizontal="@dimen/spacing_lg">
 
     <LinearLayout
@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
             android:text="시루 연동"
-            android:textColor="@color/color_text"
+            android:textColor="@color/text"
             android:textSize="@dimen/text_display" />
 
         <TextView
@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_md"
             android:text="지역화폐 시루로 결제할 수 있도록 연동을 준비합니다."
-            android:textColor="@color/color_text_sub"
+            android:textColor="@color/text_sub"
             android:textSize="@dimen/text_body" />
     </LinearLayout>
 
@@ -66,7 +66,7 @@
                 android:layout_weight="1"
                 android:fontFamily="sans-serif-medium"
                 android:text="SIHEUNG SIRU"
-                android:textColor="@color/siru_green"
+                android:textColor="@color/success"
                 android:textSize="@dimen/text_caption" />
         </LinearLayout>
 
@@ -76,7 +76,7 @@
             android:layout_marginTop="@dimen/spacing_md"
             android:fontFamily="sans-serif-medium"
             android:text="시흥화폐 시루"
-            android:textColor="@color/color_text"
+            android:textColor="@color/text"
             android:textSize="@dimen/text_headline" />
 
         <TextView
@@ -84,7 +84,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_sm"
             android:text="테스트 계정 010-0000-1234"
-            android:textColor="@color/color_text_sub"
+            android:textColor="@color/text_sub"
             android:textSize="@dimen/text_body" />
 
         <TextView
@@ -93,7 +93,7 @@
             android:layout_marginTop="28dp"
             android:fontFamily="sans-serif-medium"
             android:text="잔액 24,500원"
-            android:textColor="@color/siru_green"
+            android:textColor="@color/success"
             android:textSize="@dimen/text_title" />
     </LinearLayout>
 
@@ -119,12 +119,12 @@
         android:layout_height="@dimen/cta_button_height"
         android:layout_marginBottom="16dp"
         android:background="@drawable/bg_surface_card"
-    android:elevation="2dp"
+    android:elevation="0dp"
         android:backgroundTint="@null"
         android:fontFamily="sans-serif-medium"
         android:stateListAnimator="@null"
         android:text="나중에 하기"
-        android:textColor="@color/color_text_sub"
+        android:textColor="@color/text_sub"
         android:textSize="@dimen/text_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

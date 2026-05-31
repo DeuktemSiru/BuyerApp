@@ -15,14 +15,14 @@
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:padding="12dp"
-        android:background="#CCFFFFFF">
+        android:background="@color/surface_translucent">
 
         <ImageButton
             android:id="@+id/btn_back"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="@drawable/bg_surface_card"
-    android:elevation="2dp"
+    android:elevation="0dp"
             android:src="@drawable/ic_back"
             android:contentDescription="뒤로가기"
             android:padding="8dp" />
@@ -34,7 +34,7 @@
             android:text="길찾기"
             android:textSize="17sp"
             android:fontFamily="sans-serif-medium"
-            android:textColor="@color/color_text"
+            android:textColor="@color/text"
             android:gravity="center" />
 
         <View
@@ -58,11 +58,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:orientation="vertical"
-        android:background="@color/md_theme_light_surface"
+        android:background="@color/surface_alt"
         android:paddingTop="16dp"
         android:paddingBottom="24dp"
         android:paddingHorizontal="20dp"
-        android:elevation="8dp"
+        android:elevation="0dp"
         android:visibility="gone">
 
         <!-- 핸들 바 -->
@@ -71,8 +71,8 @@
             android:layout_height="4dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="16dp"
-            android:background="@color/color_border"
-            android:backgroundTint="@color/color_border" />
+            android:background="@color/border"
+            android:backgroundTint="@color/border" />
 
         <!-- 가게 이름 -->
         <TextView
@@ -81,7 +81,7 @@
             android:layout_height="wrap_content"
             android:textSize="18sp"
             android:fontFamily="sans-serif-medium"
-            android:textColor="@color/color_text"
+            android:textColor="@color/text"
             android:layout_marginBottom="8dp" />
 
         <!-- 시간 · 거리 -->
@@ -103,7 +103,7 @@
                 android:id="@+id/tv_walk_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="15sp"
+                android:textSize="17sp"
                 android:textColor="@color/primary"
                 android:fontFamily="sans-serif-medium"
                 android:layout_marginEnd="12dp" />
@@ -119,8 +119,8 @@
                 android:id="@+id/tv_distance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="15sp"
-                android:textColor="@color/color_text_sub" />
+                android:textSize="17sp"
+                android:textColor="@color/text_sub" />
 
         </LinearLayout>
 
@@ -131,7 +131,7 @@
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:background="@drawable/bg_surface_card"
-    android:elevation="2dp"
+    android:elevation="0dp"
             android:padding="12dp">
 
             <View
@@ -145,7 +145,7 @@
                 android:layout_weight="1"
                 android:text="현재 위치"
                 android:textSize="13sp"
-                android:textColor="@color/color_text_sub"
+                android:textColor="@color/text_sub"
                 android:layout_marginStart="8dp" />
 
             <ImageView
@@ -161,7 +161,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textSize="13sp"
-                android:textColor="@color/color_text"
+                android:textColor="@color/text"
                 android:fontFamily="sans-serif-medium"
                 android:gravity="end" />
 

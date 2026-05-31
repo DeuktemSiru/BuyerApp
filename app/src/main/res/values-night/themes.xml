@@ -35,6 +35,13 @@
         <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Deuktemsiru.Large</item>
 
         <item name="materialCardViewStyle">@style/Widget.Deuktemsiru.CardView.Dark</item>
+
+        <!-- 라이트 Base 테마와 부모가 달라 상속되지 않으므로 여기서 다시 지정.
+             값은 ?attr/ 참조라 다크 색 롤을 그대로 따라간다. -->
+        <item name="materialButtonStyle">@style/Button.Primary</item>
+        <item name="android:textViewStyle">@style/Widget.Deuktemsiru.TextView</item>
+        <item name="bottomNavigationStyle">@style/Widget.Deuktemsiru.BottomNav</item>
+        <item name="android:navigationBarColor">@color/surface_alt</item>
     </style>
 
     <style name="Theme.Deuktemsiru" parent="Base.Theme.Deuktemsiru" />

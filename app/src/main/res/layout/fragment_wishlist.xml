@@ -4,18 +4,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/color_surface">
+    android:background="@color/surface">
 
     <LinearLayout
         android:id="@+id/ll_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@color/md_theme_light_surface"
+        android:background="@color/surface_alt"
         android:paddingHorizontal="@dimen/spacing_lg"
         android:paddingTop="16dp"
         android:paddingBottom="12dp"
-        android:elevation="4dp">
+        android:elevation="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -33,9 +33,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="시흥시 정왕동"
-                android:textSize="16sp"
+                android:textSize="17sp"
                 android:fontFamily="sans-serif-medium"
-                android:textColor="@color/color_text"
+                android:textColor="@color/text"
                 android:layout_marginStart="4dp" />
 
             <ImageView
@@ -83,8 +83,8 @@
                 android:layout_weight="1"
                 android:hint="@string/home_search_hint"
                 android:textSize="@dimen/text_body"
-                android:textColor="@color/color_text"
-                android:textColorHint="@color/color_text_muted"
+                android:textColor="@color/text"
+                android:textColorHint="@color/text_muted"
                 android:background="@android:color/transparent"
                 android:inputType="text"
                 android:imeOptions="actionSearch"
@@ -133,7 +133,7 @@
                     android:paddingHorizontal="16dp"
                     android:text="@string/cat_korean"
                     android:textSize="13sp"
-                    android:textColor="@color/color_text"
+                    android:textColor="@color/text"
                     android:background="@drawable/bg_chip_unselected"
                     android:layout_marginEnd="8dp" />
 
@@ -145,7 +145,7 @@
                     android:paddingHorizontal="16dp"
                     android:text="@string/cat_western"
                     android:textSize="13sp"
-                    android:textColor="@color/color_text"
+                    android:textColor="@color/text"
                     android:background="@drawable/bg_chip_unselected"
                     android:layout_marginEnd="8dp" />
 
@@ -157,7 +157,7 @@
                     android:paddingHorizontal="16dp"
                     android:text="@string/cat_cafe_dessert"
                     android:textSize="13sp"
-                    android:textColor="@color/color_text"
+                    android:textColor="@color/text"
                     android:background="@drawable/bg_chip_unselected"
                     android:layout_marginEnd="8dp" />
 
@@ -169,7 +169,7 @@
                     android:paddingHorizontal="16dp"
                     android:text="@string/cat_bakery"
                     android:textSize="13sp"
-                    android:textColor="@color/color_text"
+                    android:textColor="@color/text"
                     android:background="@drawable/bg_chip_unselected"
                     android:layout_marginEnd="8dp" />
 
@@ -181,7 +181,7 @@
                     android:paddingHorizontal="16dp"
                     android:text="@string/cat_cafe"
                     android:textSize="13sp"
-                    android:textColor="@color/color_text"
+                    android:textColor="@color/text"
                     android:background="@drawable/bg_chip_unselected" />
             </LinearLayout>
         </HorizontalScrollView>
@@ -213,7 +213,7 @@
                 android:text="찜"
                 android:textSize="96sp"
                 android:fontFamily="sans-serif-black"
-                android:textColor="@color/color_text"
+                android:textColor="@color/text"
                 android:layout_marginBottom="8dp" />
 
             <ImageView
@@ -227,8 +227,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="자주 찾는 가게를 찜 해보세요"
-                android:textSize="15sp"
-                android:textColor="@color/color_text_sub" />
+                android:textSize="17sp"
+                android:textColor="@color/text_sub" />
         </LinearLayout>
 
         <ProgressBar

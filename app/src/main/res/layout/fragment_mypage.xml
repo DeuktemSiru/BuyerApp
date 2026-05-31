@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/color_surface">
+    android:background="@color/surface">
 
     <!-- App bar -->
     <LinearLayout
@@ -12,7 +12,7 @@
         android:layout_height="@dimen/toolbar_height"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@color/md_theme_light_surface"
+        android:background="@color/surface_alt"
         android:paddingHorizontal="@dimen/spacing_sm">
 
         <ImageButton
@@ -58,7 +58,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:background="@color/md_theme_light_surface"
+                android:background="@color/surface_alt"
                 android:paddingHorizontal="@dimen/spacing_lg"
                 android:paddingTop="20dp"
                 android:paddingBottom="20dp">
@@ -92,7 +92,7 @@
                         android:text="지구지킴이님"
                         android:textSize="@dimen/text_title"
                         android:fontFamily="sans-serif-medium"
-                        android:textColor="@color/color_text" />
+                        android:textColor="@color/text" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -100,7 +100,7 @@
                         android:layout_marginTop="2dp"
                         android:text="오늘도 따뜻한 구출, 감사합니다!"
                         android:textSize="@dimen/text_caption"
-                        android:textColor="@color/color_text_sub" />
+                        android:textColor="@color/text_sub" />
                 </LinearLayout>
 
                 <!-- Edit button -->
@@ -110,11 +110,11 @@
                     android:layout_height="36dp"
                     android:src="@drawable/ic_share"
                     android:background="@drawable/bg_surface_card"
-    android:elevation="2dp"
+    android:elevation="0dp"
                     android:contentDescription="@string/label_profile_edit" />
             </LinearLayout>
 
-            <View android:layout_width="match_parent" android:layout_height="8dp" android:background="@color/color_surface" />
+            <View android:layout_width="match_parent" android:layout_height="8dp" android:background="@color/surface" />
 
             <!-- Carbon reduction main card (green) -->
             <LinearLayout
@@ -138,7 +138,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="🌿"
-                        android:textSize="16sp"
+                        android:textSize="17sp"
                         android:layout_marginEnd="6dp" />
 
                     <TextView
@@ -185,6 +185,31 @@
                     android:textColor="#CCFFFFFF"
                     android:layout_marginTop="4dp" />
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_md"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/label_total_savings"
+                        android:textColor="#CCFFFFFF"
+                        android:textSize="@dimen/text_caption" />
+
+                    <TextView
+                        android:id="@+id/tv_total_savings"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:text="0원"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/text_body" />
+                </LinearLayout>
+
                 <!-- Eco level progress -->
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -221,7 +246,7 @@
                         android:id="@+id/progress_eco"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:background="@color/md_theme_light_surface" />
+                        android:background="@color/surface_alt" />
                 </FrameLayout>
             </LinearLayout>
 
@@ -257,7 +282,7 @@
                         android:text="소나무 3그루"
                         android:textSize="@dimen/text_body"
                         android:fontFamily="sans-serif-medium"
-                        android:textColor="@color/siru_green" />
+                        android:textColor="@color/success" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -265,7 +290,7 @@
                         android:layout_marginTop="4dp"
                         android:text="@string/label_tree_equiv_sub"
                         android:textSize="@dimen/text_caption"
-                        android:textColor="@color/color_text_sub" />
+                        android:textColor="@color/text_sub" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -275,7 +300,7 @@
                     android:orientation="vertical"
                     android:gravity="center"
                     android:background="@drawable/bg_surface_card"
-    android:elevation="2dp"
+    android:elevation="0dp"
                     android:padding="@dimen/spacing_lg"
                     android:layout_marginStart="6dp">
 
@@ -293,7 +318,7 @@
                         android:text="자동차 48km"
                         android:textSize="@dimen/text_body"
                         android:fontFamily="sans-serif-medium"
-                        android:textColor="@color/color_text" />
+                        android:textColor="@color/text" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -301,7 +326,7 @@
                         android:layout_marginTop="4dp"
                         android:text="@string/label_car_equiv_sub"
                         android:textSize="@dimen/text_caption"
-                        android:textColor="@color/color_text_sub" />
+                        android:textColor="@color/text_sub" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -310,7 +335,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@color/md_theme_light_surface"
+                android:background="@color/surface_alt"
                 android:padding="@dimen/spacing_lg"
                 android:layout_marginBottom="8dp">
 
@@ -328,16 +353,16 @@
                         android:text="@string/label_weekly_trend"
                         android:textSize="@dimen/text_title"
                         android:fontFamily="sans-serif-medium"
-                        android:textColor="@color/color_text" />
+                        android:textColor="@color/text" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/label_unit_kg"
                         android:textSize="@dimen/text_caption"
-                        android:textColor="@color/color_text_sub"
+                        android:textColor="@color/text_sub"
                         android:background="@drawable/bg_surface_card"
-    android:elevation="2dp"
+    android:elevation="0dp"
                         android:paddingHorizontal="8dp"
                         android:paddingVertical="3dp" />
                 </LinearLayout>
@@ -356,7 +381,7 @@
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:gravity="bottom|center_horizontal">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1.2" android:textSize="11sp" android:textColor="@color/color_text_sub" android:layout_marginBottom="4dp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1.2" android:textSize="11sp" android:textColor="@color/text_sub" android:layout_marginBottom="4dp" />
                         <View android:layout_width="28dp" android:layout_height="34dp" android:background="@drawable/bg_chart_bar_inactive" />
                     </LinearLayout>
 
@@ -367,7 +392,7 @@
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:gravity="bottom|center_horizontal">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2.1" android:textSize="11sp" android:textColor="@color/color_text_sub" android:layout_marginBottom="4dp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2.1" android:textSize="11sp" android:textColor="@color/text_sub" android:layout_marginBottom="4dp" />
                         <View android:layout_width="28dp" android:layout_height="50dp" android:background="@drawable/bg_chart_bar_inactive" />
                     </LinearLayout>
 
@@ -378,7 +403,7 @@
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:gravity="bottom|center_horizontal">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.5" android:textSize="11sp" android:fontFamily="sans-serif-medium" android:textColor="@color/siru_green" android:layout_marginBottom="4dp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.5" android:textSize="11sp" android:fontFamily="sans-serif-medium" android:textColor="@color/success" android:layout_marginBottom="4dp" />
                         <View android:id="@+id/bar_week3" android:layout_width="28dp" android:layout_height="80dp" android:background="@drawable/bg_chart_bar_active" />
                     </LinearLayout>
 
@@ -389,7 +414,7 @@
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:gravity="bottom|center_horizontal">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.8" android:textSize="11sp" android:textColor="@color/color_text_sub" android:layout_marginBottom="4dp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.8" android:textSize="11sp" android:textColor="@color/text_sub" android:layout_marginBottom="4dp" />
                         <View android:layout_width="28dp" android:layout_height="20dp" android:background="@drawable/bg_chart_bar_inactive" />
                     </LinearLayout>
                 </LinearLayout>
@@ -401,10 +426,10 @@
                     android:orientation="horizontal"
                     android:layout_marginTop="8dp">
 
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="1주차" android:textSize="11sp" android:textColor="@color/color_text_sub" />
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="2주차" android:textSize="11sp" android:textColor="@color/color_text_sub" />
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="3주차" android:textSize="11sp" android:fontFamily="sans-serif-medium" android:textColor="@color/siru_green" />
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="이번주" android:textSize="11sp" android:textColor="@color/color_text_sub" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="1주차" android:textSize="11sp" android:textColor="@color/text_sub" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="2주차" android:textSize="11sp" android:textColor="@color/text_sub" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="3주차" android:textSize="11sp" android:fontFamily="sans-serif-medium" android:textColor="@color/success" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="이번주" android:textSize="11sp" android:textColor="@color/text_sub" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -413,7 +438,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:background="@color/md_theme_light_surface"
+                android:background="@color/surface_alt"
                 android:layout_marginBottom="8dp">
 
                 <LinearLayout
@@ -427,11 +452,11 @@
                     android:foreground="?attr/selectableItemBackground">
 
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🎟️" android:textSize="22sp" />
-                    <TextView android:id="@+id/tv_coupon_count" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="2" android:textSize="@dimen/text_title" android:fontFamily="sans-serif-medium" android:textColor="@color/color_text" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/label_coupon_box" android:textSize="12sp" android:textColor="@color/color_text_sub" />
+                    <TextView android:id="@+id/tv_coupon_count" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="0" android:textSize="@dimen/text_title" android:fontFamily="sans-serif-medium" android:textColor="@color/text" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/label_coupon_box" android:textSize="12sp" android:textColor="@color/text_sub" />
                 </LinearLayout>
 
-                <View android:layout_width="1dp" android:layout_height="match_parent" android:background="@color/color_border" />
+                <View android:layout_width="1dp" android:layout_height="match_parent" android:background="@color/border" />
 
                 <LinearLayout
                     android:id="@+id/menu_points"
@@ -444,11 +469,11 @@
                     android:foreground="?attr/selectableItemBackground">
 
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="💎" android:textSize="22sp" />
-                    <TextView android:id="@+id/tv_points" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="1,200P" android:textSize="@dimen/text_title" android:fontFamily="sans-serif-medium" android:textColor="@color/color_text" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/label_points" android:textSize="12sp" android:textColor="@color/color_text_sub" />
+                    <TextView android:id="@+id/tv_points" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="0P" android:textSize="@dimen/text_title" android:fontFamily="sans-serif-medium" android:textColor="@color/text" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/label_points" android:textSize="12sp" android:textColor="@color/text_sub" />
                 </LinearLayout>
 
-                <View android:layout_width="1dp" android:layout_height="match_parent" android:background="@color/color_border" />
+                <View android:layout_width="1dp" android:layout_height="match_parent" android:background="@color/border" />
 
                 <LinearLayout
                     android:id="@+id/menu_wishlist"
@@ -461,8 +486,8 @@
                     android:foreground="?attr/selectableItemBackground">
 
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🤍" android:textSize="22sp" />
-                    <TextView android:id="@+id/tv_wishlist_count" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="5" android:textSize="@dimen/text_title" android:fontFamily="sans-serif-medium" android:textColor="@color/color_text" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/label_wishlist" android:textSize="12sp" android:textColor="@color/color_text_sub" />
+                    <TextView android:id="@+id/tv_wishlist_count" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="0" android:textSize="@dimen/text_title" android:fontFamily="sans-serif-medium" android:textColor="@color/text" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/label_wishlist" android:textSize="12sp" android:textColor="@color/text_sub" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -471,7 +496,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@color/md_theme_light_surface">
+                android:background="@color/surface_alt">
 
                 <LinearLayout
                     android:id="@+id/menu_siru_payment"
@@ -482,11 +507,11 @@
                     android:paddingHorizontal="@dimen/spacing_lg"
                     android:foreground="?attr/selectableItemBackground">
 
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/menu_siru_payment" android:textSize="@dimen/text_body" android:textColor="@color/color_text" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/menu_siru_payment" android:textSize="@dimen/text_body" android:textColor="@color/text" />
                     <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_arrow_right" android:contentDescription="이동" />
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/color_border" android:layout_marginHorizontal="@dimen/spacing_lg" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/border" android:layout_marginHorizontal="@dimen/spacing_lg" />
 
                 <LinearLayout
                     android:id="@+id/menu_favorite_stores"
@@ -497,11 +522,11 @@
                     android:paddingHorizontal="@dimen/spacing_lg"
                     android:foreground="?attr/selectableItemBackground">
 
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/menu_favorite_stores" android:textSize="@dimen/text_body" android:textColor="@color/color_text" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/menu_favorite_stores" android:textSize="@dimen/text_body" android:textColor="@color/text" />
                     <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_arrow_right" android:contentDescription="이동" />
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/color_border" android:layout_marginHorizontal="@dimen/spacing_lg" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/border" android:layout_marginHorizontal="@dimen/spacing_lg" />
 
                 <LinearLayout
                     android:id="@+id/menu_settings"
@@ -512,7 +537,7 @@
                     android:paddingHorizontal="@dimen/spacing_lg"
                     android:foreground="?attr/selectableItemBackground">
 
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/menu_settings" android:textSize="@dimen/text_body" android:textColor="@color/color_text" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/menu_settings" android:textSize="@dimen/text_body" android:textColor="@color/text" />
                     <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_arrow_right" android:contentDescription="이동" />
                 </LinearLayout>
             </LinearLayout>
@@ -526,10 +551,10 @@
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginBottom="16dp"
                 android:text="로그아웃"
-                android:textSize="15sp"
-                android:textColor="@color/color_text_sub"
+                android:textSize="17sp"
+                android:textColor="@color/text_sub"
                 android:background="@drawable/bg_surface_card"
-    android:elevation="2dp"
+    android:elevation="0dp"
                 android:backgroundTint="@null" />
 
         </LinearLayout>

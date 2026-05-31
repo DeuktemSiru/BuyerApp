@@ -40,9 +40,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Block committed keystores
+      - name: Block committed credentials
         run: |
-          if git ls-files | grep -E '(^|/).*\.(jks|keystore)$'; then
-            echo "Keystore files must not be committed."
+          if git ls-files | grep -E '(^|/)(google-services\.json|.*\.(jks|keystore))$'; then
+            echo "Credentials and signing keys must not be committed."
             exit 1
           fi

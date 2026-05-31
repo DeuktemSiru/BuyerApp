@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_surface">
+    android:background="@color/surface">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/md_theme_light_surface"
+            android:background="@color/surface_alt"
             android:paddingHorizontal="@dimen/spacing_lg"
             android:paddingTop="24dp"
             android:paddingBottom="24dp"
@@ -49,7 +49,7 @@
                 android:layout_height="wrap_content"
                 android:text="판매자가 주문을 확인하고 있어요"
                 android:textSize="@dimen/text_body"
-                android:textColor="@color/color_text_sub"
+                android:textColor="@color/text_sub"
                 android:gravity="center"
                 android:background="@drawable/bg_card_flat"
                 android:paddingHorizontal="18dp"
@@ -72,7 +72,7 @@
                     android:text="5시 30분까지"
                     android:textSize="@dimen/text_headline"
                     android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/color_text"
+                    android:textColor="@color/text"
                     android:gravity="center" />
 
                 <TextView
@@ -81,7 +81,7 @@
                     android:text="가게에서 받아 가세요!"
                     android:textSize="@dimen/text_headline"
                     android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/color_text"
+                    android:textColor="@color/text"
                     android:gravity="center" />
 
                 <!-- Pickup code -->
@@ -127,7 +127,7 @@
                         android:layout_marginTop="8dp"
                         android:text="길게 눌러 코드 복사"
                         android:textSize="11sp"
-                        android:textColor="@color/color_text_muted" />
+                        android:textColor="@color/text_muted" />
                 </LinearLayout>
 
                 <!-- Countdown -->
@@ -161,14 +161,14 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="8dp"
-            android:background="@color/color_surface" />
+            android:background="@color/surface" />
 
         <!-- Store info card -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/md_theme_light_surface"
+            android:background="@color/surface_alt"
             android:padding="@dimen/spacing_lg">
 
             <TextView
@@ -178,7 +178,7 @@
                 android:text="파리바게뜨 정왕점"
                 android:textSize="@dimen/text_title"
                 android:fontFamily="sans-serif-medium"
-                android:textColor="@color/color_text"
+                android:textColor="@color/text"
                 android:layout_marginBottom="4dp" />
 
             <TextView
@@ -187,7 +187,7 @@
                 android:layout_height="wrap_content"
                 android:text="경기도 시흥시 정왕동 1234-56"
                 android:textSize="@dimen/text_caption"
-                android:textColor="@color/color_text_sub"
+                android:textColor="@color/text_sub"
                 android:layout_marginBottom="16dp" />
 
             <LinearLayout
@@ -206,7 +206,7 @@
                     android:textSize="14sp"
                     android:textColor="@color/primary"
                     android:background="@drawable/bg_surface_card"
-    android:elevation="2dp"
+    android:elevation="0dp"
                     android:stateListAnimator="@null"
                     app:backgroundTint="@null" />
 
@@ -219,7 +219,7 @@
                     android:textSize="14sp"
                     android:textColor="@color/primary"
                     android:background="@drawable/bg_surface_card"
-    android:elevation="2dp"
+    android:elevation="0dp"
                     android:stateListAnimator="@null"
                     app:backgroundTint="@null" />
             </LinearLayout>
@@ -228,14 +228,14 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="8dp"
-            android:background="@color/color_surface" />
+            android:background="@color/surface" />
 
         <!-- Order summary -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/md_theme_light_surface"
+            android:background="@color/surface_alt"
             android:padding="@dimen/spacing_lg">
 
             <LinearLayout
@@ -250,7 +250,7 @@
                     android:layout_weight="1"
                     android:text="주문 메뉴"
                     android:textSize="@dimen/text_body"
-                    android:textColor="@color/color_text_sub" />
+                    android:textColor="@color/text_sub" />
 
                 <TextView
                     android:id="@+id/tv_order_menu"
@@ -258,7 +258,7 @@
                     android:layout_height="wrap_content"
                     android:text="아침 세트 A"
                     android:textSize="@dimen/text_body"
-                    android:textColor="@color/color_text" />
+                    android:textColor="@color/text" />
             </LinearLayout>
 
             <LinearLayout
@@ -273,7 +273,7 @@
                     android:layout_weight="1"
                     android:text="결제 금액"
                     android:textSize="@dimen/text_body"
-                    android:textColor="@color/color_text_sub" />
+                    android:textColor="@color/text_sub" />
 
                 <TextView
                     android:id="@+id/tv_paid_price"
@@ -288,7 +288,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/color_border"
+                android:background="@color/border"
                 android:layout_marginVertical="8dp" />
 
             <!-- Success message -->

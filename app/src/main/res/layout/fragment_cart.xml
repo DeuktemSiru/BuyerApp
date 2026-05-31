@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_surface">
+    android:background="@color/surface">
 
     <!-- Toolbar -->
     <LinearLayout
@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@color/md_theme_light_surface"
+        android:background="@color/surface_alt"
         android:elevation="0dp"
         android:paddingTop="12dp"
         android:paddingBottom="12dp"
@@ -35,7 +35,7 @@
             android:text="장바구니"
             android:textSize="22sp"
             android:fontFamily="sans-serif-medium"
-            android:textColor="@color/color_text"
+            android:textColor="@color/text"
             android:paddingVertical="8dp" />
 
     </LinearLayout>
@@ -85,7 +85,7 @@
                     android:layout_weight="1"
                     android:textSize="14sp"
                     android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/color_text"
+                    android:textColor="@color/text"
                     android:layout_marginStart="10dp" />
 
                 <!-- Distance chip -->
@@ -95,7 +95,7 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:background="@drawable/bg_surface_card"
-    android:elevation="2dp"
+    android:elevation="0dp"
                     android:paddingHorizontal="10dp"
                     android:paddingVertical="5dp">
 
@@ -112,7 +112,7 @@
                         android:layout_height="wrap_content"
                         android:text="거리 계산 중"
                         android:textSize="12sp"
-                        android:textColor="@color/color_text_sub" />
+                        android:textColor="@color/text_sub" />
 
                 </LinearLayout>
 
@@ -135,7 +135,7 @@
                     android:layout_height="wrap_content"
                     android:text="선택 해제"
                     android:textSize="13sp"
-                    android:textColor="@color/color_text"
+                    android:textColor="@color/text"
                     android:fontFamily="sans-serif-medium"
                     android:buttonTint="@color/primary"
                     android:checked="true" />
@@ -151,7 +151,7 @@
                     android:layout_height="wrap_content"
                     android:text="선택 삭제"
                     android:textSize="13sp"
-                    android:textColor="@color/color_text_sub"
+                    android:textColor="@color/text_sub"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:padding="4dp" />
 
@@ -160,7 +160,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/color_surface" />
+                android:background="@color/surface" />
 
             <!-- Items RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView
@@ -168,7 +168,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
-                android:background="@color/color_surface"
+                android:background="@color/surface"
                 android:paddingHorizontal="@dimen/spacing_lg"
                 android:clipToPadding="false" />
 
@@ -179,7 +179,7 @@
                 android:layout_height="48dp"
                 android:orientation="horizontal"
                 android:gravity="center"
-                android:background="@color/md_theme_light_surface"
+                android:background="@color/surface_alt"
                 android:layout_marginTop="1dp">
 
                 <TextView
@@ -187,7 +187,7 @@
                     android:layout_height="wrap_content"
                     android:text="+ 더 담으러 가기"
                     android:textSize="13sp"
-                    android:textColor="@color/color_text_sub" />
+                    android:textColor="@color/text_sub" />
 
             </LinearLayout>
 
@@ -195,7 +195,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="8dp"
-                android:background="@color/color_surface"
+                android:background="@color/surface"
                 android:layout_marginTop="8dp" />
 
             <!-- Price summary card -->
@@ -216,7 +216,7 @@
                     android:gravity="center"
                     android:paddingVertical="10dp"
                     android:text="마감 할인으로 오늘 결제 금액을 줄였어요"
-                    android:textColor="@color/siru_green"
+                    android:textColor="@color/success"
                     android:textSize="13sp"
                     android:fontFamily="sans-serif-medium"
                     android:layout_marginBottom="14dp" />
@@ -235,14 +235,14 @@
                         android:layout_weight="1"
                         android:text="총 주문금액"
                         android:textSize="14sp"
-                        android:textColor="@color/color_text_sub" />
+                        android:textColor="@color/text_sub" />
 
                     <TextView
                         android:id="@+id/tv_subtotal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="14sp"
-                        android:textColor="@color/color_text" />
+                        android:textColor="@color/text" />
 
                 </LinearLayout>
 
@@ -266,7 +266,7 @@
                             android:layout_height="wrap_content"
                             android:text="예상 탄소 절감"
                             android:textSize="14sp"
-                            android:textColor="@color/color_text_sub" />
+                            android:textColor="@color/text_sub" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -282,7 +282,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="14sp"
-                        android:textColor="#2E7D32"
+                        android:textColor="@color/success"
                         android:fontFamily="sans-serif-medium" />
 
                 </LinearLayout>
@@ -290,7 +290,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="@color/color_surface"
+                    android:background="@color/surface"
                     android:layout_marginBottom="14dp" />
 
                 <!-- 결제예정금액 -->
@@ -305,9 +305,9 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="결제예정금액"
-                        android:textSize="15sp"
+                        android:textSize="17sp"
                         android:fontFamily="sans-serif-medium"
-                        android:textColor="@color/color_text" />
+                        android:textColor="@color/text" />
 
                     <TextView
                         android:id="@+id/tv_total"
@@ -315,7 +315,7 @@
                         android:layout_height="wrap_content"
                         android:textSize="17sp"
                         android:fontFamily="sans-serif-medium"
-                        android:textColor="@color/color_text" />
+                        android:textColor="@color/text" />
 
                 </LinearLayout>
 
@@ -346,8 +346,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="장바구니가 비어있어요"
-            android:textSize="15sp"
-            android:textColor="@color/color_text_sub" />
+            android:textSize="17sp"
+            android:textColor="@color/text_sub" />
 
     </LinearLayout>
 
@@ -356,16 +356,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@color/md_theme_light_surface"
+        android:background="@color/surface_alt"
         android:padding="@dimen/spacing_lg"
-        android:elevation="8dp">
+        android:elevation="0dp">
 
         <Button
             android:id="@+id/btn_checkout"
             android:layout_width="match_parent"
             android:layout_height="52dp"
             android:text="예약하기"
-            android:textSize="15sp"
+            android:textSize="17sp"
             android:fontFamily="sans-serif-medium"
             android:textColor="@color/white"
             android:background="@drawable/bg_primary_button"

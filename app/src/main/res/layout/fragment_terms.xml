@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/md_theme_light_surface"
+    android:background="@color/surface_alt"
     android:paddingHorizontal="@dimen/spacing_lg">
 
     <LinearLayout
@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
             android:text="약관 동의"
-            android:textColor="@color/color_text"
+            android:textColor="@color/text"
             android:textSize="@dimen/text_display" />
 
         <TextView
@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_md"
             android:text="득템시루 이용을 위해 필수 약관에 동의해주세요."
-            android:textColor="@color/color_text_sub"
+            android:textColor="@color/text_sub"
             android:textSize="@dimen/text_body" />
     </LinearLayout>
 
@@ -40,7 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="36dp"
         android:background="@drawable/bg_surface_card"
-    android:elevation="2dp"
+    android:elevation="0dp"
         android:orientation="vertical"
         android:padding="@dimen/spacing_lg"
         app:layout_constraintEnd_toEndOf="parent"
@@ -54,14 +54,14 @@
             android:buttonTint="@color/primary"
             android:fontFamily="sans-serif-medium"
             android:text="전체 동의"
-            android:textColor="@color/color_text"
+            android:textColor="@color/text"
             android:textSize="@dimen/text_body" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginVertical="@dimen/spacing_sm"
-            android:background="@color/color_border" />
+            android:background="@color/border" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -76,7 +76,7 @@
                 android:layout_weight="1"
                 android:buttonTint="@color/primary"
                 android:text="서비스 이용약관 동의 (필수)"
-                android:textColor="@color/color_text_sub"
+                android:textColor="@color/text_sub"
                 android:textSize="@dimen/text_body" />
 
             <TextView
@@ -85,7 +85,7 @@
                 android:layout_height="wrap_content"
                 android:padding="@dimen/spacing_sm"
                 android:text="보기"
-                android:textColor="@color/color_text_muted"
+                android:textColor="@color/text_muted"
                 android:textSize="@dimen/text_caption" />
         </LinearLayout>
 
@@ -102,7 +102,7 @@
                 android:layout_weight="1"
                 android:buttonTint="@color/primary"
                 android:text="개인정보 수집 및 이용 동의 (필수)"
-                android:textColor="@color/color_text_sub"
+                android:textColor="@color/text_sub"
                 android:textSize="@dimen/text_body" />
 
             <TextView
@@ -111,7 +111,7 @@
                 android:layout_height="wrap_content"
                 android:padding="@dimen/spacing_sm"
                 android:text="보기"
-                android:textColor="@color/color_text_muted"
+                android:textColor="@color/text_muted"
                 android:textSize="@dimen/text_caption" />
         </LinearLayout>
 
@@ -128,7 +128,7 @@
                 android:layout_weight="1"
                 android:buttonTint="@color/primary"
                 android:text="할인 혜택 알림 동의 (선택)"
-                android:textColor="@color/color_text_sub"
+                android:textColor="@color/text_sub"
                 android:textSize="@dimen/text_body" />
 
             <TextView
@@ -137,7 +137,7 @@
                 android:layout_height="wrap_content"
                 android:padding="@dimen/spacing_sm"
                 android:text="보기"
-                android:textColor="@color/color_text_muted"
+                android:textColor="@color/text_muted"
                 android:textSize="@dimen/text_caption" />
         </LinearLayout>
     </LinearLayout>
@@ -152,7 +152,7 @@
         android:fontFamily="sans-serif-medium"
         android:stateListAnimator="@null"
         android:text="동의하고 계속하기"
-        android:textColor="@color/color_button_dark_text"
+        android:textColor="@color/button_dark_text"
         android:textSize="@dimen/text_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

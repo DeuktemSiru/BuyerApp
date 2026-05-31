@@ -1,45 +1,59 @@
-# Built outputs
-/build/
-app/build/
-/captures/
-
-# Local configuration (contains SDK path — machine-specific)
-local.properties
-.claude/
-
-# Gradle
-.gradle/
-!gradle/wrapper/gradle-wrapper.jar
-
-# IntelliJ / Android Studio
-*.iml
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/gradle.xml
-.idea/assetWizardSettings.xml
-.idea/dictionaries/
-.idea/libraries/
-.idea/modules.xml
-.idea/caches/
-.idea/navEditor.xml
-.idea/deploymentTargetSelector.xml
-.idea/markdown.xml
-.idea/deviceManager.xml
-.idea/misc.xml
-
-# Keep run configurations shared with team
-!.idea/runConfigurations/
-
-# Native builds
-.externalNativeBuild/
-.cxx/
-
 # OS
 .DS_Store
+._*
 Thumbs.db
+Desktop.ini
 
-# Keystore
+# Editors
+.idea/*
+!.idea/runConfigurations/
+!.idea/runConfigurations.xml
+!.idea/codeStyles/
+!.idea/inspectionProfiles/
+.vscode/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+
+# Logs
+*.log
+logs/
+
+# Gradle / Kotlin
+.gradle/
+.kotlin/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+*.iml
+*.ipr
+*.iws
+local.properties
+
+# Android
+/captures/
+*.apk
+*.aab
+
+# Signing and services
 *.jks
 *.keystore
 *.pem
+*.der
 keystore.properties
+google-services.json
+
+# Local tools
+.claude/
